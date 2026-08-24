@@ -29,7 +29,7 @@
     margin-bottom: 4px;
 }
 
-.legal-card a {
+.legal-card a:not(.btn) {
     color: var(--aurora-red);
     text-decoration: underline;
 }

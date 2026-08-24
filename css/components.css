@@ -55,6 +55,7 @@
 .icon-users { -webkit-mask-image: url(../assets/icons/users.svg); mask-image: url(../assets/icons/users.svg); }
 .icon-handshake { -webkit-mask-image: url(../assets/icons/handshake.svg); mask-image: url(../assets/icons/handshake.svg); }
 .icon-book-open { -webkit-mask-image: url(../assets/icons/book-open.svg); mask-image: url(../assets/icons/book-open.svg); }
+.icon-tiktok { -webkit-mask-image: url(../assets/icons/tiktok.svg); mask-image: url(../assets/icons/tiktok.svg); }
 
 /* --- BUTTONS --- */
 .btn {
@@ -70,7 +71,7 @@
     cursor: pointer;
     text-decoration: none;
     white-space: nowrap;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     width: 100%;
 }
 
@@ -104,6 +105,12 @@
 .btn-secondary:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-soft);
+}
+
+.btn.copied {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff;
 }
 
 .btn-icon {
@@ -296,6 +303,73 @@
 .badge-category {
     background: rgba(255, 107, 107, 0.16);
     color: #c23e3e;
+}
+
+/* --- PERSON CARDS (Team + Kontakt-Ansprechperson) --- */
+.person-card {
+    text-align: center;
+}
+
+.person-img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 18px;
+    border: 3px solid var(--glass-border);
+}
+
+.person-card h3 {
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--aurora-red);
+    margin-bottom: 10px;
+}
+
+.person-card p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-bottom: 18px;
+}
+
+.person-role {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 18px;
+}
+
+.person-links {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+}
+
+.person-links a {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--glass-fill);
+    border: 1px solid var(--glass-border);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.person-links a:hover {
+    transform: translateY(-2px);
+    background: rgba(230, 57, 70, 0.18);
+}
+
+.person-links .icon {
+    width: 22px;
+    height: 22px;
 }
 
 /* --- FAQ ACCORDION --- */
@@ -623,6 +697,10 @@ footer {
     flex-wrap: wrap;
     justify-content: center;
     gap: 12px 24px;
+}
+
+.footer-links a {
+    text-decoration: underline;
 }
 
 .footer-links a:hover {

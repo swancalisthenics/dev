@@ -319,7 +319,11 @@ function copyToClipboard(text, button) {
     navigator.clipboard.writeText(text).then(() => {
         const original = button.textContent;
         button.textContent = 'Kopiert!';
-        setTimeout(() => { button.textContent = original; }, 2000);
+        button.classList.add('copied');
+        setTimeout(() => {
+            button.textContent = original;
+            button.classList.remove('copied');
+        }, 2000);
     });
 }
 

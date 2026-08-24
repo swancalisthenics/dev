@@ -54,7 +54,7 @@ new-swan-design/
 
 - **Farb-Tokens** (`css/base.css`, `:root`): `--bg-base`, `--text-primary`,
   `--text-muted`, `--glass-fill`, `--glass-fill-strong`, `--glass-border`,
-  `--aurora-coral`, `--aurora-red`, `--aurora-amber`, `--aurora-rust`,
+  `--aurora-coral`, `--aurora-red`, `--aurora-violet`, `--aurora-blue`,
   `--badge-pending-bg`/`-text`. Neue Farben/Werte immer dort ergänzen, nie
   hartkodieren — sonst greift der Dark Mode nicht. Tokens, die in beiden
   Modi unterschiedlich aussehen müssen (z. B. `--badge-pending-text`), immer
@@ -66,16 +66,24 @@ new-swan-design/
   (Buttons, `.accent`-Textverlauf, aktive Nav-/Tab-Zustände, Fokus-Ringe,
   Links) nutzen den Verlauf `var(--aurora-coral)` → `var(--aurora-red)` bzw.
   die einfarbige Variante `var(--aurora-red)` (`#e63946`, angelehnt an
-  `home`s Original-Rot/Logo-Farbe).
+  `home`s Original-Rot/Logo-Farbe). Das gilt nur für interaktive/hervorgehobene
+  Elemente — die Hintergrund-Blobs (siehe unten) dürfen andere Farben tragen.
 - **Aurora-Blobs:** drei `position: fixed`, stark geblurrte, langsam
-  animierte Farbflächen hinter dem Content (`.aurora-blob.coral` / `.amber` /
-  `.blue`) — überwiegend warm (Rot/Orange, passend zu Logo/Akzent), plus
-  bewusst ein kühler Blauton (`--aurora-blue`, `#2563eb`) als Kontrastpunkt
-  (auf ausdrücklichen Wunsch wieder reingenommen, nachdem die Palette zuvor
-  komplett auf Warmtöne umgestellt worden war). Auf Desktop (≥768px)
-  deutlich größer (eigener `@media`-Block in `base.css`) für mehr Präsenz auf
-  breiten Screens. Scheinen durch die halbtransparenten Glaskarten hindurch.
+  animierte Farbflächen hinter dem Content — `.aurora-blob.coral` (Koralle,
+  oben links), `.aurora-blob.blue` (kräftiges Blau, `#2563eb`, rechts, die
+  grösste/präsenteste), `.aurora-blob.violet` (Violett, `#8b7cf6`, unten
+  links, kleiner). Ein zwischenzeitlicher Amber-Ton in genau dieser Position
+  wurde auf ausdrücklichen Wunsch wieder entfernt ("hässliches Sandfarben")
+  — kein `--aurora-amber` mehr im Projekt. Auf Desktop (≥768px) deutlich
+  größer (eigener `@media`-Block in `base.css`) für mehr Präsenz auf breiten
+  Screens. Scheinen durch die halbtransparenten Glaskarten hindurch.
   Animation deaktiviert unter `prefers-reduced-motion: reduce`.
+- **Typografie: gleiche Fonts wie `home`** (`assets/fonts/`, per `@font-face`
+  in `base.css`) — Libre Baskerville als universelle Basis-Schrift
+  (`body { font-family: 'Libre Baskerville', serif; }`, erbt auf alles),
+  Inter zusätzlich per `@font-face` verfügbar (aktuell nirgends explizit
+  zugewiesen, kann bei Bedarf für einzelne UI-Elemente genutzt werden). Auf
+  ausdrücklichen Wunsch von `home` übernommen statt eines System-Font-Stacks.
 - **Glaskarten** (`.glass-card`): `background: var(--glass-fill)` +
   `backdrop-filter: blur(20px)` + 1px Rand + weicher Schatten, `border-radius:
   20px`. Praktisch jede inhaltliche Einheit auf der Seite ist eine Glaskarte.
@@ -190,6 +198,65 @@ new-swan-design/
    ältere/kleinere Phones mit viel Browser-Chrome) kann der letzte Button
    dennoch knapp unter der Tab-Bar liegen — dort hilft nur noch, ihn per
    Scrollen freizulegen; das gilt als akzeptabler Rand-Fall, kein Bug.
+10. **Person-Karten-Styles gehören in `components.css`, nicht in
+    `team.css`.** `.person-card`/`.person-img`/`.person-role`/`.person-links`
+    werden sowohl auf `pages/team.html` als auch für die
+    Ansprechperson-Karte auf `pages/kontakt.html` verwendet — lagen aber
+    ursprünglich nur in `team.css`, das `kontakt.html` gar nicht einbindet.
+    Ergebnis: Auf der Kontakt-Seite blieb das Foto komplett ungestyled (kein
+    Kreis, volle Bildgrösse). Die Regeln liegen jetzt in `components.css`
+    (echt geteilte Komponente), `team.css` enthält nur noch das
+    Grid-Layout (`.people-grid`). Bei neuen, seitenübergreifend genutzten
+    Klassen immer zuerst prüfen, ob wirklich nur eine Page-CSS sie lädt.
+11. **`.person-img` ist 140px als Basisgrösse** (nicht 104px) — auf einer
+    einspaltigen, vollbreiten Karte (Kontakt-Ansprechperson, Team mobil)
+    wirkte ein kleineres Foto neben viel Leerraum unproportioniert. Sobald
+    `.people-grid` mehrspaltig wird (`min-width: 640px`, Team-Seite bleibt
+    ab da durchgehend 2-spaltig statt weiter auf 4 zu wachsen — 4 enge
+    Spalten liessen die Bio-Texte unleserlich schmal umbrechen), verkleinert
+    `team.css` das Foto gezielt auf 110px (`.people-grid .person-img`).
+12. **`.legal-card a { text-decoration: underline }` traf versehentlich auch
+    den "Zur Startseite"-Button**, weil der Button-Link als `<a>` ebenfalls
+    Nachfahre von `.legal-card` ist und die Descendant-Selektor-Regel
+    spezifischer ist als `.btn`s `text-decoration: none`. Behoben mit
+    `.legal-card a:not(.btn)` — bei neuen `.legal-card`-weiten
+    Link-Stilen künftig gleich mitbedenken.
+13. **Team-Seite: Icon-Buttons stehen in einem eigenen, schmalen
+    Glass-Panel neben der Personen-Karte**, nicht mehr in der Karte selbst.
+    Markup pro Person: `.person-unit` (flex row, `align-items: stretch`)
+    umschliesst `.glass-card.person-card` (flex: 1, Foto/Name/Bio) und
+    `.person-links.person-links-panel` (74px breit, Icons vertikal
+    zentriert, eigene Glasscheibe) als Geschwister. `.people-grid` enthält
+    jetzt `.person-unit`-Elemente statt `.person-card` direkt. Die
+    Icon-Buttons selbst (`.person-links a`) sind dabei auch von 38px auf
+    46px vergrössert worden — das betrifft daher auch die einzelne
+    E-Mail-Icon auf der Kontakt-Seite (nutzt weiterhin die alte
+    In-Card-Anordnung `.person-links` ohne `-panel`, nur die Button-Grösse
+    hat sich für beide gemeinsam geändert). Im Panel stehen die Icons
+    bewusst oben (`justify-content: flex-start`, nicht zentriert) mit
+    Freiraum am unteren Rand für künftige weitere Icons; wichtig war dabei
+    zusätzlich ein explizites `align-items: center`, weil Flex-Items mit
+    fester `width` bei `align-items: normal/stretch` sonst am Anfang der
+    Kreuzachse kleben bleiben statt zu zentrieren (sichtbar als ungleicher
+    Abstand links/rechts).
+14. **`.btn.copied`** liefert einen deutlichen Erfolgs-Zustand für den
+    "Kopieren"-Button in den Telefon-/E-Mail-Modals — `copyToClipboard()` in
+    `js/main.js` setzt/entfernt die Klasse zusammen mit dem
+    "Kopiert!"-Text. `.btn` hat dafür eine `transition` auf
+    `background-color`/`border-color`/`color` bekommen. Erster Versuch war
+    ein weisser Hintergrund — fiel im Light Mode nicht auf, weil
+    `--glass-fill` dort schon fast weiss ist (heller, durchsichtiger
+    Standard-Hintergrund der Secondary-Buttons). Jetzt ein festes,
+    themenunabhängiges Grün (`#16a34a`, klassische Erfolgsfarbe), das sich
+    in beiden Modi klar vom Standard-Button abhebt.
+15. **Der lokale PowerShell-Testserver cachte Assets im Browser**, weil er
+    keine `Cache-Control`-Header sendete — nach einer CSS-Änderung zeigte
+    der Browser gelegentlich noch die alte Version, obwohl der Server
+    bereits die neue auslieferte (per `curl` gegen den Server verifizierbar,
+    per Browser-Check nicht). Der Server sendet jetzt
+    `Cache-Control: no-store, no-cache, must-revalidate` auf jede Antwort.
+    Bei unerklärlichem CSS-Verhalten beim Testen: harten Reload erzwingen
+    oder direkt den Server-Response statt den Browser-Cache prüfen.
 
 ## Code-Stil
 
