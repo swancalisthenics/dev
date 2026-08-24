@@ -67,15 +67,15 @@ new-swan-design/
   Links) nutzen den Verlauf `var(--aurora-coral)` → `var(--aurora-red)` bzw.
   die einfarbige Variante `var(--aurora-red)` (`#e63946`, angelehnt an
   `home`s Original-Rot/Logo-Farbe).
-- **Aurora-Blobs, bewusst warme Palette passend zu Logo/Akzent:** drei
-  `position: fixed`, stark geblurrte, langsam animierte Farbflächen hinter
-  dem Content (`.aurora-blob.coral` / `.amber` / `.rust`) — alle drei aus der
-  Rot/Orange-Familie (kein Violett/Türkis mehr, damit der Hintergrund zum
-  roten Logo/Akzent passt statt eigenständig "bunt" zu wirken). Auf Desktop
-  (≥768px) deutlich größer (eigener `@media`-Block in `base.css`) für mehr
-  Präsenz auf breiten Screens. Scheinen durch die halbtransparenten
-  Glaskarten hindurch. Animation deaktiviert unter
-  `prefers-reduced-motion: reduce`.
+- **Aurora-Blobs:** drei `position: fixed`, stark geblurrte, langsam
+  animierte Farbflächen hinter dem Content (`.aurora-blob.coral` / `.amber` /
+  `.blue`) — überwiegend warm (Rot/Orange, passend zu Logo/Akzent), plus
+  bewusst ein kühler Blauton (`--aurora-blue`, `#2563eb`) als Kontrastpunkt
+  (auf ausdrücklichen Wunsch wieder reingenommen, nachdem die Palette zuvor
+  komplett auf Warmtöne umgestellt worden war). Auf Desktop (≥768px)
+  deutlich größer (eigener `@media`-Block in `base.css`) für mehr Präsenz auf
+  breiten Screens. Scheinen durch die halbtransparenten Glaskarten hindurch.
+  Animation deaktiviert unter `prefers-reduced-motion: reduce`.
 - **Glaskarten** (`.glass-card`): `background: var(--glass-fill)` +
   `backdrop-filter: blur(20px)` + 1px Rand + weicher Schatten, `border-radius:
   20px`. Praktisch jede inhaltliche Einheit auf der Seite ist eine Glaskarte.
@@ -171,6 +171,25 @@ new-swan-design/
    plus ein verstecktes `<input type="hidden">`, das den eigentlichen Wert
    fürs Formular hält. Bei weiteren Dropdown-Feldern dieses Muster
    wiederverwenden, kein natives `<select>` mehr einsetzen.
+9. **Hero-Sektion: `100vh` überschätzt die sichtbare Höhe im mobilen
+   Browser.** Mobile Safari/Chrome berechnen `100vh` anhand der maximal
+   möglichen Höhe (als wäre die Adressleiste ausgeblendet), nicht der gerade
+   sichtbaren — auf echten Handys dadurch spürbar mehr erzwungene Höhe als
+   tatsächlich sichtbar ist. Behoben mit einem `100dvh`-Wert (dynamische
+   Viewport-Höhe), der die echte sichtbare Höhe trifft — als zweite
+   Deklaration nach der `vh`-Variante notiert (Fallback für ältere Browser,
+   `dvh` gewinnt wo unterstützt). Zusätzlich zieht `.hero`s `min-height` jetzt
+   auch `var(--tabbar-height)` ab (nicht nur `--nav-height`) — sonst
+   überlappt der letzte Hero-CTA-Button auf kurzen Viewports mit der
+   `position: fixed`-Tab-Bar am unteren Rand, da die Sektion sich sonst bis
+   ganz an den Viewport-Rand ausdehnt, genau dorthin, wo die Tab-Bar sitzt.
+   Die vier Hero-CTA-Buttons stehen mobil ausserdem in einem 2-spaltigen
+   Grid statt einer einzelnen Spalte (`--hero-ctas`, halbiert die Höhe dieses
+   Blocks) — auf Desktop (≥768px) wieder eine normale, umbrechende
+   Flex-Reihe. Bei sehr kurzen Viewports (\<~680px sichtbare Höhe, z. B.
+   ältere/kleinere Phones mit viel Browser-Chrome) kann der letzte Button
+   dennoch knapp unter der Tab-Bar liegen — dort hilft nur noch, ihn per
+   Scrollen freizulegen; das gilt als akzeptabler Rand-Fall, kein Bug.
 
 ## Code-Stil
 

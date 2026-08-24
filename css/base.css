@@ -3,7 +3,7 @@
     --aurora-coral: #ff6b6b;
     --aurora-red: #e63946;
     --aurora-amber: #f4a261;
-    --aurora-rust: #a13d2e;
+    --aurora-blue: #2563eb;
     --badge-pending-bg: rgba(244, 162, 97, 0.2);
     --badge-pending-text: #7a3b0a;
     --glass-fill: rgba(255, 255, 255, 0.55);
@@ -130,8 +130,8 @@ button {
     animation-delay: -8s;
 }
 
-.aurora-blob.rust {
-    background: var(--aurora-rust);
+.aurora-blob.blue {
+    background: var(--aurora-blue);
     width: 300px;
     height: 300px;
     bottom: -100px;
@@ -142,7 +142,7 @@ button {
 @media (min-width: 768px) {
     .aurora-blob.coral { width: 520px; height: 520px; top: -120px; left: -140px; }
     .aurora-blob.amber { width: 600px; height: 600px; right: -220px; }
-    .aurora-blob.rust { width: 480px; height: 480px; bottom: -160px; }
+    .aurora-blob.blue { width: 480px; height: 480px; bottom: -160px; }
 }
 
 @keyframes aurora-float {

@@ -62,7 +62,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 14px 26px;
+    padding: 12px 24px;
     border-radius: var(--radius-pill);
     font-weight: 700;
     font-size: 0.95rem;
