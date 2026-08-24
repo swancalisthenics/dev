@@ -17,10 +17,31 @@ function updateThemeToggleState() {
     });
 }
 
+// Haelt die theme-color-Meta-Tags (Browser-UI-Farbe, u.a. sichtbar im
+// iOS-Overscroll-Bounce oben) mit dem aktiven Theme synchron. Die Tags selbst
+// tragen `media`-Queries fuer den Fall "keine explizite Wahl" (folgt dann rein
+// per CSS der Systemeinstellung); bei explizitem Toggle wird hier eine der
+// beiden Queries hart auf "all"/"not all" gesetzt, damit sie das System
+// ueberstimmt - kein Verlass auf Browser-Prioritaet zwischen zwei gleichzeitig
+// zutreffenden theme-color-Tags noetig.
+function syncThemeColorMeta(explicitTheme) {
+    const lightMeta = document.querySelector('meta[data-scheme="light"]');
+    const darkMeta = document.querySelector('meta[data-scheme="dark"]');
+    if (!lightMeta || !darkMeta) return;
+    if (explicitTheme === 'dark') {
+        lightMeta.media = 'not all';
+        darkMeta.media = 'all';
+    } else {
+        lightMeta.media = 'all';
+        darkMeta.media = 'not all';
+    }
+}
+
 function toggleTheme() {
     const next = isDarkActive() ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
+    syncThemeColorMeta(next);
     updateThemeToggleState();
 }
 
@@ -61,41 +82,10 @@ function setActiveNav() {
     const page = document.body.getAttribute('data-page');
     if (!page) return;
     document.querySelectorAll('.nav-link[data-page]').forEach(link => {
-        if (link.hasAttribute('data-anchor')) return; // Anker-Links werden per Scroll-Spy gesteuert
         link.classList.toggle('active', link.getAttribute('data-page') === page);
     });
 }
 setActiveNav();
-
-// Scroll-Spy: markiert auf der Startseite den passenden Anker-Link, sobald
-// die zugehörige Section im Viewport ist (überschreibt den "Home"-Default,
-// solange keine Section mit Anker aktiv ist, bleibt "Home" markiert).
-function initScrollSpy() {
-    const sections = document.querySelectorAll('main [data-section]');
-    const anchorLinks = document.querySelectorAll('.nav-link[data-anchor]');
-    const homeLink = document.querySelector('.nav-link[data-page="home"]:not([data-anchor])');
-    if (!sections.length) return;
-
-    const onScroll = () => {
-        const scrollY = window.pageYOffset;
-        let currentAnchor = null;
-        sections.forEach(section => {
-            const top = section.offsetTop - 130;
-            if (scrollY >= top) {
-                currentAnchor = section.getAttribute('data-section');
-            }
-        });
-        const activeAnchorLink = currentAnchor
-            ? document.querySelector(`.nav-link[data-anchor="${currentAnchor}"]`)
-            : null;
-
-        anchorLinks.forEach(link => link.classList.toggle('active', link === activeAnchorLink));
-        if (homeLink) homeLink.classList.toggle('active', !activeAnchorLink);
-    };
-    window.addEventListener('scroll', throttle(onScroll, 100));
-    onScroll();
-}
-initScrollSpy();
 
 // FAQ-Accordion: nur ein offenes Item gleichzeitig innerhalb desselben Containers.
 document.querySelectorAll('.faq-list').forEach(list => {

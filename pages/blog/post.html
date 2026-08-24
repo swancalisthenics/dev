@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}})();</script>
+    <meta name="theme-color" content="#f6f5fb" media="(prefers-color-scheme: light)" data-scheme="light">
+    <meta name="theme-color" content="#15141f" media="(prefers-color-scheme: dark)" data-scheme="dark">
+    <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}var lm=document.querySelector('meta[data-scheme="light"]'),dm=document.querySelector('meta[data-scheme="dark"]');if(t==='dark'){lm.media='not all';dm.media='all';}else if(t==='light'){lm.media='all';dm.media='not all';}})();</script>
 
     <title>Blog | Swan Calisthenics</title>
     <meta name="description" id="postMetaDescription" content="Blogbeitrag von Swan Calisthenics.">
@@ -35,9 +37,6 @@
         <div class="topbar-right">
             <nav class="desktop-nav" aria-label="Hauptnavigation">
                 <a href="../../index.html#home" class="nav-link" data-page="home">Home</a>
-                <a href="../../index.html#about" class="nav-link" data-page="home">Über uns</a>
-                <a href="../../index.html#times" class="nav-link" data-page="home">Zeiten</a>
-                <a href="../../index.html#location" class="nav-link" data-page="home">Standort</a>
                 <a href="blog.html" class="nav-link" data-page="blog">Blog</a>
                 <a href="../team.html" class="nav-link" data-page="team">Team</a>
                 <a href="../verein.html" class="nav-link" data-page="verein">Verein</a>
@@ -54,7 +53,6 @@
 <main>
     <header class="post-header" id="postHeader">
         <div class="post-header-overlay">
-            <span class="badge badge-category" id="postCategory">Kategorie</span>
             <h1 id="postTitle">Titel</h1>
             <div class="post-meta glass">
                 <span id="postDate">Datum</span>
@@ -64,7 +62,10 @@
     </header>
 
     <section class="section post-section">
-        <a href="blog.html" class="back-link">&larr; Zur Blog-Übersicht</a>
+        <div class="post-section-top">
+            <a href="blog.html" class="back-link">&larr; Zur Blog-Übersicht</a>
+            <span class="badge badge-category" id="postCategory">Kategorie</span>
+        </div>
         <article class="glass-card post-content" id="postContent"></article>
 
         <div class="glass-card post-cta" id="postCtaBlock">

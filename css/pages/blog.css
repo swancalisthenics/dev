@@ -64,18 +64,16 @@
     object-fit: cover;
 }
 
-.blog-card-media .badge {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-}
-
 .blog-card-body {
     padding: 20px 22px 24px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     flex: 1;
+}
+
+.blog-card-body .badge {
+    align-self: flex-start;
 }
 
 .blog-card-title {
@@ -157,9 +155,16 @@
     padding-top: 70px;
 }
 
+.post-section-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
 .back-link {
     display: inline-block;
-    margin-bottom: 24px;
     font-weight: 700;
     color: var(--aurora-red);
 }

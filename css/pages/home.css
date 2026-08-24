@@ -1,13 +1,11 @@
 /* --- HERO --- */
 .hero {
-    min-height: calc(100vh - var(--nav-height) - var(--tabbar-height));
-    min-height: calc(100dvh - var(--nav-height) - var(--tabbar-height));
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 20px 20px 24px;
+    padding: 32px 20px 24px;
     gap: 12px;
 }
 
@@ -32,18 +30,12 @@
 }
 
 .hero-ctas {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     width: 100%;
-    max-width: 400px;
+    max-width: 340px;
     margin-top: 6px;
-}
-
-.hero-ctas .btn {
-    width: 100%;
-    padding: 12px 10px;
-    font-size: 0.85rem;
 }
 
 @media (min-width: 768px) {
@@ -51,7 +43,6 @@
     .hero h1 { font-size: 3.6rem; }
     .hero p { font-size: 1.2rem; max-width: 560px; }
     .hero-ctas {
-        display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;

@@ -103,13 +103,17 @@ new-swan-design/
   vor dem ersten Render (verhindert Flackern), `js/main.js` verdrahtet nur noch
   den Klick-Handler. Neue Farben/Komponenten müssen über CSS-Variablen laufen,
   sonst brechen sie im Dark Mode (siehe Farb-Tokens oben).
-- **Navigation, mobile-first:** Unter 768px eine schwebende Glass-Tab-Bar unten
-  (Home/Blog/Team/Verein/Kontakt), darüber nur eine schlanke Glass-Topbar mit
-  Logo + Theme-Toggle. Ab 768px wandern die Ziele in eine klassische
-  horizontale Topbar, ergänzt um die Anker-Links der Startseite (Über uns/
-  Zeiten/Standort). Aktiver Zustand läuft über `body[data-page]` +
-  `.nav-link[data-page]` (nicht über Href-Parsing, siehe unten) plus
-  Scroll-Spy für die Anker-Links auf der Startseite selbst.
+- **Navigation, bewusst identisch auf Mobile und Desktop:** dieselben 5 Ziele
+  überall (Home/Blog/Team/Verein/Kontakt) — unter 768px als schwebende
+  Glass-Tab-Bar unten (Topbar zeigt dort nur Logo + Theme-Toggle), ab 768px
+  als klassische horizontale Topbar. Ursprünglich hatte die Desktop-Topbar
+  zusätzlich eigene Anker-Links zu den Startseiten-Sektionen (Über uns/
+  Zeiten/Standort) samt Scroll-Spy-Logik in `main.js` — auf ausdrücklichen
+  Wunsch entfernt, damit Desktop- und Mobile-Nav gleich aussehen. Diese
+  Sektionen bleiben über normales Scrollen der Startseite erreichbar, nur
+  ohne eigenen Nav-Link. Aktiver Zustand läuft über `body[data-page]` +
+  `.nav-link[data-page]` (nicht über Href-Parsing, siehe unten) — dafür gibt
+  es kein Scroll-Spy mehr, seit die Anker-Links weg sind.
 
 ## Wichtige Implementierungs-Entscheidungen
 
@@ -179,25 +183,29 @@ new-swan-design/
    plus ein verstecktes `<input type="hidden">`, das den eigentlichen Wert
    fürs Formular hält. Bei weiteren Dropdown-Feldern dieses Muster
    wiederverwenden, kein natives `<select>` mehr einsetzen.
-9. **Hero-Sektion: `100vh` überschätzt die sichtbare Höhe im mobilen
-   Browser.** Mobile Safari/Chrome berechnen `100vh` anhand der maximal
-   möglichen Höhe (als wäre die Adressleiste ausgeblendet), nicht der gerade
-   sichtbaren — auf echten Handys dadurch spürbar mehr erzwungene Höhe als
-   tatsächlich sichtbar ist. Behoben mit einem `100dvh`-Wert (dynamische
-   Viewport-Höhe), der die echte sichtbare Höhe trifft — als zweite
-   Deklaration nach der `vh`-Variante notiert (Fallback für ältere Browser,
-   `dvh` gewinnt wo unterstützt). Zusätzlich zieht `.hero`s `min-height` jetzt
-   auch `var(--tabbar-height)` ab (nicht nur `--nav-height`) — sonst
-   überlappt der letzte Hero-CTA-Button auf kurzen Viewports mit der
-   `position: fixed`-Tab-Bar am unteren Rand, da die Sektion sich sonst bis
-   ganz an den Viewport-Rand ausdehnt, genau dorthin, wo die Tab-Bar sitzt.
-   Die vier Hero-CTA-Buttons stehen mobil ausserdem in einem 2-spaltigen
-   Grid statt einer einzelnen Spalte (`--hero-ctas`, halbiert die Höhe dieses
-   Blocks) — auf Desktop (≥768px) wieder eine normale, umbrechende
-   Flex-Reihe. Bei sehr kurzen Viewports (\<~680px sichtbare Höhe, z. B.
-   ältere/kleinere Phones mit viel Browser-Chrome) kann der letzte Button
-   dennoch knapp unter der Tab-Bar liegen — dort hilft nur noch, ihn per
-   Scrollen freizulegen; das gilt als akzeptabler Rand-Fall, kein Bug.
+9. **Hero-Sektion: mobil kein `min-height` mehr, Höhe ergibt sich rein aus
+   dem Inhalt.** Frühere Versuche erzwangen eine `min-height` von fast der
+   ganzen Viewport-Höhe (erst `100vh`, dann `100dvh` als Fix für mobile
+   Browser, die `100vh` anhand der maximal möglichen Höhe berechnen statt
+   der gerade sichtbaren wegen der ein-/ausblendbaren Adressleiste). Nachdem
+   der Hero-Inhalt zwischenzeitlich verkleinert wurde (kleinere Überschrift,
+   CTAs testweise in einem 2-spaltigen Grid statt einer Spalte, weniger
+   Padding), war die erzwungene `min-height` auf normal grossen Screens
+   deutlich grösser als der Inhalt brauchte — durch `justify-content:
+   center` verteilte sich der Rest als grosser, unmotivierter Leerraum
+   ober- und unterhalb von Logo/Text/Buttons. Jetzt hat `.hero` mobil gar
+   keine `min-height` mehr; die Sektion ist genau so hoch wie ihr Inhalt,
+   die "Über uns"-Sektion folgt direkt danach. Auf Desktop (≥768px) bleibt
+   weiterhin `min-height: 90vh`/`90dvh` für den klassischen
+   Vollbild-Hero-Effekt (dort nicht beanstandet). Die vier CTA-Buttons
+   stehen mobil wieder klassisch untereinander (eine Spalte) statt im
+   2-spaltigen Grid — ohne erzwungene `min-height` besteht kein Platzdruck
+   mehr dafür, eine gestapelte Spalte wurde als aufgeräumter empfunden. Auf
+   sehr kurzen Viewports (\<~700px sichtbare Höhe) kann der letzte Button
+   dadurch unterhalb des ersten Bildschirms liegen und erst nach kurzem
+   Scrollen sichtbar werden — das ist normales Scroll-Verhalten (keine
+   Überlappung mit der Tab-Bar), kein Bug wie beim vorherigen
+   `min-height`-Ansatz.
 10. **Person-Karten-Styles gehören in `components.css`, nicht in
     `team.css`.** `.person-card`/`.person-img`/`.person-role`/`.person-links`
     werden sowohl auf `pages/team.html` als auch für die
@@ -257,6 +265,46 @@ new-swan-design/
     `Cache-Control: no-store, no-cache, must-revalidate` auf jede Antwort.
     Bei unerklärlichem CSS-Verhalten beim Testen: harten Reload erzwingen
     oder direkt den Server-Response statt den Browser-Cache prüfen.
+16. **Blog-Kategorie-Badge lag ursprünglich über dem Foto** (Karten-Thumbnail
+    in `blog.html`, Hero-Header in `post.html`) und war dort kaum lesbar —
+    `home`s Original legt den Tag nie über ein Bild. Statt nur den Kontrast
+    zu verbessern, wurde der Badge strukturell verschoben:
+    - Blog-Übersicht: Badge ist jetzt erstes Kind von `.blog-card-body` (vor
+      dem Titel), nicht mehr absolut positioniert über `.blog-card-media`.
+      Braucht `align-self: flex-start`, sonst würde der Flex-Column-Container
+      ihn auf volle Kartenbreite strecken statt auf Inhaltsbreite zu belassen.
+    - Einzelner Post: Badge sitzt jetzt zusammen mit dem "Zurück"-Link in
+      einem neuen `.post-section-top`-Wrapper (`flex-direction: column`,
+      `align-items: flex-start`) am Anfang von `.post-section`, unterhalb des
+      Hero-Fotos — nicht mehr in `.post-header-overlay`, die über dem Foto
+      liegt.
+    - Dabei aufgefallen: `.badge-category` nutzte (anders als `.badge-pending`)
+      noch fest codierte Farben statt Tokens. Fiel nicht auf, solange der Tag
+      immer über einem Foto lag, ergab aber nur rund 2.8:1 Kontrast im Dark
+      Mode auf normalem Seitenhintergrund — unter dem Minimum. Nach demselben
+      Muster wie `.badge-pending` auf `--badge-category-bg`/`-text` umgestellt
+      (Dark-Mode-Wert deutlich heller: `#ffb3b3` statt `#c23e3e`), Light Mode
+      unverändert.
+
+17. **`<meta name="theme-color">` ergänzt, hell und dunkel.** Beim Overscroll-
+    Bounce am oberen Bildschirmrand (mobile Safari/Chrome) zeigt der Browser
+    kurz eine Fläche in genau dieser Farbe — ohne das Tag war das ein
+    Standard-Schwarz, das gegen den hellen Aurora-Hintergrund wie ein
+    Grafikfehler wirkte. Zwei `<meta name="theme-color">`-Tags pro Seite
+    (`data-scheme="light"`/`"dark"`, Werte identisch zu `--bg-base`:
+    `#f6f5fb`/`#15141f`), je mit eigener `prefers-color-scheme`-Media-Query —
+    deckt den Fall "keine explizite Wahl" komplett ohne JS ab, folgt live der
+    Systemeinstellung. Bei explizitem Theme (Toggle-Klick oder gespeicherte
+    Wahl in `localStorage`) reicht eine Media-Query allein nicht, da sie nur
+    auf die Systemeinstellung reagiert, nicht auf die eigene Overrde-Logik der
+    Seite — deshalb setzt sowohl das Inline-Head-Skript (beim Laden) als auch
+    `syncThemeColorMeta()` in `main.js` (beim Toggle-Klick) die `media`
+    des jeweils passenden Tags hart auf `all` und die des anderen auf
+    `not all`, statt sich auf Browser-Priorität zwischen zwei gleichzeitig
+    zutreffenden `theme-color`-Tags zu verlassen (uneinheitlich zwischen
+    Browsern). Gleiche Duplizierung des Inline-Skripts wie beim bestehenden
+    `data-theme`-FOUC-Fix — bei neuen Seiten immer beide Stellen (Meta-Tags +
+    erweitertes Inline-Skript) mit übernehmen.
 
 ## Code-Stil
 

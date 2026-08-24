@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}})();</script>
+    <meta name="theme-color" content="#f6f5fb" media="(prefers-color-scheme: light)" data-scheme="light">
+    <meta name="theme-color" content="#15141f" media="(prefers-color-scheme: dark)" data-scheme="dark">
+    <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}var lm=document.querySelector('meta[data-scheme="light"]'),dm=document.querySelector('meta[data-scheme="dark"]');if(t==='dark'){lm.media='not all';dm.media='all';}else if(t==='light'){lm.media='all';dm.media='not all';}})();</script>
 
     <title>Swan Calisthenics | Dein Outdoor-Training</title>
     <meta name="description" content="Werde Teil der Swan Calisthenics Community in Horgen. Offenes Outdoor-Training für jedes Level – von Basics bis Mastery. Train Together. Get Stronger.">
@@ -36,9 +38,6 @@
         <div class="topbar-right">
             <nav class="desktop-nav" aria-label="Hauptnavigation">
                 <a href="#home" class="nav-link" data-page="home">Home</a>
-                <a href="#about" class="nav-link" data-page="home" data-anchor="about">Über uns</a>
-                <a href="#times" class="nav-link" data-page="home" data-anchor="times">Zeiten</a>
-                <a href="#location" class="nav-link" data-page="home" data-anchor="location">Standort</a>
                 <a href="pages/blog/blog.html" class="nav-link" data-page="blog">Blog</a>
                 <a href="pages/team.html" class="nav-link" data-page="team">Team</a>
                 <a href="pages/verein.html" class="nav-link" data-page="verein">Verein</a>

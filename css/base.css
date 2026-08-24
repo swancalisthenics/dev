@@ -6,6 +6,8 @@
     --aurora-blue: #2563eb;
     --badge-pending-bg: rgba(244, 162, 97, 0.2);
     --badge-pending-text: #7a3b0a;
+    --badge-category-bg: rgba(255, 107, 107, 0.16);
+    --badge-category-text: #c23e3e;
     --glass-fill: rgba(255, 255, 255, 0.55);
     --glass-fill-strong: rgba(255, 255, 255, 0.78);
     --glass-border: rgba(255, 255, 255, 0.65);
@@ -36,6 +38,8 @@
         --shadow-lift: 0 16px 40px rgba(0, 0, 0, 0.5);
         --badge-pending-bg: rgba(244, 162, 97, 0.18);
         --badge-pending-text: #ffb877;
+        --badge-category-bg: rgba(255, 107, 107, 0.18);
+        --badge-category-text: #ffb3b3;
     }
 }
 
@@ -50,6 +54,8 @@
     --shadow-lift: 0 16px 40px rgba(0, 0, 0, 0.5);
     --badge-pending-bg: rgba(244, 162, 97, 0.18);
     --badge-pending-text: #ffb877;
+    --badge-category-bg: rgba(255, 107, 107, 0.18);
+    --badge-category-text: #ffb3b3;
 }
 
 * {

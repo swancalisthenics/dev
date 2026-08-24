@@ -301,8 +301,8 @@
 }
 
 .badge-category {
-    background: rgba(255, 107, 107, 0.16);
-    color: #c23e3e;
+    background: var(--badge-category-bg);
+    color: var(--badge-category-text);
 }
 
 /* --- PERSON CARDS (Team + Kontakt-Ansprechperson) --- */

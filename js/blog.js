@@ -17,9 +17,9 @@ function renderBlogGrid() {
                     <source media="(max-width: 767px)" srcset="${post.cardImageSmall}">
                     <img src="${post.cardImage}" data-large="${post.cardImage}" alt="${post.cardTitle}" loading="lazy">
                 </picture>
-                <span class="badge badge-category">${post.cardCategory}</span>
             </a>
             <div class="blog-card-body">
+                <span class="badge badge-category">${post.cardCategory}</span>
                 <h2 class="blog-card-title">${post.cardTitle}</h2>
                 <div class="blog-card-meta">
                     <span>${post.cardDate}</span>
