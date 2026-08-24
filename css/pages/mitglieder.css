@@ -1,0 +1,125 @@
+/* --- MITGLIEDER-GRID --- Bewusst viel kompakter als die Team-Karten
+   (.people-grid/.person-card in components.css): hier können deutlich mehr
+   Personen aufgelistet sein, deshalb kleine Karten, 2 Spalten schon mobil.
+   Ein Klick/Tap auf eine Karte öffnet #mitglied-modal mit den Details
+   (siehe pages/mitglieder.html, js/mitglieder.js) - die Karte selbst zeigt
+   nur Foto, Name und Rolle. */
+.mitglieder-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+    .mitglieder-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.mitglieder-card {
+    cursor: pointer;
+    text-align: center;
+    padding: 18px 10px;
+}
+
+.mitglieder-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--aurora-coral), var(--aurora-red));
+    color: #fff;
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    border: 2px solid var(--glass-border);
+}
+
+.mitglieder-avatar-lg {
+    width: 120px;
+    height: 120px;
+    font-size: 2.3rem;
+    margin-bottom: 18px;
+}
+
+/* Nur mobil zu schmal empfunden (viel Leerraum links/rechts) - am PC war
+   die Standardbreite von .modal-content (360px) schon in Ordnung, deshalb
+   hier bewusst nicht global geändert, nur fürs Mobil-Layout etwas mehr
+   Breite und weniger seitliches Overlay-Padding. */
+@media (max-width: 767px) {
+    #mitglied-modal {
+        padding: 20px 12px;
+    }
+
+    #mitglied-modal .modal-content {
+        max-width: 400px;
+    }
+}
+
+.mitglieder-card h3,
+.modal-content .mitglieder-modal-name {
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 700;
+    color: var(--aurora-red);
+}
+
+.mitglieder-card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.mitglieder-modal-name {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.mitglieder-card .badge,
+.mitglieder-badges .badge {
+    padding: 3px 9px;
+    font-size: 0.62rem;
+}
+
+.mitglieder-badges {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Reihe der Social-/Kontakt-Icons - im Modal immer sichtbar (kein
+   Ausklapp-Mechanismus mehr wie in einer früheren Version dieser Seite). */
+.mitglieder-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.mitglieder-links a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--glass-fill);
+    border: 1px solid var(--glass-border);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.mitglieder-links a:hover {
+    transform: translateY(-2px);
+    background: rgba(230, 57, 70, 0.18);
+}
+
+/* .icon (components.css) hat bewusst keine eigene Grösse - jeder Kontext
+   setzt sie selbst (siehe .person-links .icon als Vorbild), sonst bleibt
+   die Maske unsichtbar (0x0 ohne width/height). */
+.mitglieder-links .icon {
+    width: 18px;
+    height: 18px;
+}

@@ -7,7 +7,8 @@
     <meta name="theme-color" content="#15141f" media="(prefers-color-scheme: dark)" data-scheme="dark">
     <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}var lm=document.querySelector('meta[data-scheme="light"]'),dm=document.querySelector('meta[data-scheme="dark"]');if(t==='dark'){lm.media='not all';dm.media='all';}else if(t==='light'){lm.media='all';dm.media='not all';}})();</script>
 
-    <title>Swan Calisthenics | Kontakt</title>
+    <title>Swan Calisthenics | Mein Profil</title>
+    <meta name="description" content="Eigenes Mitgliederprofil bearbeiten.">
     <meta name="author" content="Nicolas Brand">
 
     <link rel="icon" type="image/png" href="../assets/favicon/favicon-96x96.png" sizes="96x96">
@@ -18,9 +19,8 @@
 
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/pages/kontakt.css">
 </head>
-<body data-page="kontakt">
+<body data-page="mein-profil">
 
 <div class="aurora-blob coral"></div>
 <div class="aurora-blob violet"></div>
@@ -54,86 +54,79 @@
 
 <main>
     <section class="section">
-        <h2 class="section-title">Kontakt <span class="accent">aufnehmen</span></h2>
-        <p class="section-lead">Bei Anfragen jeglicher Art gerne melden!</p>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">Startseite</a>
+            <span aria-hidden="true">&rsaquo;</span>
+            <a href="mitglieder.html">Mitglieder</a>
+        </nav>
+        <h2 class="section-title">Mein <span class="accent">Profil</span></h2>
+        <p class="section-lead">
+            Eigene Angaben bearbeiten.
+            <span class="badge badge-pending">Platzhalter-Daten</span>
+        </p>
 
-        <div class="contact-layout">
-            <div class="glass-card">
-                <form action="https://formsubmit.co/info@swancalisthenics.ch" method="POST" id="contact-form">
-                    <input type="text" name="_honey" style="display:none">
-                    <input type="hidden" name="_next" value="https://swancalisthenics.github.io/home/">
-                    <input type="hidden" name="_subject" value="Blog Anfrage: Allgemein">
-
-                    <div class="field">
-                        <label for="form-name">Dein Name</label>
-                        <input type="text" id="form-name" name="name" required>
-                    </div>
-                    <div class="field">
-                        <label for="form-email">Deine E-Mail-Adresse</label>
-                        <input type="email" id="form-email" name="email" required>
-                    </div>
-                    <div class="field">
-                        <label id="form-category-label">Kategorie / Betreff</label>
-                        <div class="custom-select" id="categorySelect">
-                            <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="form-category-label">
-                                <span class="custom-select-value">Blog: Ernährung &amp; Gesundheit</span>
-                                <svg class="select-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </button>
-                            <ul class="custom-select-options" role="listbox" tabindex="-1">
-                                <li role="option" aria-selected="true" class="selected" data-value="Blog-Thema: Ernährung & Gesundheit">Blog: Ernährung &amp; Gesundheit</li>
-                                <li role="option" aria-selected="false" data-value="Blog-Thema: Übungen & Kraftaufbau">Blog: Übungen &amp; Kraftaufbau</li>
-                                <li role="option" aria-selected="false" data-value="Newsletter">Newsletter abonnieren / abbestellen</li>
-                                <li role="option" aria-selected="false" data-value="Sponsoren: allgemein">Sponsoren</li>
-                                <li role="option" aria-selected="false" data-value="Feedback: Allgemeines Feedback">Allgemeines Feedback / Sonstiges</li>
-                            </ul>
-                            <input type="hidden" name="category" value="Blog-Thema: Ernährung & Gesundheit">
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label for="form-message">Deine Nachricht</label>
-                        <textarea id="form-message" name="message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width:100%;">Nachricht absenden</button>
-                </form>
-            </div>
-
-            <div class="glass-card person-card contact-person">
-                <img src="../assets/images/nicolas.jpg" alt="Nicolas" class="person-img" loading="lazy">
-                <h3>Nicolas</h3>
-                <span class="person-role">Website</span>
-                <div class="person-links">
-                    <a href="#" title="E-Mail" onclick="openEmailDialog(event, 'info@swancalisthenics.ch')"><span class="icon icon-envelope" aria-hidden="true"></span></a>
+        <div class="profile-layout">
+        <div class="glass-card profile-form-card">
+            <div class="person-img-placeholder" aria-hidden="true">M</div>
+            <form id="profileForm" onsubmit="return handleProfileSubmit(event)">
+                <div class="field">
+                    <label for="profileName">Name</label>
+                    <input type="text" id="profileName" name="name" value="Max Mustermann" required>
                 </div>
-            </div>
+                <div class="field">
+                    <label for="profileEmail">E-Mail</label>
+                    <input type="email" id="profileEmail" name="email" value="max.mustermann@example.com" required>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="profileEmailShare">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">E-Mail mit anderen teilen</span>
+                </label>
+                <p class="form-hint">Instagram und TikTok sind für andere Mitglieder sichtbar.</p>
+                <div class="field">
+                    <label for="profileInstagram">Instagram-Link</label>
+                    <input type="url" id="profileInstagram" name="instagram" value="https://www.instagram.com/maxmustermann">
+                </div>
+                <div class="field">
+                    <label for="profileTiktok">TikTok-Link</label>
+                    <input type="url" id="profileTiktok" name="tiktok" value="https://www.tiktok.com/@maxmustermann">
+                </div>
+                <p id="profileNotice" hidden>Speichern ist noch nicht aktiv – folgt in einem der nächsten Schritte.</p>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+
+        <details class="glass-card profile-form-card password-details">
+            <summary>
+                Passwort ändern
+                <span class="details-chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </summary>
+            <form id="passwordForm" onsubmit="return handlePasswordSubmit(event)">
+                <div class="field">
+                    <label for="oldPassword">Aktuelles Passwort</label>
+                    <input type="password" id="oldPassword" required autocomplete="current-password">
+                </div>
+                <div class="field">
+                    <label for="newPassword">Neues Passwort</label>
+                    <input type="password" id="newPassword" required autocomplete="new-password">
+                </div>
+                <div class="field">
+                    <label for="newPasswordConfirm">Neues Passwort bestätigen</label>
+                    <input type="password" id="newPasswordConfirm" required autocomplete="new-password">
+                </div>
+                <p id="passwordNotice" hidden></p>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Passwort ändern</button>
+                </div>
+            </form>
+        </details>
         </div>
     </section>
 </main>
-
-<!-- TELEFON MODAL -->
-<div id="phone-modal" class="modal-overlay">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closePhoneDialog()" aria-label="Schliessen">&times;</button>
-        <h3>Kontakt wählen</h3>
-        <p id="modal-phone-display">+41 00 000 00 00</p>
-        <div class="modal-actions">
-            <a href="#" id="modal-call-btn" class="btn btn-primary">Anrufen</a>
-            <button onclick="copyPhoneNumber()" class="btn btn-secondary">Kopieren</button>
-        </div>
-    </div>
-</div>
-
-<!-- EMAIL MODAL -->
-<div id="email-modal" class="modal-overlay">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeEmailDialog()" aria-label="Schliessen">&times;</button>
-        <h3>Nachricht senden</h3>
-        <p id="modal-email-display">info@swancalisthenics.ch</p>
-        <div class="modal-actions">
-            <a href="#" id="modal-mail-btn" class="btn btn-primary">Schreiben</a>
-            <button onclick="copyEmailAddress()" class="btn btn-secondary">Kopieren</button>
-        </div>
-    </div>
-</div>
 
 <!-- LOGIN-MODAL (Mitgliederbereich) -->
 <div id="login-modal" class="modal-overlay">

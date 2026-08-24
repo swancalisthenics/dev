@@ -7,7 +7,8 @@
     <meta name="theme-color" content="#15141f" media="(prefers-color-scheme: dark)" data-scheme="dark">
     <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}var lm=document.querySelector('meta[data-scheme="light"]'),dm=document.querySelector('meta[data-scheme="dark"]');if(t==='dark'){lm.media='not all';dm.media='all';}else if(t==='light'){lm.media='all';dm.media='not all';}})();</script>
 
-    <title>Swan Calisthenics | Kontakt</title>
+    <title>Swan Calisthenics | Mitglieder</title>
+    <meta name="description" content="Mitgliederverzeichnis der Swan Calisthenics Community.">
     <meta name="author" content="Nicolas Brand">
 
     <link rel="icon" type="image/png" href="../assets/favicon/favicon-96x96.png" sizes="96x96">
@@ -18,9 +19,9 @@
 
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/pages/kontakt.css">
+    <link rel="stylesheet" href="../css/pages/mitglieder.css">
 </head>
-<body data-page="kontakt">
+<body data-page="mitglieder">
 
 <div class="aurora-blob coral"></div>
 <div class="aurora-blob violet"></div>
@@ -54,71 +55,33 @@
 
 <main>
     <section class="section">
-        <h2 class="section-title">Kontakt <span class="accent">aufnehmen</span></h2>
-        <p class="section-lead">Bei Anfragen jeglicher Art gerne melden!</p>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">&larr; Startseite</a>
+        </nav>
+        <h2 class="section-title">Unsere <span class="accent">Mitglieder</span></h2>
+        <p class="section-lead">
+            Alle Mitglieder von Swan Calisthenics auf einen Blick.
+            <span class="badge badge-pending">Platzhalter-Daten</span>
+        </p>
 
-        <div class="contact-layout">
-            <div class="glass-card">
-                <form action="https://formsubmit.co/info@swancalisthenics.ch" method="POST" id="contact-form">
-                    <input type="text" name="_honey" style="display:none">
-                    <input type="hidden" name="_next" value="https://swancalisthenics.github.io/home/">
-                    <input type="hidden" name="_subject" value="Blog Anfrage: Allgemein">
-
-                    <div class="field">
-                        <label for="form-name">Dein Name</label>
-                        <input type="text" id="form-name" name="name" required>
-                    </div>
-                    <div class="field">
-                        <label for="form-email">Deine E-Mail-Adresse</label>
-                        <input type="email" id="form-email" name="email" required>
-                    </div>
-                    <div class="field">
-                        <label id="form-category-label">Kategorie / Betreff</label>
-                        <div class="custom-select" id="categorySelect">
-                            <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="form-category-label">
-                                <span class="custom-select-value">Blog: Ernährung &amp; Gesundheit</span>
-                                <svg class="select-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </button>
-                            <ul class="custom-select-options" role="listbox" tabindex="-1">
-                                <li role="option" aria-selected="true" class="selected" data-value="Blog-Thema: Ernährung & Gesundheit">Blog: Ernährung &amp; Gesundheit</li>
-                                <li role="option" aria-selected="false" data-value="Blog-Thema: Übungen & Kraftaufbau">Blog: Übungen &amp; Kraftaufbau</li>
-                                <li role="option" aria-selected="false" data-value="Newsletter">Newsletter abonnieren / abbestellen</li>
-                                <li role="option" aria-selected="false" data-value="Sponsoren: allgemein">Sponsoren</li>
-                                <li role="option" aria-selected="false" data-value="Feedback: Allgemeines Feedback">Allgemeines Feedback / Sonstiges</li>
-                            </ul>
-                            <input type="hidden" name="category" value="Blog-Thema: Ernährung & Gesundheit">
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label for="form-message">Deine Nachricht</label>
-                        <textarea id="form-message" name="message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width:100%;">Nachricht absenden</button>
-                </form>
-            </div>
-
-            <div class="glass-card person-card contact-person">
-                <img src="../assets/images/nicolas.jpg" alt="Nicolas" class="person-img" loading="lazy">
-                <h3>Nicolas</h3>
-                <span class="person-role">Website</span>
-                <div class="person-links">
-                    <a href="#" title="E-Mail" onclick="openEmailDialog(event, 'info@swancalisthenics.ch')"><span class="icon icon-envelope" aria-hidden="true"></span></a>
-                </div>
-            </div>
+        <div class="field search-field">
+            <input type="text" id="mitgliederSearch" placeholder="Mitglied suchen...">
         </div>
+        <div class="filter-bar" id="mitgliederFilterBar"></div>
+
+        <div class="mitglieder-grid" id="mitgliederGrid"></div>
     </section>
 </main>
 
-<!-- TELEFON MODAL -->
-<div id="phone-modal" class="modal-overlay">
+<!-- MITGLIED-PROFIL-MODAL -->
+<div id="mitglied-modal" class="modal-overlay">
     <div class="modal-content">
-        <button class="modal-close" onclick="closePhoneDialog()" aria-label="Schliessen">&times;</button>
-        <h3>Kontakt wählen</h3>
-        <p id="modal-phone-display">+41 00 000 00 00</p>
-        <div class="modal-actions">
-            <a href="#" id="modal-call-btn" class="btn btn-primary">Anrufen</a>
-            <button onclick="copyPhoneNumber()" class="btn btn-secondary">Kopieren</button>
-        </div>
+        <button class="modal-close" onclick="closeMitgliedModal()" aria-label="Schliessen">&times;</button>
+        <div class="mitglieder-avatar mitglieder-avatar-lg" id="mitgliedModalAvatar" aria-hidden="true"></div>
+        <h3 class="mitglieder-modal-name" id="mitgliedModalName"></h3>
+        <div class="mitglieder-badges" id="mitgliedModalBadges"></div>
+        <a href="mein-profil.html" class="self-profile-link" id="mitgliedModalSelfLink" hidden>Profil ansehen <span aria-hidden="true">&#8599;</span></a>
+        <div class="mitglieder-links" id="mitgliedModalLinks"></div>
     </div>
 </div>
 
@@ -182,5 +145,7 @@
 </nav>
 
 <script src="../js/main.js"></script>
+<script src="../js/mitglieder-data.js"></script>
+<script src="../js/mitglieder.js"></script>
 </body>
 </html>

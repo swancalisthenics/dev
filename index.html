@@ -47,6 +47,9 @@
                 <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             </button>
+            <button class="profile-toggle" id="profileToggle" onclick="openLoginDialog(event)" aria-label="Mitglieder-Login">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
         </div>
     </div>
 </header>
@@ -57,7 +60,10 @@
     <section id="home" data-section="home" class="hero">
         <img src="assets/images/logo.png" alt="Swan Calisthenics Logo" class="hero-logo">
         <h1>Gemeinsam<br><span class="accent">Stärker</span> werden</h1>
-        <p>Werde Teil der Swan Calisthenics Community und bring dein Training auf das nächste Level.</p>
+        <!-- TEMP: Test-Link zur Mitglieder-Seite, da diese aktuell sonst nirgends
+             verlinkt ist (nur übers künftige Profil-Dropdown erreichbar, siehe
+             CLAUDE.md). Vor dem Livegang wieder entfernen. -->
+        <p>Werde Teil der Swan Calisthenics <a href="pages/mitglieder.html" class="accent">Community</a> und bring dein Training auf das nächste Level.</p>
         <div class="hero-ctas">
             <a href="#times" class="btn btn-primary"><span class="icon icon-calendar btn-icon" aria-hidden="true"></span>Nächstes Training</a>
             <a href="https://chat.whatsapp.com/Lu1Yxhse5a75IWVzupbcaQ?mode=gi_t" target="_blank" rel="noopener" class="btn btn-secondary"><span class="icon icon-whatsapp btn-icon" aria-hidden="true"></span>WhatsApp-Gruppe</a>
@@ -217,6 +223,28 @@
         <button class="modal-close" onclick="closeLightbox()" aria-label="Schliessen">&times;</button>
         <img id="lightbox-img" src="" alt="">
         <p id="lightbox-caption" class="lightbox-caption"></p>
+    </div>
+</div>
+
+<!-- LOGIN-MODAL (Mitgliederbereich) -->
+<div id="login-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeLoginDialog()" aria-label="Schliessen">&times;</button>
+        <h3>Mitglieder-Login</h3>
+        <form id="loginForm" onsubmit="return handleLoginSubmit(event)">
+            <div class="field">
+                <label for="loginEmail">E-Mail</label>
+                <input type="email" id="loginEmail" name="email" required autocomplete="email">
+            </div>
+            <div class="field">
+                <label for="loginPassword">Passwort</label>
+                <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+            </div>
+            <p id="loginNotice" hidden>Anmeldung ist noch nicht aktiv – folgt in einem der nächsten Schritte.</p>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Anmelden</button>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -26,7 +26,8 @@ new-swan-design/
 │   │                             Tab-Bar-Navigation, Theme-Toggle, Badges, FAQ-
 │   │                             Accordion, Modals, Formulare, Footer
 │   └── pages/                   Eine Datei pro Seite, nur seitenspezifische Regeln
-│       ├── home.css, team.css, kontakt.css, verein.css, rechtliches.css, blog.css
+│       ├── home.css, kontakt.css, verein.css, rechtliches.css, blog.css
+│       (Team- und Mitglieder-Grid-Layout liegt in components.css, siehe unten)
 ├── js/
 │   ├── main.js                  Dark-Mode-Toggle, responsive <picture>-Auflösung,
 │   │                             Nav-Active-State, Scroll-Spy, FAQ-Accordion,
@@ -45,6 +46,8 @@ new-swan-design/
 │                                 (siehe README.md darin)
 └── pages/
     ├── team.html, kontakt.html, verein.html, rechtliches.html
+    ├── mitglieder.html, mein-profil.html   Mitgliederbereich-Seiten, noch mit
+    │                                       Platzhalter-Daten (siehe unten)
     └── blog/
         ├── blog.html             Übersicht mit Kategorie-Filter
         └── post.html             Einziges Template für alle 14 Artikel, liest `?id=`
@@ -141,12 +144,17 @@ new-swan-design/
    einfach die neun `<figure class="slide">`-Blöcke in `index.html` durch
    echte Bilder/Daten ersetzen — Struktur und CSS (horizontales Scroll-Snap)
    bleiben gleich. Funktioniert per Touch-Wisch und Trackpad nativ; für die
-   Desktop-Maus (kein natives Klick-und-Ziehen auf `<div>`s) übernimmt ein
-   eigener Mousedown/-move/-up-Handler auf `.slider-track` in `js/main.js`
-   das Scrollen per Ziehen (setzt währenddessen `scroll-snap-type: none`,
-   damit das Snapping nicht dagegenarbeitet, und unterdrückt den
-   Klick-Event am Ende eines Ziehens, damit das nicht versehentlich die
-   Lightbox öffnet). Jedes Slide-Bild (`.slide-img`) öffnet per Klick/Tap/Enter eine
+   Desktop-Maus scrollt ein `wheel`-Handler auf `.slider-track` in
+   `js/main.js` das normale (vertikale) Mausrad-Scrollen horizontal um
+   (`preventDefault()` verhindert zusätzliches Seiten-Scrollen), solange die
+   Maus über dem Slider steht. Setzt währenddessen kurz `scroll-snap-type:
+   none` per Inline-Style und reaktiviert es erst 150ms nach dem letzten
+   Wheel-Event (debounced) — ohne das würde das CSS-Scroll-Snapping jeden
+   einzelnen kleinen Scroll-Schritt sofort wieder zur nächsten Slide
+   zurückschnappen und sich "eingefroren" anfühlen. Ein früherer eigener
+   Mousedown/-move/-up-Handler fürs Klick-und-Ziehen wurde auf Wunsch wieder
+   entfernt (Zieh-Richtung fühlte sich falsch/unerwartet an) — Mausrad ist
+   jetzt die einzige Desktop-Maus-Bedienung neben Trackpad-Wisch. Jedes Slide-Bild (`.slide-img`) öffnet per Klick/Tap/Enter eine
    grosse Lightbox-Ansicht (`#image-lightbox` in `index.html`,
    `openLightbox()`/`closeLightbox()` in `js/main.js`) — schliessbar per
    Klick ausserhalb, X-Button oder Escape-Taste. Bewusst **kein** Zoom in der
@@ -206,16 +214,19 @@ new-swan-design/
    Scrollen sichtbar werden — das ist normales Scroll-Verhalten (keine
    Überlappung mit der Tab-Bar), kein Bug wie beim vorherigen
    `min-height`-Ansatz.
-10. **Person-Karten-Styles gehören in `components.css`, nicht in
-    `team.css`.** `.person-card`/`.person-img`/`.person-role`/`.person-links`
+10. **Person-Karten-Styles gehören in `components.css`, nicht in einer
+    Page-CSS.** `.person-card`/`.person-img`/`.person-role`/`.person-links`
     werden sowohl auf `pages/team.html` als auch für die
     Ansprechperson-Karte auf `pages/kontakt.html` verwendet — lagen aber
     ursprünglich nur in `team.css`, das `kontakt.html` gar nicht einbindet.
     Ergebnis: Auf der Kontakt-Seite blieb das Foto komplett ungestyled (kein
     Kreis, volle Bildgrösse). Die Regeln liegen jetzt in `components.css`
-    (echt geteilte Komponente), `team.css` enthält nur noch das
-    Grid-Layout (`.people-grid`). Bei neuen, seitenübergreifend genutzten
-    Klassen immer zuerst prüfen, ob wirklich nur eine Page-CSS sie lädt.
+    (echt geteilte Komponente). Als später auch `pages/mitglieder.html` das
+    gleiche Karten-Raster brauchte, wurde aus demselben Grund auch noch der
+    Rest von `team.css` (`.people-grid`, `.person-unit`, `.person-links-panel`)
+    nach `components.css` verschoben und die inzwischen leere `team.css`
+    gelöscht — bei neuen, seitenübergreifend genutzten Klassen immer zuerst
+    prüfen, ob wirklich nur eine Page-CSS sie lädt.
 11. **`.person-img` ist 140px als Basisgrösse** (nicht 104px) — auf einer
     einspaltigen, vollbreiten Karte (Kontakt-Ansprechperson, Team mobil)
     wirkte ein kleineres Foto neben viel Leerraum unproportioniert. Sobald
@@ -305,6 +316,250 @@ new-swan-design/
     Browsern). Gleiche Duplizierung des Inline-Skripts wie beim bestehenden
     `data-theme`-FOUC-Fix — bei neuen Seiten immer beide Stellen (Meta-Tags +
     erweitertes Inline-Skript) mit übernehmen.
+18. **Profil-Icon + Login-Modal ergänzt (erster Teil des Mitgliederbereichs,
+    siehe Plan unten).** `.profile-toggle` (Person-Icon, 40px Glaskreis,
+    optisch identisch zu `.theme-toggle`) steht in jeder Topbar ganz rechts,
+    direkt nach dem Dark/Light-Toggle im DOM — dadurch automatisch rechts
+    davon in der Flex-Row, kein zusätzliches CSS für die Reihenfolge nötig.
+    Klick öffnet `#login-modal` (E-Mail/Passwort, gleiches `.modal-overlay`/
+    `.field`-Muster wie die bestehenden Telefon-/E-Mail-Modals auf
+    `kontakt.html`/`team.html`). Bewusst **kein** Dropdown-Menü an dieser
+    Stelle: Ein Dropdown mit "Mitglieder"/"Mein Profil"/"Abmelden" ergibt
+    erst Sinn, sobald es einen eingeloggten Zustand gibt — ohne echten
+    Supabase-Login (noch nicht eingerichtet, siehe Plan unten) gäbe es
+    nichts Echtes anzuzeigen. Das Formular sendet nirgendwohin; `handleLoginSubmit()`
+    in `main.js` zeigt stattdessen einen Hinweistext ("Anmeldung ist noch
+    nicht aktiv..."), damit der Button nicht wie kaputt wirkt oder still
+    nichts tut. Sobald die Supabase-Anbindung steht, wird aus dem
+    Login-Symbol/-Modal bei eingeloggten Nutzern das eigene Profilbild samt
+    Dropdown (Plan-Schritt 5).
+    Eigener `--modal-fill`-Token statt `--glass-fill-strong` fürs Login-Modal
+    (und alle anderen `.modal-content`-Dialoge): Im Dark Mode war
+    `--glass-fill-strong` (nur 0.14 Deckkraft) für ein Modal zu durchsichtig —
+    der Hintergrund blieb trotz Blur deutlich sichtbar. Für Topbar/Tabbar/
+    Custom-Select ist genau diese Durchsichtigkeit aber gewollt (man soll
+    Content dahinter durchscheinen sehen), deshalb kein globaler Wert-Wechsel,
+    sondern ein neuer, nur für Modals genutzter Token — im Dark Mode ein
+    fast deckendes dunkles Grau (`rgba(30, 29, 43, 0.95)`) statt des
+    weiss-getönten Glases, im Light Mode unverändert (`rgba(255, 255, 255, 0.78)`,
+    sah schon vorher gut aus).
+19. **Community-Slider-Scrollbar zeigte unter Windows/Chrome nur kleine
+    Pfeil-Buttons, keinen sichtbaren Balken.** `.slider-track` stylt den
+    Scrollbar-Thumb per `::-webkit-scrollbar-thumb` rot ein, hatte aber nie
+    `::-webkit-scrollbar-track` (Hintergrund/Rille) oder
+    `::-webkit-scrollbar-button` (die kleinen Pfeile an den Enden) gesetzt.
+    Chrome/Edge unter Windows rendert unstyled Scrollbar-Buttons trotzdem als
+    eigene kleine Pfeil-Elemente, wodurch nur die Pfeile auffielen und der
+    rote Thumb dagegen unterging. Fix: sichtbarer Track-Hintergrund
+    (`var(--glass-border)`) ergänzt und die Buttons explizit
+    `display: none` gesetzt.
+20. **Zwei CSS-Fallstricke im Mitglied-Modal gefunden:**
+    - `.icon` (components.css) setzt bewusst keine eigene `width`/`height`
+      (jeder Kontext bestimmt seine Grösse selbst, siehe `.person-links .icon`
+      als Vorbild) — in `#mitgliedModalLinks` fehlte diese Kontext-Regel,
+      wodurch die Icons unsichtbar blieben (0×0 ohne Grösse, obwohl
+      Maske/Farbe korrekt gesetzt waren). Fix: `.mitglieder-links .icon`
+      in `css/pages/mitglieder.css` ergänzt.
+    - `element.hidden = true` wirkte bei `#mitgliedModalSelfLink` nicht,
+      weil `.self-profile-link { display: inline-block }` die native
+      `[hidden] { display: none }`-Regel des Browsers überschreibt (eine
+      Autor-Regel mit `display` gewinnt gegen die Attribut-Regel der
+      User-Agent-Stylesheet). Der Link blieb dadurch für alle Mitglieder
+      sichtbar, nicht nur für die eigene Karte. Fix: `.self-profile-link[hidden]
+      { display: none; }` ergänzt. Gleiches Muster bei künftigen
+      `hidden`-Elementen im Kopf behalten, sobald die Klasse selbst schon
+      einen `display`-Wert setzt.
+
+## Geplant: Mitgliederbereich mit Supabase (Konzept, noch nicht begonnen)
+
+Reine Konzeptphase aus einem Brainstorming-Gespräch — nichts davon ist
+umgesetzt, nichts davon eigenmächtig starten ohne Rücksprache.
+
+**Grundidee:** Die Seite ist bisher komplett statisch, ohne eigenen Server.
+[Supabase](https://supabase.com) (Postgres-Datenbank + Auth + Storage,
+alles im kostenlosen Free-Tier nutzbar) soll als Backend drangehängt werden,
+um einen Mitgliederbereich zu ermöglichen: eingeladene Vereinsmitglieder
+können sich einloggen, sehen dort alle anderen Mitglieder (ähnlich der
+Team-Seite, aber für den ganzen Verein statt nur das Kernteam) und können
+ihr eigenes Profil (Social-Links, Profilbild) selbst pflegen. Die Anbindung
+läuft komplett client-seitig übers Supabase-JS-SDK (per CDN, kein
+Build-Schritt nötig) — passt zum bisherigen Ansatz ohne npm/Framework.
+Warum Supabase statt Firebase: echtes Postgres/SQL statt NoSQL-Dokumenten,
+und Zugriffsmuster wie "eigenes Profil lesen/bearbeiten, andere nur
+eingeschränkt" lassen sich mit Row-Level-Security direkt in der Datenbank
+abbilden statt in eigenem Code.
+
+**Hosting-Domain wechselt noch:** Aktuell läuft die Seite auf
+`n-brand.github.io/new-swan-design` (GitHub Pages, provisorisch), final soll
+sie unter `swancalisthenics.github.io/home` laufen (Projektname dann
+vermutlich "home", vermutlich als Nachfolger des jetzigen `home`-Projekts).
+Geplantes Vorgehen: Supabase-Projekt zuerst gegen die aktuelle,
+provisorische URL konfigurieren und darauf entwickeln/testen, dann später
+auf die finale Domain umziehen. Das ist unproblematisch, da die
+"Site URL"/"Redirect URLs" in den Supabase-Auth-Einstellungen reine
+Konfigurationswerte sind, jederzeit änderbar (Supabase erlaubt auch mehrere
+gleichzeitig erlaubte Redirect-URLs für eine Übergangsphase) — das
+Supabase-Projekt selbst (Datenbank, API-Key) hängt nicht an einer
+bestimmten Domain.
+
+**Zugriff nur für echte Mitglieder:** Kein offenes Registrierungsformular.
+Stattdessen lädt ein Vorstandsmitglied jede Person einzeln über Supabase
+ein (`inviteUserByEmail`, direkt im Supabase-Dashboard möglich, kein
+eigener Code nötig) — es gibt gar keinen öffentlichen Einstiegspunkt, über
+den sich jemand Unbefugtes ein Konto erstellen könnte.
+
+**Passwörter:** Werden ausschliesslich von Supabase Auth verwaltet, nie
+selbst gespeichert oder geloggt. Supabase hasht Passwörter serverseitig
+(bcrypt o.ä.) — weder der Vereins-Betreiber noch Supabase selbst können je
+das Klartext-Passwort einsehen.
+
+**Idee (noch nicht eingeplant): Sicherheits-Benachrichtigungsmails**
+("Passwort wurde geändert", "neue Anmeldung von Gerät/Ort X"). Technisch
+machbar, aber kein Supabase-Bordmittel — Supabase verschickt automatisch nur
+bestimmte Auth-Mails (Bestätigung, Passwort-Reset-Link, Magic Link), keine
+freien Sicherheits-Hinweise. Bräuchte zusätzlich: eine Edge Function plus
+einen externen Mail-Versand-Dienst (z. B. Resend, kostenloses Kontingent
+reicht locker), ausgelöst über einen Datenbank-Trigger. Die Orts-/Geräte-
+Erkennung beim Login wäre nochmal ein eigenes, deutlich aufwändigeres
+Stück (IP-Geolocation, eigene Login-Events-Tabelle) — falls gewünscht,
+eher als separates, späteres Feature planen statt zusammen mit dem
+Passwort-Ändern-Formular.
+
+**Profilbild-Upload:** Eigenes Foto hochladen, direkt im Browser per
+Canvas-API vor dem Upload verkleinert/komprimiert (kein kostenpflichtiges
+Supabase-Feature nötig — die eingebaute Bild-Transformation ist Teil des
+bezahlten Pro-Plans), landet in Supabase Storage.
+
+**Rechte:** Postgres Row-Level-Security sorgt dafür, dass jedes Mitglied nur
+sein eigenes vollständiges Profil lesen und bearbeiten darf. Die
+Mitgliederliste für alle läuft über eine eigene `public_profiles`-View
+(siehe E-Mail-Privatsphäre unten) — kein pauschales "jeder darf alles
+lesen" mehr auf der Tabelle selbst.
+
+**E-Mail: pflicht im Profil, aber privat per Default.** Jedes Mitglied hat
+eine E-Mail (kommt vom eigenen Supabase-Auth-Konto, deshalb Pflichtfeld),
+die aber standardmässig nicht für andere Mitglieder sichtbar ist. Ein
+Toggle im eigenen Profil ("E-Mail mit anderen teilen") kann das gezielt
+freigeben. Technisch über die `public_profiles`-View gelöst: sie gibt die
+E-Mail nur aus, wenn `email_oeffentlich = true` ist, sonst `NULL` — dieselbe
+"nicht anzeigen, wenn nicht gesetzt"-Logik wie bei Instagram/TikTok, kein
+Sonderfall in der Render-Logik nötig. Eine reine Anwendungslogik (Spalte
+in der UI einfach weglassen) hätte nicht gereicht, da der Supabase-Anon-Key
+öffentlich im Frontend liegt — ohne die View könnte jeder mit Entwickler-
+Tools trotzdem direkt `select email from profiles` abfragen.
+
+**Rollen:** Freitext-Spalte `rolle` (kein festes Enum, damit neue Rollen
+ohne Schema-Änderung dazukommen), aktuell verwendet: Admin, Vorstand,
+Mitglied, Ehrenmitglied. Wird vom Vorstand vergeben, nicht vom Mitglied
+selbst — taucht deshalb nicht im "Mein Profil"-Formular auf. **Noch offen:**
+Die aktuelle Update-Policy erlaubt einem Mitglied technisch, auch die
+eigene `rolle` zu ändern (z. B. sich selbst zu Admin zu machen) — vor dem
+produktiven Einsatz muss das per Trigger oder einer separaten, nur vom
+Vorstand beschreibbaren Tabelle abgesichert werden (siehe Kommentar in
+`supabase/schema.sql`).
+
+**Eigenes Profil erscheint in der Mitgliederliste mit.** Die
+`public_profiles`-View filtert die eigene Zeile nicht raus — wer eingeloggt
+ist, sieht sich selbst also mit in der Liste, zusätzlich mit einem
+"Das bist du"-Badge markiert (Vergleich der Zeilen-ID mit der eigenen
+User-ID aus der Session, nicht in den Daten selbst gespeichert).
+
+**Demo- vs. echte Version:** Jede Stelle, die eigentlich Supabase braucht
+(Login absenden, Profil speichern, Mitgliederliste laden), hat zwei
+Versionen im Code: eine aktive Demo-Version (Platzhalter-Daten bzw. ein
+ehrlicher "noch nicht aktiv"-Hinweis) und eine daneben auskommentierte
+echte Version mit dem fertigen Supabase-Aufruf. Sobald Schritt 1+2 stehen:
+in `js/main.js` (`handleLoginSubmit`, `handleProfileSubmit`) und
+`js/mitglieder.js` jeweils die Demo-Version löschen und die echte Version
+darunter aktivieren (auskommentieren) — die echten Versionen sind bereits
+fertig geschrieben, nicht nur Stubs.
+
+**Navigation für eingeloggte User:** Um die Haupt-Navigation (Home/Blog/
+Team/Verein/Kontakt) unverändert und schlank zu halten, bekommt weder
+"Mitglieder" noch "Mein Profil" einen eigenen Tab — stattdessen bündelt ein
+einzelnes Profil-Icon in der Topbar alle Account-Funktionen. Ausgeloggt
+zeigt es ein generisches Login-Symbol und öffnet das Login-Formular;
+eingeloggt wird daraus das eigene Profilbild, ein Klick öffnet ein
+Dropdown mit "Mitglieder", "Mein Profil" und "Abmelden". So bleibt die
+Haupt-Nav immer gleich gross, egal wie viele Account-Funktionen später
+noch dazukommen. Position in der Topbar: das Profil-Icon steht ganz
+rechts (äusserste Position), der Dark/Light-Mode-Toggle sitzt direkt
+daneben links davon — umgesetzt, siehe Punkt 18 unten.
+
+### Einzelne Tasks (Reihenfolge als Vorschlag)
+
+1. Supabase-Projekt anlegen (Free-Tier), Projekt-URL + Public-API-Key notieren
+   — **offen, muss der Vereins-/Projektinhaber selbst machen** (Konto-
+   Erstellung bei einem Drittanbieter).
+2. Supabase-JS-SDK per CDN einbinden, Client mit URL + Key initialisieren —
+   **offen**, bewusst zurückgestellt bis ein echtes Projekt (Schritt 1)
+   existiert, gegen das sich der Code testen lässt.
+3. Tabelle `profiles` anlegen (Name, E-Mail, Rolle, Social-Links,
+   Profilbild-URL, verknüpft mit der Supabase-Auth-User-ID) — **vorbereitet**,
+   fertiges SQL-Skript in [supabase/schema.sql](supabase/schema.sql), muss
+   nach Schritt 1 einmalig im Supabase SQL-Editor ausgeführt werden.
+4. Row-Level-Security-Policies + `public_profiles`-View einrichten: eigenes
+   Profil voll lesen/schreiben, andere Mitglieder nur über die View (blendet
+   private E-Mail automatisch aus) — **vorbereitet**, im selben Skript wie
+   Punkt 3 enthalten, inkl. offenem Punkt zur `rolle`-Absicherung (siehe
+   Kommentar im Skript).
+5. Profil-Icon ganz rechts in der Topbar ergänzen (Dark/Light-Toggle rückt
+   dafür ein Stück nach links), zeigt ausgeloggt ein Login-Symbol → öffnet
+   Login-Formular (E-Mail + Passwort); eingeloggt das eigene Profilbild →
+   öffnet Dropdown mit "Mitglieder"/"Mein Profil"/"Abmelden" — **umgesetzt**
+   für den ausgeloggten Zustand (siehe Punkt 18 unten), der eingeloggte
+   Zustand (Avatar + Dropdown) folgt zusammen mit Schritt 6, sobald es
+   echte Sessions gibt.
+6. Einladungs-Workflow statt Sign-up-Formular: Mitglieder werden einzeln
+   über das Supabase-Dashboard eingeladen.
+7. Neue Seite "Mitglieder" (erreichbar über das Profil-Dropdown, kein
+   eigener Nav-Punkt), inkl. Namenssuche und Rollen-Filter — **umgesetzt mit
+   Platzhalter-Daten** ([pages/mitglieder.html](pages/mitglieder.html),
+   [css/pages/mitglieder.css](css/pages/mitglieder.css),
+   [js/mitglieder-data.js](js/mitglieder-data.js),
+   [js/mitglieder.js](js/mitglieder.js)). Bewusst **kein** Team-Karten-Layout
+   (`.people-grid`/`.person-card`) — dort wären die Karten für potenziell
+   viele Mitglieder zu gross. Stattdessen ein eigenes, kompaktes
+   `.mitglieder-grid` (2 Spalten schon mobil, kleinere Badges) mit nur
+   Foto/Name/Rolle pro Karte; ein Klick/Tap öffnet `#mitglied-modal` mit den
+   vollständigen Details der einen angeklickten Person (Social-Links,
+   E-Mail-Icon falls geteilt, "Profil ansehen ↗"-Link falls `isSelf`).
+   Datenquelle liest aktuell `DEMO_MITGLIEDER` statt Supabase (siehe
+   "Demo- vs. echte Version" oben).
+8. Formular "Eigenes Profil bearbeiten" (Name, E-Mail + Teilen-Toggle,
+   Social-Links; Rolle bewusst nicht editierbar) — **umgesetzt mit
+   Platzhalter-Daten** ([pages/mein-profil.html](pages/mein-profil.html)).
+   Inkl. separatem Formular "Passwort ändern" (aktuelles Passwort, neues
+   Passwort, Bestätigung) — der Passwort-Abgleich (stimmen "neu" und
+   "bestätigen" überein?) läuft schon jetzt echt clientseitig, da das kein
+   Backend braucht; das eigentliche Ändern zeigt wie beim Rest den
+   "noch nicht aktiv"-Hinweis. Die echte Version verifiziert das aktuelle
+   Passwort zusätzlich per `signInWithPassword()`, bevor sie es per
+   `updateUser()` ändert — Supabase würde sonst auch ohne erneute Eingabe
+   des alten Passworts erlauben, ein neues zu setzen (reicht eine gültige
+   Session). Liegt in einem nativen `<details>`/`<summary>` (Passwort ändern
+   ist eine seltene Aktion, standardmässig eingeklappt, kein JS nötig zum
+   Auf-/Zuklappen) — das Ein-/Ausblenden ist zusätzlich per `.password-details:not([open])
+   form { display: none; }` explizit erzwungen, weil sich das reine
+   native Verhalten beim Testen nicht auf jeder Engine verlässlich genug
+   verhielt. Ab 768px stehen "Eigene Angaben" und "Passwort ändern" dank
+   `.profile-layout` (Flex-Row) nebeneinander statt übereinander, mobil
+   bleibt es gestapelt.
+9. Profilbild-Upload: Storage-Bucket einrichten, Verkleinerung per
+   Canvas-API vor dem Upload, Anzeige als Profilbild.
+10. Logout-Funktion.
+11. **Datenschutzerklärung/Impressum aktualisieren** (`pages/rechtliches.html`):
+    Sobald der Mitgliederbereich live geht, verarbeitet die Seite erstmals
+    echte personenbezogene Daten (Name, E-Mail, Profilbild, Social-Links,
+    Supabase-Session-Cookies/`localStorage`) statt nur statischer Inhalte —
+    die aktuellen Datenschutz-/Cookie-Angaben decken das noch nicht ab und
+    müssen entsprechend ergänzt werden, bevor das Feature produktiv genutzt
+    wird.
+12. **⚠️ Vor Livegang entfernen:** Auf `index.html` verlinkt das Wort
+    "Community" im Hero-Fliesstext testweise direkt auf
+    `pages/mitglieder.html` (mit `TEMP`-Kommentar im Code markiert) — reiner
+    Test-Zugang, solange die Seite sonst nirgends erreichbar ist. Muss weg,
+    sobald der echte Zugang über das Profil-Dropdown steht.
 
 ## Code-Stil
 

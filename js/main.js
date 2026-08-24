@@ -183,41 +183,30 @@ document.querySelectorAll('.custom-select').forEach(select => {
     });
 });
 
-// --- COMMUNITY-SLIDER: Klick-und-Ziehen zum Scrollen (Desktop-Maus) ---
-// Touch-Wisch funktioniert bereits nativ (overflow-x: auto); das hier
-// ergänzt nur die Maus-Bedienung, die für <div>s nicht eingebaut ist.
+// --- COMMUNITY-SLIDER: Mausrad scrollt horizontal (Desktop) ---
+// Touch-Wisch funktioniert bereits nativ (overflow-x: auto). Klick-und-Ziehen
+// mit der Maus wurde bewusst wieder entfernt (fühlte sich falsch/unerwartet
+// an) - stattdessen lenkt ein wheel-Handler das normale (vertikale)
+// Mausrad-Scrollen in horizontales Scrollen um, solange die Maus über dem
+// Slider steht. `preventDefault()` verhindert dabei, dass zusätzlich noch
+// die ganze Seite mitscrollt.
 const sliderTrack = document.querySelector('.slider-track');
 if (sliderTrack) {
-    let isDraggingSlider = false;
-    let sliderDidDrag = false;
-    let sliderDragStartX = 0;
-    let sliderScrollStart = 0;
-
-    sliderTrack.addEventListener('mousedown', (e) => {
-        isDraggingSlider = true;
-        sliderDidDrag = false;
-        sliderDragStartX = e.pageX;
-        sliderScrollStart = sliderTrack.scrollLeft;
-        sliderTrack.classList.add('dragging');
-    });
-    window.addEventListener('mousemove', (e) => {
-        if (!isDraggingSlider) return;
-        const delta = e.pageX - sliderDragStartX;
-        if (Math.abs(delta) > 3) sliderDidDrag = true;
-        sliderTrack.scrollLeft = sliderScrollStart - delta;
-    });
-    window.addEventListener('mouseup', () => {
-        isDraggingSlider = false;
-        sliderTrack.classList.remove('dragging');
-    });
-    // Verhindert, dass das Ende eines Ziehens versehentlich als Klick auf ein
-    // Bild zählt (würde sonst ungewollt die Lightbox öffnen).
-    sliderTrack.addEventListener('click', (e) => {
-        if (sliderDidDrag) {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-    }, true);
+    let sliderWheelSnapTimeout = null;
+    sliderTrack.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        // CSS scroll-snap schnappt sonst bei jedem kleinen Wheel-Schritt
+        // sofort zur nächsten Slide-Position zurück (fühlt sich an, als würde
+        // nichts passieren) - deshalb Snap kurz deaktivieren, während
+        // gescrollt wird, und erst nach einer kurzen Scroll-Pause wieder
+        // aktivieren, damit die Slide danach sauber einrastet.
+        sliderTrack.style.scrollSnapType = 'none';
+        sliderTrack.scrollLeft += e.deltaY;
+        clearTimeout(sliderWheelSnapTimeout);
+        sliderWheelSnapTimeout = setTimeout(() => {
+            sliderTrack.style.scrollSnapType = '';
+        }, 150);
+    }, { passive: false });
 }
 
 // --- BILD-LIGHTBOX (grosse Ansicht, z.B. Community-Slider) ---
@@ -251,7 +240,133 @@ window.addEventListener('keydown', (e) => {
     closeLightbox();
     closePhoneDialog();
     closeEmailDialog();
+    closeLoginDialog();
+    if (typeof closeMitgliedModal === 'function') closeMitgliedModal();
 });
+
+// --- LOGIN-MODAL (Mitgliederbereich) --- Zeigt aktuell nur das Formular;
+// echtes Einloggen folgt erst, sobald die Supabase-Anbindung steht.
+function openLoginDialog(event) {
+    if (event) event.preventDefault();
+    const modal = document.getElementById('login-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    updateBodyScrollLock();
+}
+
+function closeLoginDialog() {
+    const modal = document.getElementById('login-modal');
+    if (modal) modal.classList.remove('active');
+    updateBodyScrollLock();
+}
+
+// DEMO-VERSION (aktiv) - es gibt noch keinen echten Login, zeigt nur einen
+// ehrlichen Hinweis statt so zu tun als würde sich jemand anmelden. Sobald
+// Supabase eingerichtet ist (siehe CLAUDE.md, Abschnitt "Geplant:
+// Mitgliederbereich mit Supabase"): diese Funktion löschen und die ECHTE
+// VERSION direkt darunter aktivieren (auskommentieren).
+function handleLoginSubmit(event) {
+    event.preventDefault();
+    const notice = document.getElementById('loginNotice');
+    if (notice) notice.hidden = false;
+    return false;
+}
+
+// ECHTE VERSION (auskommentiert) - braucht js/supabase-client.js (Plan-
+// Schritt 2, noch nicht angelegt) mit einem global verfügbaren
+// `supabaseClient`.
+// async function handleLoginSubmit(event) {
+//     event.preventDefault();
+//     const email = document.getElementById('loginEmail').value;
+//     const password = document.getElementById('loginPassword').value;
+//     const notice = document.getElementById('loginNotice');
+//     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+//     if (error) {
+//         notice.textContent = 'Login fehlgeschlagen: ' + error.message;
+//         notice.hidden = false;
+//         return false;
+//     }
+//     closeLoginDialog();
+//     return false;
+// }
+
+// --- MEIN-PROFIL-FORMULAR --- Gleicher Platzhalter-Ansatz wie beim Login.
+
+// DEMO-VERSION (aktiv) - siehe Hinweis oben bei handleLoginSubmit.
+function handleProfileSubmit(event) {
+    event.preventDefault();
+    const notice = document.getElementById('profileNotice');
+    if (notice) notice.hidden = false;
+    return false;
+}
+
+// ECHTE VERSION (auskommentiert) - braucht ebenfalls js/supabase-client.js
+// sowie die eingeloggte User-ID (`supabaseClient.auth.getUser()`).
+// async function handleProfileSubmit(event) {
+//     event.preventDefault();
+//     const notice = document.getElementById('profileNotice');
+//     const { data: { user } } = await supabaseClient.auth.getUser();
+//     const { error } = await supabaseClient.from('profiles').update({
+//         name: document.getElementById('profileName').value,
+//         email: document.getElementById('profileEmail').value,
+//         email_oeffentlich: document.getElementById('profileEmailShare').checked,
+//         instagram: document.getElementById('profileInstagram').value,
+//         tiktok: document.getElementById('profileTiktok').value
+//     }).eq('id', user.id);
+//     notice.textContent = error ? ('Speichern fehlgeschlagen: ' + error.message) : 'Gespeichert!';
+//     notice.hidden = false;
+//     return false;
+// }
+
+// --- PASSWORT ÄNDERN --- Prüft schon jetzt clientseitig, ob "neu" und
+// "bestätigen" übereinstimmen (reine Textvergleich, braucht kein Backend) -
+// das eigentliche Ändern des Passworts braucht dagegen zwingend Supabase.
+
+// DEMO-VERSION (aktiv).
+function handlePasswordSubmit(event) {
+    event.preventDefault();
+    const notice = document.getElementById('passwordNotice');
+    const neu = document.getElementById('newPassword').value;
+    const bestaetigung = document.getElementById('newPasswordConfirm').value;
+    if (neu !== bestaetigung) {
+        notice.textContent = 'Die neuen Passwörter stimmen nicht überein.';
+        notice.hidden = false;
+        return false;
+    }
+    notice.textContent = 'Passwort ändern ist noch nicht aktiv – folgt in einem der nächsten Schritte.';
+    notice.hidden = false;
+    return false;
+}
+
+// ECHTE VERSION (auskommentiert) - braucht js/supabase-client.js (Plan-
+// Schritt 2). Supabase's `updateUser()` verlangt von sich aus keine erneute
+// Eingabe des alten Passworts (eine gültige Session reicht) - das aktuelle
+// Passwort wird hier deshalb zusätzlich per `signInWithPassword()` geprüft,
+// bevor das neue gesetzt wird, damit "aktuelles Passwort" wie gewünscht
+// wirklich verifiziert wird und nicht nur eine Formalität ist.
+// async function handlePasswordSubmit(event) {
+//     event.preventDefault();
+//     const notice = document.getElementById('passwordNotice');
+//     const alt = document.getElementById('oldPassword').value;
+//     const neu = document.getElementById('newPassword').value;
+//     const bestaetigung = document.getElementById('newPasswordConfirm').value;
+//     if (neu !== bestaetigung) {
+//         notice.textContent = 'Die neuen Passwörter stimmen nicht überein.';
+//         notice.hidden = false;
+//         return false;
+//     }
+//     const { data: { user } } = await supabaseClient.auth.getUser();
+//     const { error: verifyError } = await supabaseClient.auth.signInWithPassword({ email: user.email, password: alt });
+//     if (verifyError) {
+//         notice.textContent = 'Aktuelles Passwort ist falsch.';
+//         notice.hidden = false;
+//         return false;
+//     }
+//     const { error } = await supabaseClient.auth.updateUser({ password: neu });
+//     notice.textContent = error ? ('Fehler: ' + error.message) : 'Passwort geändert!';
+//     notice.hidden = false;
+//     return false;
+// }
 
 // --- KONTAKT-MODALS (Telefon / E-Mail) ---
 let currentPhoneNumber = '';
@@ -302,6 +417,8 @@ window.addEventListener('click', (e) => {
     if (e.target.id === 'phone-modal') closePhoneDialog();
     if (e.target.id === 'email-modal') closeEmailDialog();
     if (e.target.id === 'image-lightbox') closeLightbox();
+    if (e.target.id === 'login-modal') closeLoginDialog();
+    if (e.target.id === 'mitglied-modal') closeMitgliedModal();
 });
 
 function copyToClipboard(text, button) {

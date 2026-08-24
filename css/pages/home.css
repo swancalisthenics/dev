@@ -105,22 +105,24 @@
     padding: 4px 4px 16px;
     scrollbar-width: thin;
     scrollbar-color: var(--aurora-red) transparent;
-    cursor: grab;
-}
-
-.slider-track.dragging {
-    cursor: grabbing;
-    scroll-snap-type: none;
-    user-select: none;
 }
 
 .slider-track::-webkit-scrollbar {
     height: 6px;
 }
 
+.slider-track::-webkit-scrollbar-track {
+    background: var(--glass-border);
+    border-radius: var(--radius-pill);
+}
+
 .slider-track::-webkit-scrollbar-thumb {
     background: var(--aurora-red);
     border-radius: var(--radius-pill);
+}
+
+.slider-track::-webkit-scrollbar-button {
+    display: none;
 }
 
 .slide {
