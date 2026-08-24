@@ -121,8 +121,8 @@ button {
     left: -80px;
 }
 
-.aurora-blob.amber {
-    background: var(--aurora-amber);
+.aurora-blob.blue {
+    background: var(--aurora-blue);
     width: 380px;
     height: 380px;
     top: 25%;
@@ -130,8 +130,8 @@ button {
     animation-delay: -8s;
 }
 
-.aurora-blob.blue {
-    background: var(--aurora-blue);
+.aurora-blob.amber {
+    background: var(--aurora-amber);
     width: 300px;
     height: 300px;
     bottom: -100px;
@@ -141,8 +141,8 @@ button {
 
 @media (min-width: 768px) {
     .aurora-blob.coral { width: 520px; height: 520px; top: -120px; left: -140px; }
-    .aurora-blob.amber { width: 600px; height: 600px; right: -220px; }
-    .aurora-blob.blue { width: 480px; height: 480px; bottom: -160px; }
+    .aurora-blob.blue { width: 600px; height: 600px; right: -220px; }
+    .aurora-blob.amber { width: 480px; height: 480px; bottom: -160px; }
 }
 
 @keyframes aurora-float {
