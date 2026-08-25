@@ -141,6 +141,23 @@
     margin: 0;
 }
 
+/* Steht an Stelle von .slide img, wenn fuer diesen Termin (noch) kein Foto
+   vorliegt - gleiche Groesse, damit die Slide nicht aus der Reihe faellt. */
+.slide-placeholder {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-fill);
+}
+
+.slide-placeholder .icon {
+    width: 40px;
+    height: 40px;
+    color: var(--text-muted);
+}
+
 .slide figcaption {
     padding: 14px 18px;
     font-weight: 700;

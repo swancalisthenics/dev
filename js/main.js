@@ -226,11 +226,15 @@ function closeLightbox() {
 }
 
 document.querySelectorAll('.slide-img').forEach(img => {
-    img.addEventListener('click', () => openLightbox(img.getAttribute('src'), img.dataset.caption));
+    // Lightbox laedt die grosse Version (data-large), falls vorhanden - die
+    // Slide selbst zeigt nur die kleine Vorschau, unabhaengig vom Viewport
+    // (anders als resolvePictureSources(), das nach Bildschirmbreite waehlt).
+    const openThisLightbox = () => openLightbox(img.dataset.large || img.getAttribute('src'), img.dataset.caption);
+    img.addEventListener('click', openThisLightbox);
     img.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            openLightbox(img.getAttribute('src'), img.dataset.caption);
+            openThisLightbox();
         }
     });
 });

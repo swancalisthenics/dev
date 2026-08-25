@@ -56,6 +56,7 @@
 .icon-handshake { -webkit-mask-image: url(../assets/icons/handshake.svg); mask-image: url(../assets/icons/handshake.svg); }
 .icon-book-open { -webkit-mask-image: url(../assets/icons/book-open.svg); mask-image: url(../assets/icons/book-open.svg); }
 .icon-tiktok { -webkit-mask-image: url(../assets/icons/tiktok.svg); mask-image: url(../assets/icons/tiktok.svg); }
+.icon-images { -webkit-mask-image: url(../assets/icons/images-regular.svg); mask-image: url(../assets/icons/images-regular.svg); }
 
 /* --- BUTTONS --- */
 .btn {

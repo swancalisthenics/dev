@@ -136,14 +136,29 @@ new-swan-design/
    ist natives `<picture>`-Verhalten unzuverlässig; die Bildauswahl
    (gross/klein) läuft stattdessen explizit per JS über `data-large` und
    `window.innerWidth`.
-4. **Community-Slider ist Demo-Zustand:** Die 9 Slides in der
-   "Unsere Community"-Sektion auf `index.html` nutzen absichtlich neunmal
-   dasselbe Bild (`5.7.2026-klein.JPG`) mit neun verschiedenen, frei erfundenen
-   Datums-Bildunterschriften (rückwärts ab 5.7.2026, wöchentlicher
-   Sonntags-Rhythmus). Sobald echte Fotos vergangener Workouts vorliegen,
-   einfach die neun `<figure class="slide">`-Blöcke in `index.html` durch
-   echte Bilder/Daten ersetzen — Struktur und CSS (horizontales Scroll-Snap)
-   bleiben gleich. Funktioniert per Touch-Wisch und Trackpad nativ; für die
+4. **Community-Slider zeigt echte Fotos** (`assets/images/community/`,
+   `community-1.jpg` … `community-7.jpg` + je eine `-small.jpg`-Variante,
+   1920px/900px breit wie beim bestehenden Blog-Bilder-Muster). Vorher
+   zeigten alle 9 Slides zum Test dasselbe Platzhalterbild mit frei
+   erfundenen Datums-Bildunterschriften — das ist jetzt durch 7 echte
+   Gruppenfotos vom Street-Workout-Platz ersetzt. Die Original-Dateien
+   hatten keine EXIF-Aufnahmedaten mehr (auf roher Tag-Ebene geprüft, nicht
+   nur die vereinfachte Windows-Ansicht — nur noch 9 rein technische
+   Metadaten-Einträge wie Ausrichtung/Auflösung, kein Datum/Kamera/GPS mehr
+   vorhanden, vermutlich beim Teilen/Hochladen entfernt), die
+   Bildunterschriften wurden deshalb nachträglich von Hand mit den echten
+   Daten ergänzt statt automatisch ausgelesen. Die 7 Fotos sind chronologisch
+   sortiert (links alt, rechts neu). Beim Abgleich fiel auf, dass die Termine
+   sonst durchgehend wöchentlich sonntags stattfanden, aber der 12. Juli 2026
+   fehlte (kein Foto vorhanden) — dafür steht jetzt eine Platzhalter-Slide an
+   der richtigen chronologischen Stelle (`.slide-placeholder` in
+   `home.css`: gleiche Höhe wie ein echtes Foto, zeigt statt eines Bilds nur
+   ein Icon; Bildunterschrift "12. Juli 2026 – Platzhalter"). Jedes `<img
+   class="slide-img">` trägt `src` (kleine Vorschau) und `data-large` (für
+   die Lightbox) getrennt, damit die Vorschau immer klein bleibt und nur
+   beim Aufklappen die grosse Version nachgeladen wird — anders als
+   `resolvePictureSources()`, das nach Bildschirmbreite umschaltet, nicht
+   nach Anzeigekontext. Funktioniert per Touch-Wisch und Trackpad nativ; für die
    Desktop-Maus scrollt ein `wheel`-Handler auf `.slider-track` in
    `js/main.js` das normale (vertikale) Mausrad-Scrollen horizontal um
    (`preventDefault()` verhindert zusätzliches Seiten-Scrollen), solange die
