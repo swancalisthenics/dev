@@ -137,8 +137,9 @@ new-swan-design/
    (gross/klein) läuft stattdessen explizit per JS über `data-large` und
    `window.innerWidth`.
 4. **Community-Slider zeigt echte Fotos** (`assets/images/community/`,
-   `community-1.jpg` … `community-7.jpg` + je eine `-small.jpg`-Variante,
-   1920px/900px breit wie beim bestehenden Blog-Bilder-Muster). Vorher
+   benannt nach Aufnahmedatum als `Gruppenbild_D.M.YYYY_gross.jpg` /
+   `_klein.jpg`, ursprünglich 1920px/900px breit wie beim bestehenden
+   Blog-Bilder-Muster). Vorher
    zeigten alle 9 Slides zum Test dasselbe Platzhalterbild mit frei
    erfundenen Datums-Bildunterschriften — das ist jetzt durch 7 echte
    Gruppenfotos vom Street-Workout-Platz ersetzt. Die Original-Dateien
@@ -155,7 +156,7 @@ new-swan-design/
    (`.slide-placeholder` in `home.css`, zeigt nur ein Icon statt eines
    Fotos), bis das echte Foto nachgeliefert wurde. `.slide-placeholder`
    bleibt als CSS für einen künftigen ähnlichen Fall im Code, wird aktuell
-   aber nirgends mehr verwendet. `community-8.jpg`/`-small.jpg` (12. Juli)
+   aber nirgends mehr verwendet. `Gruppenbild_12.7.2026_gross/_klein.jpg`
    hat eine deutlich geringere Ausgangsauflösung (1206×798) als die anderen
    7 Fotos (2560×1706) — bewusst **nicht** auf 1920px hochskaliert (hätte
    nur unscharf vergrössert, keine echte Detailschärfe gebracht), die
@@ -434,6 +435,38 @@ new-swan-design/
       { display: none; }` ergänzt. Gleiches Muster bei künftigen
       `hidden`-Elementen im Kopf behalten, sobald die Klasse selbst schon
       einen `display`-Wert setzt.
+21. **Community-Fotos nach Aufnahmedatum umbenannt:** `community-1.jpg` …
+    `community-8.jpg` (+ `-small.jpg`) hiessen nur nach Upload-Reihenfolge,
+    nicht nach Datum. Jetzt `Gruppenbild_D.M.YYYY_gross.jpg` /
+    `_klein.jpg` (Tag.Monat.Jahr ohne führende Null, z. B.
+    `Gruppenbild_5.7.2026_gross.jpg`), per `git mv` umbenannt (Git sieht es
+    als Rename, nicht Löschen+Neu) und alle 8 `src`/`data-large`-Referenzen
+    in `index.html` angepasst.
+22. **Blog-Daten-Unstimmigkeiten bereinigt** (in `js/blog-data.js`, beim
+    Review aller Posts aufgefallen): Bei Post 3 wichen sowohl `cardDate`
+    (8. Juli) als auch `date` (12. Juni) vom Datum ab, das im eingebundenen
+    Foto selbst steht (`5.7.2026-klein.JPG`) — beide jetzt auf 5. Juli
+    vereinheitlicht. Bei Post 5/6/7/8 zeigte die Karte `12. Juni 2026`,
+    die Post-Seite selbst aber `08. Juli 2026` (vermutlich ein
+    Copy-Paste-Rest von Post 1 beim Anlegen) — `cardDate` jeweils auf den
+    Post-Seiten-Wert angeglichen. Post 8 (Handstand-Guide) hatte als
+    `heroImage`/`heroImageSmall` fälschlich `park.jpg` statt des
+    handstand-passenden Bildes, das die Karte (`cardImage`) bereits
+    korrekt zeigte — beide Felder auf `handstand3.jpeg`/`-small.jpeg`
+    korrigiert. Ausserdem zeigte `cardCategory` bei fast jedem Post nur
+    eine von zwei groben Sammelkategorien ("Übungen & Kraftaufbau" /
+    "Ernährung & Gesundheit"), während die Post-Seite selbst
+    (`category`) eine deutlich spezifischere, andere Bezeichnung zeigte
+    (z. B. "Skills & Technik", "Mindset & Motivation") — das Filtern der
+    Übersicht läuft über das separate Feld `filterCategory`
+    ('uebungen'/'ernaehrung', siehe `js/blog.js`), `cardCategory` ist rein
+    Anzeigetext, daher unbedenklich bei 11 Posts (id 5–15) auf den
+    spezifischeren Text der Post-Seite angeglichen. Bewusst nicht
+    angefasst: `level.1.jpg`, `park.jpg` und `motivation.jpeg` nutzen für
+    Karte und Post-Seite dieselbe Datei ohne echte `-small`-Variante
+    (anders als beim Rest der Bilder) — bei 400×243 / 640×853 / 600×390px
+    Ausgangsgrösse ist der Nutzen einer eigenen kleinen Variante aber so
+    gering, dass sich der Zusatzaufwand aktuell nicht lohnt.
 
 ## Geplant: Mitgliederbereich mit Supabase (Konzept, noch nicht begonnen)
 
