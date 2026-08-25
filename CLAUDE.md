@@ -626,6 +626,43 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
     Test-Zugang, solange die Seite sonst nirgends erreichbar ist. Muss weg,
     sobald der echte Zugang über das Profil-Dropdown steht.
 
+## ⚠️ Geplant (Entwurf, noch nicht umgesetzt): Trainings-Anmeldung
+
+**Diese ganze Sektion ist eine reine Notiz aus einem Brainstorming und soll
+später wieder gelöscht werden** — entweder sobald die Idee wirklich umgesetzt
+wird (dann gehört die Doku zur echten Implementierung, nicht hierher) oder
+falls sie verworfen wird. Nichts davon eigenmächtig starten ohne Rücksprache.
+
+**Grundidee:** Mitglieder sollen sich für ein bevorstehendes Training
+freiwillig anmelden können ("Ich komme") und sehen, welche anderen
+Mitglieder sich schon angemeldet haben — knüpft an die bestehende
+"Zeiten"-Sektion auf `index.html` an, die die Trainingszeiten bereits
+öffentlich zeigt. Baut auf dem geplanten Supabase-Mitgliederbereich weiter
+oben auf (braucht Login, `profiles`-Tabelle).
+
+**Grobe Bausteine:**
+- Neue Tabelle `trainings` (Datum/Uhrzeit, optional Ort) — vom Vorstand
+  gepflegt, ähnlich wie `rolle` bei `profiles` kein Feld fürs Mitglied selbst.
+- Neue Tabelle `training_anmeldungen` (verweist auf `trainings` und
+  `profiles`, je eine Zeile pro Anmeldung) — ein Mitglied darf nur die
+  eigene Zeile anlegen/löschen ("Ich komme" an/aus), aber alle Zeilen zu
+  einem Training lesen (wer kommt sonst noch).
+- UI: "Nächstes Training: [Datum]" mit "Ich komme"-Button, darunter eine
+  Liste/Reihe der angemeldeten Mitglieder (gleiche kleine Avatar-Bausteine
+  wie auf `pages/mitglieder.html`).
+- Wer angemeldet ist, ist nur für eingeloggte Mitglieder sichtbar — die
+  Trainingszeit selbst bleibt öffentlich wie bisher, nur die Anmeldeliste
+  ist neu und mitgliederbeschränkt.
+
+**Weitere Ideen für den Login, noch unausgearbeitet** (nur gesammelt, keine
+davon geplant):
+- Vereinsdokumente (`pages/verein.html`) erst nach Login freischalten statt
+  öffentlich als Platzhalter.
+- Internes Ankündigungsbrett für Mitglieder (z. B. Vorstand postet
+  Terminänderungen).
+- Mitglieder laden selbst Fotos für den Community-Slider hoch, statt dass
+  das nur manuell gepflegt wird.
+
 ## Code-Stil
 
 - 4-Leerzeichen-Einrückung durchgängig in HTML/CSS/JS.
