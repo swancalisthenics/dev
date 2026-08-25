@@ -105,6 +105,12 @@
     padding: 4px 4px 16px;
     scrollbar-width: thin;
     scrollbar-color: var(--aurora-red) transparent;
+    cursor: grab;
+}
+
+.slider-track.dragging {
+    cursor: grabbing;
+    user-select: none;
 }
 
 .slider-track::-webkit-scrollbar {
@@ -166,6 +172,11 @@
 
 @media (min-width: 768px) {
     .slide { width: 31%; }
+    /* Kein Scroll-Snap am PC: Nach dem Ziehen sprang die Ansicht sonst immer
+       zur naechsten Slide-Kante zurueck ("links an der Wand anbinden"),
+       was nicht gewollt war - frei scrollen lassen, wo man losgelassen hat.
+       Mobil bleibt Snap aktiv (native Touch-Wisch-Geste dort erwuenscht). */
+    .slider-track { scroll-snap-type: none; }
 }
 
 /* --- ZEITEN --- */

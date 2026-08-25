@@ -105,7 +105,7 @@
             <figure class="glass-card slide"><img src="assets/images/community/community-7-small.jpg" data-large="assets/images/community/community-7.jpg" alt="Community Workout vom 2. August 2026" loading="lazy" class="slide-img" data-caption="2. August 2026" tabindex="0" role="button" aria-label="Bild vom 2. August 2026 gross ansehen"><figcaption>2. August 2026</figcaption></figure>
             <figure class="glass-card slide"><img src="assets/images/community/community-6-small.jpg" data-large="assets/images/community/community-6.jpg" alt="Community Workout vom 26. Juli 2026" loading="lazy" class="slide-img" data-caption="26. Juli 2026" tabindex="0" role="button" aria-label="Bild vom 26. Juli 2026 gross ansehen"><figcaption>26. Juli 2026</figcaption></figure>
             <figure class="glass-card slide"><img src="assets/images/community/community-4-small.jpg" data-large="assets/images/community/community-4.jpg" alt="Community Workout vom 19. Juli 2026" loading="lazy" class="slide-img" data-caption="19. Juli 2026" tabindex="0" role="button" aria-label="Bild vom 19. Juli 2026 gross ansehen"><figcaption>19. Juli 2026</figcaption></figure>
-            <figure class="glass-card slide"><div class="slide-placeholder"><span class="icon icon-images" aria-hidden="true"></span></div><figcaption>12. Juli 2026 – Platzhalter</figcaption></figure>
+            <figure class="glass-card slide"><img src="assets/images/community/community-8-small.jpg" data-large="assets/images/community/community-8.jpg" alt="Community Workout vom 12. Juli 2026" loading="lazy" class="slide-img" data-caption="12. Juli 2026" tabindex="0" role="button" aria-label="Bild vom 12. Juli 2026 gross ansehen"><figcaption>12. Juli 2026</figcaption></figure>
             <figure class="glass-card slide"><img src="assets/images/community/community-1-small.jpg" data-large="assets/images/community/community-1.jpg" alt="Community Workout vom 5. Juli 2026" loading="lazy" class="slide-img" data-caption="5. Juli 2026" tabindex="0" role="button" aria-label="Bild vom 5. Juli 2026 gross ansehen"><figcaption>5. Juli 2026</figcaption></figure>
         </div>
     </section>
@@ -218,11 +218,19 @@
 
 <!-- BILD-LIGHTBOX -->
 <div id="image-lightbox" class="modal-overlay lightbox-overlay">
+    <button class="lightbox-nav lightbox-prev" onclick="lightboxPrev()" aria-label="Vorheriges Bild">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
     <div class="modal-content lightbox-content">
         <button class="modal-close" onclick="closeLightbox()" aria-label="Schliessen">&times;</button>
-        <img id="lightbox-img" src="" alt="">
+        <div class="lightbox-img-wrap">
+            <img id="lightbox-img" src="" alt="">
+        </div>
         <p id="lightbox-caption" class="lightbox-caption"></p>
     </div>
+    <button class="lightbox-nav lightbox-next" onclick="lightboxNext()" aria-label="Nächstes Bild">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
 </div>
 
 <!-- LOGIN-MODAL (Mitgliederbereich) -->

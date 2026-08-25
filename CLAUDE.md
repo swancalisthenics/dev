@@ -147,33 +147,83 @@ new-swan-design/
    Metadaten-Einträge wie Ausrichtung/Auflösung, kein Datum/Kamera/GPS mehr
    vorhanden, vermutlich beim Teilen/Hochladen entfernt), die
    Bildunterschriften wurden deshalb nachträglich von Hand mit den echten
-   Daten ergänzt statt automatisch ausgelesen. Die 7 Fotos sind chronologisch
-   sortiert (links alt, rechts neu). Beim Abgleich fiel auf, dass die Termine
-   sonst durchgehend wöchentlich sonntags stattfanden, aber der 12. Juli 2026
-   fehlte (kein Foto vorhanden) — dafür steht jetzt eine Platzhalter-Slide an
-   der richtigen chronologischen Stelle (`.slide-placeholder` in
-   `home.css`: gleiche Höhe wie ein echtes Foto, zeigt statt eines Bilds nur
-   ein Icon; Bildunterschrift "12. Juli 2026 – Platzhalter"). Jedes `<img
+   Daten ergänzt statt automatisch ausgelesen. Die 8 Fotos sind chronologisch
+   sortiert, aber bewusst **links neu, rechts alt** (nicht wie sonst auf der
+   Seite links-nach-rechts-aufsteigend). Beim ersten Abgleich fiel auf, dass
+   die Termine sonst durchgehend wöchentlich sonntags stattfanden, aber ein
+   Foto für den 12. Juli 2026 fehlte — dafür stand kurz eine Platzhalter-Slide
+   (`.slide-placeholder` in `home.css`, zeigt nur ein Icon statt eines
+   Fotos), bis das echte Foto nachgeliefert wurde. `.slide-placeholder`
+   bleibt als CSS für einen künftigen ähnlichen Fall im Code, wird aktuell
+   aber nirgends mehr verwendet. `community-8.jpg`/`-small.jpg` (12. Juli)
+   hat eine deutlich geringere Ausgangsauflösung (1206×798) als die anderen
+   7 Fotos (2560×1706) — bewusst **nicht** auf 1920px hochskaliert (hätte
+   nur unscharf vergrössert, keine echte Detailschärfe gebracht), die
+   Resize-Funktion behält die Originalbreite, wenn sie unter dem Zielwert
+   liegt. Jedes `<img
    class="slide-img">` trägt `src` (kleine Vorschau) und `data-large` (für
    die Lightbox) getrennt, damit die Vorschau immer klein bleibt und nur
    beim Aufklappen die grosse Version nachgeladen wird — anders als
    `resolvePictureSources()`, das nach Bildschirmbreite umschaltet, nicht
-   nach Anzeigekontext. Funktioniert per Touch-Wisch und Trackpad nativ; für die
-   Desktop-Maus scrollt ein `wheel`-Handler auf `.slider-track` in
-   `js/main.js` das normale (vertikale) Mausrad-Scrollen horizontal um
-   (`preventDefault()` verhindert zusätzliches Seiten-Scrollen), solange die
-   Maus über dem Slider steht. Setzt währenddessen kurz `scroll-snap-type:
-   none` per Inline-Style und reaktiviert es erst 150ms nach dem letzten
-   Wheel-Event (debounced) — ohne das würde das CSS-Scroll-Snapping jeden
-   einzelnen kleinen Scroll-Schritt sofort wieder zur nächsten Slide
-   zurückschnappen und sich "eingefroren" anfühlen. Ein früherer eigener
-   Mousedown/-move/-up-Handler fürs Klick-und-Ziehen wurde auf Wunsch wieder
-   entfernt (Zieh-Richtung fühlte sich falsch/unerwartet an) — Mausrad ist
-   jetzt die einzige Desktop-Maus-Bedienung neben Trackpad-Wisch. Jedes Slide-Bild (`.slide-img`) öffnet per Klick/Tap/Enter eine
+   nach Anzeigekontext. Die Übersichtsleiste selbst (`.slider-track`) läuft
+   mobil nativ per Touch-Wisch; am PC (`isDesktopViewport()`) gibt es
+   Klick-und-Ziehen (`cursor: grab`/`grabbing`, `.dragging`-Klasse). Ein
+   Mausrad-Scroll-Handler wurde zwischenzeitlich stattdessen ausprobiert
+   und wieder entfernt, dann Klick-und-Ziehen erneut eingebaut — der Grund,
+   warum sich ein noch früherer Klick-und-Ziehen-Versuch mal falsch
+   angefühlt hatte, war wahrscheinlich fehlendes Deaktivieren des
+   CSS-Scroll-Snappings während des Ziehens (das gleiche Problem, das beim
+   Mausrad-Zoom in der Lightbox auftrat, siehe unten). Statt Snap nur
+   während des Ziehens zu deaktivieren und danach wieder zu aktivieren,
+   ist Scroll-Snap am PC inzwischen **komplett aus** (`.slider-track` in
+   `home.css`, `@media (min-width: 768px)`) — ein kurzes Wieder-Aktivieren
+   nach dem Loslassen liess die Ansicht sonst zur naechsten Slide-Kante
+   zurueckspringen ("links an der Wand anbinden"), was nicht gewollt war;
+   jetzt bleibt die Scroll-Position exakt dort, wo man loslaesst. Mobil
+   bleibt Snap aktiv (`x mandatory`, unveraendert) - dort gibt es dieses
+   Problem nicht, weil der Browser Touch-Scrollen und Snap nativ und
+   koordiniert selbst uebernimmt, ohne dass eigenes JS dazwischenfunkt (wie
+   es die programmatischen `scrollLeft`-Schreibvorgaenge beim
+   PC-Ziehen taten). Ein `sliderDidDrag`-Flag
+   unterdrückt dabei den Klick am Ende eines Ziehens, damit das nicht
+   versehentlich die Lightbox öffnet. Selbst damit fühlte sich das Ziehen
+   noch ruckelig an — recherchiert und behoben: `scrollLeft` wurde direkt im
+   `mousemove`-Handler gesetzt, der aber öfter feuern kann als das Bild
+   neu gezeichnet wird (v. a. bei Maeusen mit hoher Abtastrate), zusammen
+   mit den teuren `backdrop-filter`-Blur-Effekten der Glaskarten ergab das
+   Ruckeln. Jetzt speichert `mousemove` nur noch die letzte Mausposition,
+   ein per `requestAnimationFrame` laufender Tick (`sliderDragTick()`)
+   wendet daraus höchstens einmal pro Bild den neuen Scroll-Wert an — das
+   allgemein empfohlene Muster fürs ruckelfreie Drag-Scrolling. Ausserdem
+   fehlte `e.preventDefault()` im `mousedown`-Handler: Ohne das startet der
+   Browser bei einem Mousedown auf einem `<img>` (das Slide-Bild füllt
+   praktisch die ganze Karte aus) seine eigene native Bild-Drag-Geste, die
+   sich unabhängig vom eigenen JS verhält — fühlte sich an, als bliebe ein
+   Geisterbild dauerhaft am Mauszeiger "kleben", auch nach dem Loslassen.
+   Jedes Slide-Bild (`.slide-img`) öffnet per Klick/Tap/Enter eine
    grosse Lightbox-Ansicht (`#image-lightbox` in `index.html`,
    `openLightbox()`/`closeLightbox()` in `js/main.js`) — schliessbar per
-   Klick ausserhalb, X-Button oder Escape-Taste. Bewusst **kein** Zoom in der
-   Lightbox (war kurz eingebaut, auf Wunsch wieder entfernt). Solange ein
+   Klick ausserhalb, X-Button oder Escape-Taste. **Nur am PC** (`isDesktopViewport()`
+   in `js/main.js`, Breakpoint 768px wie überall sonst): Mausrad zoomt
+   das Bild (1×–4×), bei Zoom > 1 kann man per Klick-und-Ziehen verschieben
+   (`.lightbox-img-wrap` mit `overflow: hidden` clippt dabei den
+   sichtbaren Ausschnitt), zwei Pfeil-Buttons plus Pfeiltasten links/rechts
+   springen zum vorigen/nächsten Bild aus der `.slide-img`-Liste (versteckt
+   sich am jeweiligen Rand, wenn es kein weiteres Bild in die Richtung
+   gibt). **Mobil dieselbe Funktionalität, per Touch statt Maus/Tastatur**
+   (eigene `touchstart`/`touchmove`/`touchend`-Handler auf `#lightbox-img`,
+   ebenfalls in `js/main.js`, per `isDesktopViewport()` von der
+   PC-Variante getrennt): 2 Finger zoomen per Pinch (Abstand zwischen den
+   Fingern von `touchstart` zu `touchmove` bestimmt den Zoomfaktor), 1
+   Finger verschiebt den Ausschnitt, sobald gezoomt ist, sonst wechselt ein
+   Wisch (>50px, per `touchend` gegen den `touchstart`-Punkt gemessen) zum
+   vorigen/nächsten Bild — genau wie bei den meisten Foto-Apps: Wisch
+   wechselt das Bild nur bei Zoomstufe 1, darüber verschiebt derselbe
+   Finger stattdessen den Ausschnitt. `touch-action: none` auf dem
+   Lightbox-Bild verhindert dabei, dass der Browser dieselbe Geste noch
+   zusätzlich als eigenen Seiten-Zoom/-Scroll interpretiert. Zoom/
+   Verschiebung setzen sich beim Wechsel auf ein anderes Bild automatisch
+   zurück, auf beiden Eingabewegen. Solange ein
    Modal/die Lightbox offen ist, bekommt `<body>` die Klasse `modal-open`
    (`overflow: hidden` in `base.css`) und sperrt damit den
    Hintergrund-Scroll — `updateBodyScrollLock()` in `js/main.js` wird von

@@ -183,38 +183,143 @@ document.querySelectorAll('.custom-select').forEach(select => {
     });
 });
 
-// --- COMMUNITY-SLIDER: Mausrad scrollt horizontal (Desktop) ---
-// Touch-Wisch funktioniert bereits nativ (overflow-x: auto). Klick-und-Ziehen
-// mit der Maus wurde bewusst wieder entfernt (fühlte sich falsch/unerwartet
-// an) - stattdessen lenkt ein wheel-Handler das normale (vertikale)
-// Mausrad-Scrollen in horizontales Scrollen um, solange die Maus über dem
-// Slider steht. `preventDefault()` verhindert dabei, dass zusätzlich noch
-// die ganze Seite mitscrollt.
+// --- COMMUNITY-SLIDER: Klick-und-Ziehen am PC (Übersichtsleiste) ---
+// Touch-Wisch funktioniert bereits nativ. Scroll-Snap ist am PC komplett
+// deaktiviert (`.slider-track` in home.css, @media min-width:768px) - nach
+// dem Ziehen sprang die Ansicht sonst immer zur naechsten Slide-Kante
+// zurueck, was nicht gewollt war. Dadurch auch kein Snap-Timing mehr in
+// diesem Handler noetig (kein Fighting mehr zwischen Ziehen und Snap).
+//
+// scrollLeft wird bewusst nicht direkt im mousemove-Handler gesetzt, sondern
+// nur der zuletzt bekannte Mauswert gespeichert - ein per
+// requestAnimationFrame laufender Tick wendet daraus hoechstens einmal pro
+// Frame den neuen Scroll-Wert an. mousemove kann haeufiger als die
+// Bildwiederholrate feuern (v.a. bei Gaming-Maeusen mit hoher Abtastrate);
+// ohne dieses Batching kann es pro Frame zu mehreren, teils verworfenen
+// scrollLeft-Schreibvorgaengen kommen, was zusammen mit den ohnehin teuren
+// backdrop-filter-Blur-Effekten der Glaskarten ruckelig wirkte (recherchiert:
+// das ist das ueblich empfohlene Muster fuer butterweiches Drag-Scrolling).
 const sliderTrack = document.querySelector('.slider-track');
 if (sliderTrack) {
-    let sliderWheelSnapTimeout = null;
-    sliderTrack.addEventListener('wheel', (e) => {
+    let isDraggingSlider = false;
+    let sliderDidDrag = false;
+    let sliderDragStartX = 0;
+    let sliderScrollStart = 0;
+    let sliderDragRafId = null;
+    let latestDragClientX = null;
+
+    function sliderDragTick() {
+        if (latestDragClientX !== null) {
+            const delta = latestDragClientX - sliderDragStartX;
+            if (Math.abs(delta) > 3) sliderDidDrag = true;
+            sliderTrack.scrollLeft = sliderScrollStart - delta;
+        }
+        if (isDraggingSlider) {
+            sliderDragRafId = requestAnimationFrame(sliderDragTick);
+        }
+    }
+
+    sliderTrack.addEventListener('mousedown', (e) => {
+        if (!isDesktopViewport()) return;
+        // Ohne das startet der Browser bei einem mousedown auf einem <img>
+        // (das Slide-Bild fuellt praktisch die ganze Karte aus) seine eigene
+        // native Bild-Drag-Geste - fuehlt sich an, als "kleibe" ein
+        // Geister-Bild dauerhaft am Mauszeiger, auch nach dem Loslassen,
+        // weil das ein vom eigenen JS unabhaengiger Browser-Mechanismus ist.
         e.preventDefault();
-        // CSS scroll-snap schnappt sonst bei jedem kleinen Wheel-Schritt
-        // sofort zur nächsten Slide-Position zurück (fühlt sich an, als würde
-        // nichts passieren) - deshalb Snap kurz deaktivieren, während
-        // gescrollt wird, und erst nach einer kurzen Scroll-Pause wieder
-        // aktivieren, damit die Slide danach sauber einrastet.
-        sliderTrack.style.scrollSnapType = 'none';
-        sliderTrack.scrollLeft += e.deltaY;
-        clearTimeout(sliderWheelSnapTimeout);
-        sliderWheelSnapTimeout = setTimeout(() => {
-            sliderTrack.style.scrollSnapType = '';
-        }, 150);
-    }, { passive: false });
+        isDraggingSlider = true;
+        sliderDidDrag = false;
+        sliderDragStartX = e.clientX;
+        sliderScrollStart = sliderTrack.scrollLeft;
+        latestDragClientX = null;
+        sliderTrack.classList.add('dragging');
+        sliderDragRafId = requestAnimationFrame(sliderDragTick);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDraggingSlider) return;
+        latestDragClientX = e.clientX;
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!isDraggingSlider) return;
+        isDraggingSlider = false;
+        cancelAnimationFrame(sliderDragRafId);
+        sliderTrack.classList.remove('dragging');
+    });
+
+    // Verhindert, dass das Ende eines Ziehens versehentlich als Klick auf
+    // ein Bild zaehlt (wuerde sonst ungewollt die Lightbox oeffnen).
+    sliderTrack.addEventListener('click', (e) => {
+        if (sliderDidDrag) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }, true);
 }
 
 // --- BILD-LIGHTBOX (grosse Ansicht, z.B. Community-Slider) ---
-function openLightbox(src, caption) {
+// Zoom (Mausrad), Ziehen zum Verschieben im gezoomten Zustand, und Vor-/
+// Zurueck-Navigation (Pfeil-Buttons + Pfeiltasten) - bewusst nur am PC
+// (min-width: 768px, gleicher Breakpoint wie im Rest der Seite): mobil gibt
+// es dafuer schon native Pinch-Zoom- und Wisch-Gesten, das wuerde sich mit
+// eigenem JS nur in die Quere kommen.
+let lightboxImages = [];
+let lightboxIndex = -1;
+let lightboxZoom = 1;
+let lightboxPanX = 0;
+let lightboxPanY = 0;
+let isPanningLightbox = false;
+let panStartX = 0, panStartY = 0, panStartOffsetX = 0, panStartOffsetY = 0;
+
+function isDesktopViewport() {
+    return window.matchMedia('(min-width: 768px)').matches;
+}
+
+function applyLightboxTransform() {
+    const img = document.getElementById('lightbox-img');
+    if (!img) return;
+    img.style.transform = `translate(${lightboxPanX}px, ${lightboxPanY}px) scale(${lightboxZoom})`;
+    img.style.cursor = lightboxZoom > 1 ? 'grab' : '';
+}
+
+function resetLightboxZoom() {
+    lightboxZoom = 1;
+    lightboxPanX = 0;
+    lightboxPanY = 0;
+    applyLightboxTransform();
+}
+
+function updateLightboxNavButtons() {
+    const prevBtn = document.querySelector('.lightbox-prev');
+    const nextBtn = document.querySelector('.lightbox-next');
+    if (!prevBtn || !nextBtn) return;
+    prevBtn.style.visibility = lightboxIndex > 0 ? 'visible' : 'hidden';
+    nextBtn.style.visibility = lightboxIndex < lightboxImages.length - 1 ? 'visible' : 'hidden';
+}
+
+function showLightboxAt(index) {
+    if (index < 0 || index >= lightboxImages.length) return;
+    lightboxIndex = index;
+    const data = lightboxImages[index];
+    document.getElementById('lightbox-img').setAttribute('src', data.src);
+    document.getElementById('lightbox-caption').textContent = data.caption;
+    resetLightboxZoom();
+    updateLightboxNavButtons();
+}
+
+function lightboxPrev() {
+    if (lightboxIndex > 0) showLightboxAt(lightboxIndex - 1);
+}
+
+function lightboxNext() {
+    if (lightboxIndex < lightboxImages.length - 1) showLightboxAt(lightboxIndex + 1);
+}
+
+function openLightbox(index) {
     const overlay = document.getElementById('image-lightbox');
     if (!overlay) return;
-    document.getElementById('lightbox-img').setAttribute('src', src);
-    document.getElementById('lightbox-caption').textContent = caption || '';
+    showLightboxAt(index);
     overlay.classList.add('active');
     updateBodyScrollLock();
 }
@@ -225,11 +330,12 @@ function closeLightbox() {
     updateBodyScrollLock();
 }
 
-document.querySelectorAll('.slide-img').forEach(img => {
+document.querySelectorAll('.slide-img').forEach((img, index) => {
     // Lightbox laedt die grosse Version (data-large), falls vorhanden - die
     // Slide selbst zeigt nur die kleine Vorschau, unabhaengig vom Viewport
     // (anders als resolvePictureSources(), das nach Bildschirmbreite waehlt).
-    const openThisLightbox = () => openLightbox(img.dataset.large || img.getAttribute('src'), img.dataset.caption);
+    lightboxImages.push({ src: img.dataset.large || img.getAttribute('src'), caption: img.dataset.caption || '' });
+    const openThisLightbox = () => openLightbox(index);
     img.addEventListener('click', openThisLightbox);
     img.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -239,13 +345,123 @@ document.querySelectorAll('.slide-img').forEach(img => {
     });
 });
 
+const lightboxImg = document.getElementById('lightbox-img');
+if (lightboxImg) {
+    lightboxImg.addEventListener('wheel', (e) => {
+        if (!isDesktopViewport()) return;
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.2 : -0.2;
+        lightboxZoom = Math.min(4, Math.max(1, lightboxZoom + delta));
+        if (lightboxZoom === 1) { lightboxPanX = 0; lightboxPanY = 0; }
+        applyLightboxTransform();
+    }, { passive: false });
+
+    lightboxImg.addEventListener('mousedown', (e) => {
+        if (!isDesktopViewport() || lightboxZoom <= 1) return;
+        e.preventDefault();
+        isPanningLightbox = true;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
+        panStartOffsetX = lightboxPanX;
+        panStartOffsetY = lightboxPanY;
+        lightboxImg.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isPanningLightbox) return;
+        lightboxPanX = panStartOffsetX + (e.clientX - panStartX);
+        lightboxPanY = panStartOffsetY + (e.clientY - panStartY);
+        applyLightboxTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!isPanningLightbox) return;
+        isPanningLightbox = false;
+        lightboxImg.style.cursor = lightboxZoom > 1 ? 'grab' : '';
+    });
+
+    // Mobil-Pendant zu Mausrad-Zoom/Ziehen/Pfeiltasten: 2 Finger zoomen
+    // (Pinch), 1 Finger verschiebt den gezoomten Ausschnitt oder wechselt
+    // per Wisch das Bild, je nachdem ob gerade gezoomt ist - genau wie in
+    // den meisten Foto-Apps. `isDesktopViewport()` schliesst hier aus,
+    // damit sich das nicht mit einem angeschlossenen Trackpad/Maus auf
+    // einem Touch-Laptop in die Quere kommt.
+    let touchStartDistance = 0;
+    let touchStartZoom = 1;
+    let touchStartX = 0, touchStartY = 0;
+    let touchStartPanX = 0, touchStartPanY = 0;
+    let isPinchingLightbox = false;
+    let isSwipingLightbox = false;
+
+    const getTouchDistance = (touches) => {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    lightboxImg.addEventListener('touchstart', (e) => {
+        if (isDesktopViewport()) return;
+        if (e.touches.length === 2) {
+            isPinchingLightbox = true;
+            isSwipingLightbox = false;
+            touchStartDistance = getTouchDistance(e.touches);
+            touchStartZoom = lightboxZoom;
+        } else if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            if (lightboxZoom > 1) {
+                touchStartPanX = lightboxPanX;
+                touchStartPanY = lightboxPanY;
+            } else {
+                isSwipingLightbox = true;
+            }
+        }
+    }, { passive: true });
+
+    lightboxImg.addEventListener('touchmove', (e) => {
+        if (isDesktopViewport()) return;
+        if (isPinchingLightbox && e.touches.length === 2) {
+            e.preventDefault();
+            const scaleFactor = getTouchDistance(e.touches) / touchStartDistance;
+            lightboxZoom = Math.min(4, Math.max(1, touchStartZoom * scaleFactor));
+            if (lightboxZoom === 1) { lightboxPanX = 0; lightboxPanY = 0; }
+            applyLightboxTransform();
+        } else if (e.touches.length === 1 && lightboxZoom > 1) {
+            e.preventDefault();
+            lightboxPanX = touchStartPanX + (e.touches[0].clientX - touchStartX);
+            lightboxPanY = touchStartPanY + (e.touches[0].clientY - touchStartY);
+            applyLightboxTransform();
+        } else if (isSwipingLightbox) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    lightboxImg.addEventListener('touchend', (e) => {
+        if (isDesktopViewport()) return;
+        if (isSwipingLightbox && lightboxZoom === 1) {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(dx) > 50) {
+                if (dx < 0) lightboxNext(); else lightboxPrev();
+            }
+        }
+        isPinchingLightbox = false;
+        isSwipingLightbox = false;
+    });
+}
+
 window.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    closeLightbox();
-    closePhoneDialog();
-    closeEmailDialog();
-    closeLoginDialog();
-    if (typeof closeMitgliedModal === 'function') closeMitgliedModal();
+    if (e.key === 'Escape') {
+        closeLightbox();
+        closePhoneDialog();
+        closeEmailDialog();
+        closeLoginDialog();
+        if (typeof closeMitgliedModal === 'function') closeMitgliedModal();
+        return;
+    }
+    const lightboxOpen = document.getElementById('image-lightbox')?.classList.contains('active');
+    if (!lightboxOpen || !isDesktopViewport()) return;
+    if (e.key === 'ArrowLeft') lightboxPrev();
+    if (e.key === 'ArrowRight') lightboxNext();
 });
 
 // --- LOGIN-MODAL (Mitgliederbereich) --- Zeigt aktuell nur das Formular;

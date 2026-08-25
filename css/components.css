@@ -921,6 +921,14 @@
     width: auto;
 }
 
+.lightbox-img-wrap {
+    overflow: hidden;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .lightbox-content img {
     display: block;
     max-width: 100%;
@@ -928,6 +936,11 @@
     margin: 0 auto;
     border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transition: transform 0.15s ease;
+    /* Verhindert, dass der Browser Pinch/Wisch auf dem Bild selbst als
+       eigene Seiten-Zoom-/Scroll-Geste interpretiert - das eigene JS
+       (Pinch-Zoom, Wisch-Navigation) soll die Geste exklusiv bekommen. */
+    touch-action: none;
 }
 
 .lightbox-caption {
@@ -943,6 +956,43 @@
     right: 0;
     color: #fff;
     font-size: 2rem;
+}
+
+/* Zoom/Pan/Vor-Zurueck sind bewusst nur am PC (siehe js/main.js,
+   isDesktopViewport()) - mobil gibt es dafuer schon native Pinch-Zoom- und
+   Wisch-Gesten. Die Nav-Buttons bleiben deshalb unter 768px auch visuell
+   versteckt, nicht nur funktionslos. */
+.lightbox-nav {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-fill-strong);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.lightbox-nav svg {
+    width: 24px;
+    height: 24px;
+}
+
+.lightbox-prev { left: 24px; }
+.lightbox-next { right: 24px; }
+
+@media (min-width: 768px) {
+    .lightbox-nav {
+        display: flex;
+    }
 }
 
 .slide-img {
