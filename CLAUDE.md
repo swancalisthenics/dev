@@ -658,6 +658,19 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
     `pages/mitglieder.html` (mit `TEMP`-Kommentar im Code markiert) — reiner
     Test-Zugang, solange die Seite sonst nirgends erreichbar ist. Muss weg,
     sobald der echte Zugang über das Profil-Dropdown steht.
+13. **Nicht-angemeldet-Zustand für `mitglieder.html` und `mein-profil.html`
+    fehlt noch.** Wichtige Unterscheidung: Die HTML-Seiten selbst sind bei
+    statischem Hosting (GitHub Pages) immer öffentlich abrufbar, das lässt
+    sich nicht verhindern. Was Supabase tatsächlich schützt, sind die
+    Daten — die RLS-Policy liefert ohne gültige eingeloggte Session nichts
+    zurück. Damit ein nicht angemeldeter Besucher, der den Link trotzdem
+    öffnet, keine leere/kaputte Ansicht sieht, braucht beide Seiten vor dem
+    eigentlichen Laden der Daten einen Check per `supabase.auth.getSession()`
+    (bzw. `onAuthStateChange`): ohne gültige Session einen
+    "Bitte melde dich an"-Hinweis mit Login-Anstoss zeigen, erst bei
+    vorhandener Session die Mitgliederliste/das Profilformular überhaupt
+    abfragen. Noch nicht gebaut — die Demo-Version zeigt aktuell
+    unbedingt die Platzhalter-Daten, ohne diesen Check.
 
 ## ⚠️ Geplant (Entwurf, noch nicht umgesetzt): Trainings-Anmeldung
 
