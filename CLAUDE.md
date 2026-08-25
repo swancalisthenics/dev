@@ -468,6 +468,56 @@ new-swan-design/
     Ausgangsgrösse ist der Nutzen einer eigenen kleinen Variante aber so
     gering, dass sich der Zusatzaufwand aktuell nicht lohnt.
 
+23. **Live-Countdown "Nächstes Training" in der Zeiten-Sektion ergänzt**
+    (`#training-countdown` in `index.html`, Styles in `home.css`, Logik am
+    Ende von `main.js`). Rein clientseitig berechnet, kein Fetch/Backend
+    nötig: `getNextTrainingWindow()` findet die kommende Sonntag-18-Uhr-
+    Zielzeit anhand der lokalen Browser-Uhrzeit (bewusst nicht hart auf
+    Europa/Zürich fixiert — für praktisch alle echten Besucher ohnehin
+    identisch, spart manuelles DST-Handling). Drei Zustände pro Sekunde
+    per `setInterval` neu berechnet: normalerweise ein Tage/Std/Min/Sek-
+    Countdown; während des laufenden Trainings (Sonntag 18:00–20:00) blendet
+    sich stattdessen "Training läuft gerade 🔥" ein (auf ausdrücklichen
+    Wunsch — ohne diesen Zustand hätte der Countdown während der laufenden
+    Session unmotiviert auf die nächste Woche weitergezählt); ist das
+    heutige Fenster vorbei, springt die Zielzeit automatisch eine Woche
+    weiter. Bewusst **kein** `aria-live` auf den tickenden Zahlen, um
+    Screenreadern nicht jede Sekunde eine Ansage aufzuzwingen — die
+    statische "18:00 – 20:00"-Zeile bleibt ohnehin als verlässliche
+    Kern-Info stehen.
+24. **Countdown-Layout mehrfach nachjustiert, dabei ein echter Overflow-Bug
+    gefunden und behoben.** Stand ursprünglich (Punkt 23) noch innerhalb der
+    `.time-card`-Glaskarte; auf Wunsch jetzt ein eigenständiges Element
+    direkt in der Sektion, nicht mehr verschachtelt. Breite: mobil so breit
+    wie `.time-card` darunter, am PC so breit wie der Community-Foto-Slider
+    darüber (`.training-countdown` übernimmt dafür `.section`s
+    `max-width: var(--max-width)` statt einer eigenen Grenze). Schrift auf
+    **Inter** umgestellt (statt der Fliesstext-Serife Libre Baskerville) plus
+    `font-variant-numeric: tabular-nums` — verhindert, dass die Ziffern beim
+    Hochzählen jede Sekunde minimal in der Breite springen (dafür reicht
+    `tabular-nums` allein nicht immer, siehe Recherche-Quellen unten; Inter
+    unterstützt das Feature zuverlässig, im Gegensatz zu Libre Baskerville
+    ungeprüft). Zwischen den vier Einheiten steht jetzt ein
+    `.countdown-separator`-Doppelpunkt (`:`), mit `align-self: flex-start`
+    auf Zahlenhöhe ausgerichtet statt auf Höhe der kleinen Tage/Std/Min/Sek-
+    Labels, und `aria-hidden="true"` (rein dekorativ, für Screenreader
+    bedeutungslos ohne Kontext). Die Tage-Zahl ist jetzt ebenfalls
+    zweistellig (`padStart(2, '0')`), damit sie nicht schmaler ist als die
+    anderen drei und beim Sprung unter 10 Tage nicht die Breite wechselt.
+    **Bug dabei:** Nach dem Ergänzen der 3 Trennzeichen passte die Zeile auf
+    Mobile nicht mehr in ihren Rahmen (`.countdown-grid` brauchte ca. 488px,
+    der Rahmen hatte nur ca. 335px) — `justify-content: space-between` kann
+    das nicht ausgleichen (zieht nur auseinander, schiebt nie zusammen),
+    wodurch die ganze Seite horizontal scrollbar und verschoben wurde. Fix:
+    mobil kleinere Schrift (2.4rem statt 3.75rem) und deutlich kleinere
+    Abstände (`gap: 4px` statt 20px), dazu zurück auf `justify-content:
+    center` (die Doppelpunkte sorgen jetzt selbst für die visuelle
+    Trennung) — bis 320px Bildschirmbreite ohne Überlauf geprüft. Am PC
+    bewusst ebenfalls **zentriert statt auseinandergezogen**: Bei nur 4
+    kurzen Zahlengruppen über die volle Breite des Sliders (bis zu 1200px)
+    hätte `space-between` riesige, leer wirkende Lücken erzeugt statt
+    gleichmässiger Grosszügigkeit.
+
 ## Geplant: Mitgliederbereich mit Supabase (Konzept, noch nicht begonnen)
 
 Reine Konzeptphase aus einem Brainstorming-Gespräch — nichts davon ist

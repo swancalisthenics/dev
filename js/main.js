@@ -661,3 +661,51 @@ function copyPhoneNumber() {
 function copyEmailAddress() {
     copyToClipboard(currentEmailAddress, document.querySelector('#email-modal .btn-secondary'));
 }
+
+/* --- Trainings-Countdown (Startseite, Zeiten-Sektion) --- */
+const trainingCountdownEl = document.getElementById('training-countdown');
+if (trainingCountdownEl) {
+    const countdownIntro = document.getElementById('countdown-intro');
+    const countdownGrid = document.getElementById('countdown-grid');
+    const countdownLive = document.getElementById('countdown-live');
+    const countdownDays = document.getElementById('countdown-days');
+    const countdownHours = document.getElementById('countdown-hours');
+    const countdownMinutes = document.getElementById('countdown-minutes');
+    const countdownSeconds = document.getElementById('countdown-seconds');
+
+    // Naechstes Training = kommender Sonntag 18:00-20:00 (lokale Zeit des
+    // Browsers). Ist das heutige Fenster schon vorbei, springt es eine Woche
+    // weiter - damit bleibt "start"/"end" immer das naechste bevorstehende
+    // oder gerade laufende Training, nie ein vergangenes.
+    function getNextTrainingWindow(now) {
+        const start = new Date(now);
+        start.setHours(18, 0, 0, 0);
+        start.setDate(start.getDate() + ((7 - start.getDay()) % 7));
+        const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+        if (now >= end) {
+            start.setDate(start.getDate() + 7);
+            end.setDate(end.getDate() + 7);
+        }
+        return { start, end };
+    }
+
+    function tickTrainingCountdown() {
+        const now = new Date();
+        const { start, end } = getNextTrainingWindow(now);
+        const isLive = now >= start && now < end;
+
+        countdownLive.hidden = !isLive;
+        countdownIntro.hidden = isLive;
+        countdownGrid.hidden = isLive;
+        if (isLive) return;
+
+        const totalSeconds = Math.max(0, Math.floor((start - now) / 1000));
+        countdownDays.textContent = String(Math.floor(totalSeconds / 86400)).padStart(2, '0');
+        countdownHours.textContent = String(Math.floor((totalSeconds % 86400) / 3600)).padStart(2, '0');
+        countdownMinutes.textContent = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        countdownSeconds.textContent = String(totalSeconds % 60).padStart(2, '0');
+    }
+
+    tickTrainingCountdown();
+    setInterval(tickTrainingCountdown, 1000);
+}
