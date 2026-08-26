@@ -657,6 +657,60 @@ new-swan-design/
     `mitgliederContent`/die Mitgliederliste bewusst nicht mit angefasst -
     war nicht Teil der Anfrage, kann bei Bedarf später mit demselben Muster
     ergänzt werden.
+34. **Admins können im Mitglied-Modal Rollen für andere (und sich selbst)
+    vergeben** — neues Textfeld "Rollen (Komma-getrennt)" in
+    `#mitglied-modal`, nur sichtbar für Admins (`js/mitglieder.js`,
+    `saveMitgliedRollen()`). Rollen sind weiterhin Freitext (siehe
+    `rollen text[]`), also z. B. auch "Präsident" oder jede andere
+    frei erfundene Bezeichnung möglich — bewusst **mit echtem "ä"**
+    geschrieben (nicht "ae"), wo es als tatsächlicher Rollen-Name im Code
+    vorkommt (Kommentare in `.sql`-Dateien nutzen sonst weiterhin ae/oe/ue
+    aus Gewohnheit, das ist reiner Beschreibungstext, keine Dateninhalte).
+
+    **Bewusste, klare Grenze: Die Rolle "Admin" selbst lässt sich über
+    dieses UI nicht vergeben oder entziehen** — weder bei sich selbst noch
+    bei anderen, auch nicht durch einen anderen Admin. Wer neu Admin werden
+    oder Admin-Rechte verlieren soll, läuft ausschliesslich direkt über
+    Supabase (SQL-Editor), nie über die Website. Durchgesetzt an zwei
+    Stellen:
+    - **Clientseitig** (`saveMitgliedRollen()`): Erkennt einen Versuch,
+      "Admin" hinzuzufügen oder zu entfernen, korrigiert die einzureichende
+      Liste vorher automatisch zurück und zeigt eine ehrliche Meldung
+      ("... kann hier nicht vergeben/entzogen werden – nur direkt über
+      Supabase.") statt eines stillen Servereingriffs.
+    - **Serverseitig, massgeblich** (`supabase/002-admin-rollen.sql`, neue
+      Migration nach `schema.sql`): Der bisherige einfache
+      Selbst-Befoerderungs-Schutz (aus schema.sql, Punkt zur alten
+      Update-Policy) wurde ausgebaut. Neue Policy "Admins duerfen alle
+      Profile bearbeiten" erlaubt Admins erstmals, fremde Zeilen zu
+      bearbeiten (vorher konnte *niemand* fremde Zeilen ändern). Der
+      Trigger `protect_rollen_column_trigger` vergleicht bei jeder
+      `rollen`-Änderung `old.rollen` mit `new.rollen`: Nicht-Admins wird
+      die Änderung komplett verworfen; bei Admins wird ausschliesslich der
+      "Admin"-Bestandteil wieder auf den alten Stand zurückgesetzt (per
+      `array_append`/`array_remove`), alle anderen Rollen-Änderungen in
+      derselben Anfrage bleiben normal bestehen. `schema.sql` (die
+      "von Grund auf neu"-Referenz) wurde direkt mit der finalen Version
+      aktualisiert; `002-admin-rollen.sql` ist die tatsächlich auszuführende
+      Migration für das schon laufende "homepage"-Projekt (`drop
+      policy`/`create policy`-Diff gegenüber dem, was schema.sql ganz am
+      Anfang einmal angelegt hat). **Noch nicht ausgeführt** — muss im
+      Supabase SQL-Editor nachgeholt werden, sonst funktioniert die
+      Rollen-Vergabe im UI nicht (Policy fehlt noch).
+    - Bewusst **nicht** gebaut: ein systemweiter Schutz vor "letzter Admin
+      wird versehentlich degradiert" (nur die eigene Admin-Rolle ist
+      geschützt, nicht die eines anderen Admins) — war nicht Teil der
+      Anfrage, ginge über reinen Selbstschutz hinaus.
+
+    **"Ansicht: Admin (als normales Mitglied testen)"-Umschalter** auf
+    `pages/mitglieder.html`, nur für Admins sichtbar (`viewAsNormalMember`
+    in `js/mitglieder.js`). Rein lokale UI-Simulation für die Dauer des
+    Seitenaufrufs, ändert nichts an der Datenbank oder der echten Rolle -
+    blendet währenddessen nur den Rollen-Editor im Modal aus, damit ein
+    Admin sich die normale Mitglieder-Ansicht anschauen kann, ohne die
+    eigenen Admin-Rechte tatsächlich (auch nur kurzzeitig) zu verlieren.
+    Setzt sich bei jedem Neuladen der Seite zurück (kein „versehentlich in
+    Nicht-Admin-Ansicht steckenbleiben“).
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

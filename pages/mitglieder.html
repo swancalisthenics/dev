@@ -72,6 +72,10 @@
             Alle Mitglieder von Swan Calisthenics auf einen Blick.
         </p>
 
+        <div class="view-as-toggle-wrap">
+            <button type="button" class="btn btn-secondary" id="viewAsToggle" onclick="toggleViewAsNormal()" hidden>Ansicht: Admin (als normales Mitglied testen)</button>
+        </div>
+
         <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
             <p>Du bist nicht angemeldet.</p>
             <p class="form-hint">Diese Seite ist nur für eingeloggte Mitglieder sichtbar.</p>
@@ -98,6 +102,12 @@
         <div class="mitglieder-badges" id="mitgliedModalBadges"></div>
         <a href="mein-profil.html" class="self-profile-link" id="mitgliedModalSelfLink" hidden>Profil ansehen <span aria-hidden="true">&#8599;</span></a>
         <div class="mitglieder-links" id="mitgliedModalLinks"></div>
+        <div class="field mitglied-rollen-editor" id="mitgliedRollenEditor" hidden>
+            <label for="mitgliedRollenInput">Rollen (Admin-Bereich, Komma-getrennt)</label>
+            <input type="text" id="mitgliedRollenInput" placeholder="z. B. Admin, Vorstand">
+            <button type="button" class="btn btn-secondary" onclick="saveMitgliedRollen()">Rollen speichern</button>
+            <p id="mitgliedRollenNotice" class="form-hint" hidden></p>
+        </div>
     </div>
 </div>
 

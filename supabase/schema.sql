@@ -3,6 +3,14 @@
 -- das Projekt angelegt wurde (siehe CLAUDE.md, Abschnitt "Geplant:
 -- Mitgliederbereich mit Supabase", Schritt 1).
 --
+-- Zeigt den kompletten, aktuellen Soll-Zustand (fuer ein neues Projekt von
+-- Grund auf). Das echte "homepage"-Projekt existiert aber schon laenger und
+-- wurde stattdessen schrittweise per einzelnen Migrations-Dateien
+-- (supabase/002-*.sql, 003-*.sql, ...) auf diesen Stand gebracht - bei
+-- einem bereits laufenden Projekt nicht dieses Skript nochmal ausfuehren
+-- (Fehler wegen bereits existierender Tabelle), sondern nur die noch nicht
+-- ausgefuehrten Migrations-Dateien.
+--
 -- Setzt voraus, dass Mitglieder ueber Supabase Auth eingeladen wurden
 -- (auth.users existiert bereits als eingebaute Tabelle) - hier wird nur
 -- die Profil-Tabelle ergaenzt, die zusaetzlich zum Auth-Konto Name,
@@ -51,18 +59,84 @@ create policy "Mitglieder duerfen nur ihr eigenes Profil anlegen"
     to authenticated
     with check (auth.uid() = id);
 
--- ... und nur sein eigenes Profil bearbeiten.
--- ACHTUNG / NOCH OFFEN: Diese Policy erlaubt einem Mitglied aktuell auch,
--- die eigene `rollen`-Spalte selbst zu aendern (z.B. sich selbst auf "Admin"
--- zu setzen) - das darf in der echten Umsetzung nicht so bleiben. Vor dem
--- produktiven Einsatz entweder per Trigger absichern (Aenderung an `rollen`
--- nur erlauben, wenn der ausfuehrende User bereits Admin/Vorstand ist) oder
--- `rollen` in eine eigene, nur vom Vorstand beschreibbare Tabelle auslagern.
-create policy "Mitglieder duerfen nur ihr eigenes Profil bearbeiten"
+-- ... und nur sein eigenes Profil bearbeiten ...
+create policy "Mitglieder duerfen ihr eigenes Profil bearbeiten"
     on public.profiles for update
     to authenticated
     using (auth.uid() = id)
     with check (auth.uid() = id);
+
+-- ... Admins duerfen zusaetzlich auch fremde Profile bearbeiten (fuer die
+-- Rollen-Vergabe im Mitglied-Modal, siehe pages/mitglieder.html). Der
+-- eigentliche Schutz gegen Selbst-Befoerderung laeuft ueber den Trigger
+-- weiter unten, nicht ueber diese Policy allein - ohne den Trigger koennte
+-- sich sonst jedes Mitglied ueber die Policy oben weiterhin selbst zum
+-- Admin machen.
+create policy "Admins duerfen alle Profile bearbeiten"
+    on public.profiles for update
+    to authenticated
+    using (
+        exists (
+            select 1 from public.profiles p
+            where p.id = auth.uid() and 'Admin' = any(p.rollen)
+        )
+    )
+    with check (
+        exists (
+            select 1 from public.profiles p
+            where p.id = auth.uid() and 'Admin' = any(p.rollen)
+        )
+    );
+
+-- Schliesst die Selbst-Befoerderungs-Luecke fuer beide Policies oben und
+-- setzt zusaetzlich eine bewusste Grenze: Admins duerfen ueber die
+-- Mitglieder-Seite alle Rollen ausser "Admin" selbst vergeben/entziehen -
+-- fuer NIEMANDEN, auch nicht fuer sich selbst oder andere Admins. Wer neu
+-- Admin werden oder Admin-Rechte verlieren soll, passiert bewusst nicht
+-- über dieses UI, sondern direkt per SQL durch die Projektinhaberin/den
+-- Projektinhaber. "Admin" in `new.rollen` wird deshalb immer wieder exakt
+-- auf den Stand von `old.rollen` zurueckgesetzt, unabhaengig davon, wer die
+-- Aenderung ausfuehrt. Alle anderen Rollen-Aenderungen (Vorstand,
+-- Ehrenmitglied, frei erfundene wie "Präsident", ...) bleiben für Admins
+-- normal moeglich. security definer, damit die Abfrage hier unabhaengig
+-- von der RLS-Policy der aufrufenden Seite zuverlaessig funktioniert.
+create or replace function public.protect_rollen_column()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    ausfuehrender_ist_admin boolean;
+    war_admin boolean;
+    ist_jetzt_admin boolean;
+begin
+    if new.rollen is distinct from old.rollen then
+        select exists (
+            select 1 from public.profiles
+            where id = auth.uid() and 'Admin' = any(rollen)
+        ) into ausfuehrender_ist_admin;
+
+        if not ausfuehrender_ist_admin then
+            new.rollen := old.rollen;
+        else
+            war_admin := 'Admin' = any(old.rollen);
+            ist_jetzt_admin := 'Admin' = any(new.rollen);
+            if war_admin and not ist_jetzt_admin then
+                new.rollen := array_append(new.rollen, 'Admin');
+            elsif ist_jetzt_admin and not war_admin then
+                new.rollen := array_remove(new.rollen, 'Admin');
+            end if;
+        end if;
+    end if;
+    return new;
+end;
+$$;
+
+create trigger protect_rollen_column_trigger
+    before update on public.profiles
+    for each row
+    execute function public.protect_rollen_column();
 
 -- Oeffentliche Sicht fuer die Mitgliederliste (pages/mitglieder.html):
 -- E-Mail ist standardmaessig privat (email_oeffentlich = false) - die View

@@ -123,3 +123,25 @@
     width: 18px;
     height: 18px;
 }
+
+/* Nur für Admins sichtbar (siehe js/mitglieder.js) - rein lokale
+   "Ansicht wechseln"-Simulation, keine echte Rollen-Änderung. */
+.view-as-toggle-wrap {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Ebenfalls nur für Admins sichtbar, im Mitglied-Modal - Admin-Status
+   selbst lässt sich hier bewusst nicht ändern (siehe Trigger in
+   supabase/002-admin-rollen.sql). */
+.mitglied-rollen-editor {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--glass-border);
+    text-align: left;
+}
+
+.mitglied-rollen-editor .btn {
+    width: 100%;
+    margin-top: 8px;
+}

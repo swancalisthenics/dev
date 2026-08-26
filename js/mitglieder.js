@@ -5,6 +5,32 @@
 // Details (Social-Links etc.) für genau diese eine Person.
 
 let alleMitglieder = [];
+let currentUserIsAdmin = false;
+let viewAsNormalMember = false;
+let editingMitgliedId = null;
+
+// Rein lokale Simulation fuer die Dauer des Seitenaufrufs (kein Reload-
+// sicherer Zustand, keine Datenbank-Aenderung) - ein Admin kann sich damit
+// die Ansicht eines normalen Mitglieds anschauen, ohne die eigenen echten
+// Admin-Rechte zu verlieren.
+function toggleViewAsNormal() {
+    viewAsNormalMember = !viewAsNormalMember;
+    updateViewAsToggleUI();
+    // Falls das Modal gerade offen ist, Editor-Sichtbarkeit sofort anpassen.
+    const rollenEditor = document.getElementById('mitgliedRollenEditor');
+    if (rollenEditor) {
+        rollenEditor.hidden = !(currentUserIsAdmin && !viewAsNormalMember);
+    }
+}
+
+function updateViewAsToggleUI() {
+    const btn = document.getElementById('viewAsToggle');
+    if (!btn) return;
+    btn.hidden = !currentUserIsAdmin;
+    btn.textContent = viewAsNormalMember
+        ? 'Ansicht: normales Mitglied (zurück zu Admin)'
+        : 'Ansicht: Admin (als normales Mitglied testen)';
+}
 
 function renderMitgliederGrid(mitglieder) {
     const grid = document.getElementById('mitgliederGrid');
@@ -61,8 +87,73 @@ function openMitgliedModal(m) {
         ${m.email ? `<a href="#" title="E-Mail" onclick="openEmailDialog(event, '${m.email}')"><span class="icon icon-envelope" aria-hidden="true"></span></a>` : ''}
     `;
 
+    const rollenEditor = document.getElementById('mitgliedRollenEditor');
+    const zeigeAdminUI = currentUserIsAdmin && !viewAsNormalMember;
+    if (rollenEditor) {
+        rollenEditor.hidden = !zeigeAdminUI;
+        if (zeigeAdminUI) {
+            editingMitgliedId = m.id;
+            document.getElementById('mitgliedRollenInput').value = m.rollen.join(', ');
+            const notice = document.getElementById('mitgliedRollenNotice');
+            notice.hidden = true;
+        }
+    }
+
     modal.classList.add('active');
     updateBodyScrollLock();
+}
+
+// Nur sichtbar/nutzbar fuer Admins, die sich nicht gerade als normales
+// Mitglied ausgeben (siehe openMitgliedModal oben). Die eigentliche
+// Absicherung liegt aber in der Datenbank (Trigger + Policies, siehe
+// supabase/002-admin-rollen.sql), nicht hier im UI - "Admin" selbst laesst
+// sich damit bewusst weder vergeben noch entziehen, das laeuft nur direkt
+// ueber Supabase. Die Korrektur hier spiegelt das nur clientseitig, damit
+// sofort eine ehrliche Meldung statt eines stillen Server-Overrides kommt.
+async function saveMitgliedRollen() {
+    const input = document.getElementById('mitgliedRollenInput');
+    const notice = document.getElementById('mitgliedRollenNotice');
+    let neueRollen = input.value.split(',').map(r => r.trim()).filter(Boolean);
+
+    if (!neueRollen.length) {
+        notice.textContent = 'Mindestens eine Rolle angeben.';
+        notice.hidden = false;
+        return;
+    }
+
+    const mitglied = alleMitglieder.find(m => m.id === editingMitgliedId);
+    const warAdmin = !!mitglied?.rollen.includes('Admin');
+    const istJetztAdmin = neueRollen.includes('Admin');
+    let adminHinweis = '';
+    if (warAdmin && !istJetztAdmin) {
+        neueRollen.push('Admin');
+        adminHinweis = ' (Admin-Status kann hier nicht entzogen werden – nur direkt über Supabase.)';
+    } else if (!warAdmin && istJetztAdmin) {
+        neueRollen = neueRollen.filter(r => r !== 'Admin');
+        if (!neueRollen.length) neueRollen = ['Mitglied'];
+        adminHinweis = ' (Admin-Status kann hier nicht vergeben werden – nur direkt über Supabase.)';
+    }
+
+    const { error } = await supabaseClient
+        .from('profiles')
+        .update({ rollen: neueRollen })
+        .eq('id', editingMitgliedId);
+
+    if (error) {
+        notice.textContent = 'Fehler: ' + error.message;
+        notice.hidden = false;
+        return;
+    }
+
+    if (mitglied) mitglied.rollen = neueRollen;
+    input.value = neueRollen.join(', ');
+    notice.textContent = 'Gespeichert!' + adminHinweis;
+    notice.hidden = false;
+    renderMitgliederGrid(alleMitglieder);
+    document.getElementById('mitgliedModalBadges').innerHTML = `
+        ${neueRollen.map(r => `<span class="badge badge-category">${r}</span>`).join('')}
+        ${mitglied?.isSelf ? '<span class="badge badge-pending">Das bist du</span>' : ''}
+    `;
 }
 
 function closeMitgliedModal() {
@@ -116,6 +207,7 @@ function initMitgliederFilter(mitglieder) {
         .select('id, name, email, rollen, instagram, tiktok, profilbild_url');
     if (error) return;
     alleMitglieder = data.map(p => ({
+        id: p.id,
         name: p.name,
         initial: p.name.charAt(0).toUpperCase(),
         isSelf: p.id === user.id,
@@ -124,6 +216,8 @@ function initMitgliederFilter(mitglieder) {
         instagram: p.instagram,
         tiktok: p.tiktok
     }));
+    currentUserIsAdmin = alleMitglieder.some(m => m.isSelf && m.rollen.includes('Admin'));
+    updateViewAsToggleUI();
     renderMitgliederGrid(alleMitglieder);
     initMitgliederFilter(alleMitglieder);
 })();
