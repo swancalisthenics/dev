@@ -647,6 +647,15 @@
     gap: 24px;
 }
 
+/* Gleicher Fallstrick wie bei .self-profile-link (Punkt 20): [hidden]
+   verliert gegen die eigene "display: flex"-Regel oben, weil eine
+   Autor-Regel mit display immer gegen die Attribut-Regel des
+   User-Agent-Stylesheets gewinnt - die Klasse setzt "hidden" also nie
+   tatsaechlich um, ohne diese explizite Override-Regel. */
+.profile-layout[hidden] {
+    display: none;
+}
+
 @media (min-width: 768px) {
     .profile-layout {
         flex-direction: row;

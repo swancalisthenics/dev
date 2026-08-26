@@ -626,6 +626,25 @@ new-swan-design/
     hält die Gate-Logik selbst weiterhin generisch für beide Seiten
     (`mitglieder.html` braucht keinen Callback). "Platzhalter-Daten"-Badge
     entfernt.
+32. **Dritter Fall desselben `[hidden]`-Fallstricks gefunden** (nach Punkt
+    20 `.self-profile-link` und Punkt 30 SVG-Icons): `#profileLayout` blieb
+    nach dem Abmelden bzw. bei einem frischen, nicht angemeldeten Aufruf
+    von `mein-profil.html` weiterhin sichtbar (mit leeren Feldern statt
+    ausgeblendet), obwohl `content.hidden = true` (bzw. das native
+    `hidden`-Attribut) korrekt gesetzt wurde - `.profile-layout { display:
+    flex; ... }` gewann dagegen, weil eine Autor-Regel mit `display` auf
+    derselben Klasse immer gegen die `[hidden]`-Regel des
+    User-Agent-Stylesheets gewinnt. Fix: `.profile-layout[hidden] {
+    display: none; }` ergänzt (gleiches Muster, höhere Spezifität durch den
+    zusätzlichen Attribut-Selektor). **Wichtige Lektion fürs eigene Testen:**
+    Bisher wurde beim Prüfen von Sichtbarkeit nur `element.hidden`
+    (die Property) abgefragt, nie `getComputedStyle(element).display` -
+    die Property liest sich immer korrekt zurück, auch wenn die Anzeige
+    durch genau diesen CSS-Fallstrick trotzdem sichtbar bleibt. Ab jetzt bei
+    Sichtbarkeits-Tests immer den tatsächlichen `display`-Wert (oder die
+    `getBoundingClientRect()`-Höhe) prüfen, nicht nur die Property/das
+    Attribut. `#mitgliederContent` zum Vergleich geprüft: hat keine eigene
+    Klasse, daher dort keine konkurrierende `display`-Regel, kein Risiko.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
