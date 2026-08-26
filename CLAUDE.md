@@ -547,6 +547,18 @@ new-swan-design/
     (Same-Document-Navigation, Skripte laufen nicht neu) - für einen echten
     Test zuerst auf eine andere Seite und dann erst auf die Fehler-URL
     navigiert.
+27. **Login-Formular auf die echte Supabase-Version umgestellt**
+    (`handleLoginSubmit()` in `main.js`) — Demo-Version gelöscht, die
+    vorbereitete echte Version (`signInWithPassword`) aktiviert. Getestet
+    mit absichtlich falschem Passwort gegen das echte Projekt: kam korrekt
+    "Login fehlgeschlagen: Invalid login credentials" von Supabase zurück
+    (echter Server-Roundtrip, kein Mock). Test mit dem echten Passwort noch
+    offen (E-Mail-Rate-Limit verhinderte gerade das Setzen eines Passworts
+    für einen zweiten Testnutzer, siehe unten). Bewusst noch **nicht**
+    angefasst: Das Profil-Icon zeigt nach erfolgreichem Login noch nicht das
+    eigene Foto/Dropdown (Plan-Schritt 5, zweite Hälfte) — nur das Modal
+    schliesst sich, kein sichtbares "eingeloggt"-Zeichen in der Topbar bis
+    dahin.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

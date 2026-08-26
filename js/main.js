@@ -480,35 +480,21 @@ function closeLoginDialog() {
     updateBodyScrollLock();
 }
 
-// DEMO-VERSION (aktiv) - es gibt noch keinen echten Login, zeigt nur einen
-// ehrlichen Hinweis statt so zu tun als würde sich jemand anmelden. Sobald
-// Supabase eingerichtet ist (siehe CLAUDE.md, Abschnitt "Geplant:
-// Mitgliederbereich mit Supabase"): diese Funktion löschen und die ECHTE
-// VERSION direkt darunter aktivieren (auskommentieren).
-function handleLoginSubmit(event) {
+async function handleLoginSubmit(event) {
     event.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
     const notice = document.getElementById('loginNotice');
-    if (notice) notice.hidden = false;
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) {
+        notice.textContent = 'Login fehlgeschlagen: ' + error.message;
+        notice.hidden = false;
+        return false;
+    }
+    notice.hidden = true;
+    closeLoginDialog();
     return false;
 }
-
-// ECHTE VERSION (auskommentiert) - braucht js/supabase-client.js (Plan-
-// Schritt 2, noch nicht angelegt) mit einem global verfügbaren
-// `supabaseClient`.
-// async function handleLoginSubmit(event) {
-//     event.preventDefault();
-//     const email = document.getElementById('loginEmail').value;
-//     const password = document.getElementById('loginPassword').value;
-//     const notice = document.getElementById('loginNotice');
-//     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-//     if (error) {
-//         notice.textContent = 'Login fehlgeschlagen: ' + error.message;
-//         notice.hidden = false;
-//         return false;
-//     }
-//     closeLoginDialog();
-//     return false;
-// }
 
 function openSetPasswordModal() {
     const modal = document.getElementById('set-password-modal');
