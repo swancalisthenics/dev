@@ -713,8 +713,8 @@ function clearProfileForm() {
     document.getElementById('oldPassword').value = '';
     document.getElementById('newPassword').value = '';
     document.getElementById('newPasswordConfirm').value = '';
-    document.getElementById('instagramInfo').hidden = true;
-    document.getElementById('tiktokInfo').hidden = true;
+    document.getElementById('instagramInfo').classList.remove('is-visible');
+    document.getElementById('tiktokInfo').classList.remove('is-visible');
     document.getElementById('instagramError').hidden = true;
     document.getElementById('tiktokError').hidden = true;
     const avatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
@@ -755,11 +755,17 @@ function closeAuthErrorModal() {
 // profiles-Zeile fuer diese Person (siehe CLAUDE.md) - ein `update` auf eine
 // nicht existierende Zeile aendert lautlos 0 Zeilen (kein Fehler, aber auch
 // nichts gespeichert). `upsert` legt die Zeile beim ersten Speichern an.
-// Blendet den Sichtbarkeits-Hinweis unter einem Feld (z.B. Instagram/
-// TikTok auf "Mein Profil") per Klick auf das Fragezeichen-Icon ein/aus.
+// Blendet die schwebende Sichtbarkeits-Sprechblase bei einem Feld (z.B.
+// Instagram/TikTok auf "Mein Profil") per Klick auf das Fragezeichen-Icon
+// ein/aus - nur relevant auf Touch-Geraeten. Auf Geraeten mit echter Maus
+// zeigt bereits reines Hover die Blase (siehe @media in components.css);
+// dort soll ein Klick bewusst nichts tun, sonst koennte die Blase nach dem
+// Wegbewegen der Maus haengen bleiben (Hover zeigt sie dann nicht mehr,
+// die per Klick gesetzte Klasse aber schon).
 function toggleFieldInfo(id) {
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     const el = document.getElementById(id);
-    if (el) el.hidden = !el.hidden;
+    if (el) el.classList.toggle('is-visible');
 }
 
 // Prueft, ob eine eingegebene URL wirklich zu einer der erlaubten Domains

@@ -992,8 +992,16 @@
    "Mein Profil") - ersetzt dort das Label, das stattdessen als Platzhalter
    im Input steht. Eigene Zeile über dem Input statt innerhalb (wie beim
    Passwort-Auge), damit ein langer eingetippter Link nicht unter das Icon
-   laeuft. Klick blendet die zugehoerige .field-info-text darunter ein/aus. */
+   laeuft. .field-info-text ist eine schwebende Sprechblase unter dem Icon
+   (position:absolute, "im Vordergrund"), nicht mehr ein fest im Textfluss
+   stehender Absatz unter dem Feld - dafür muss .field-info-row selbst der
+   position:relative-Anker sein. Am PC (echte Maus, siehe @media unten)
+   reicht Hover; auf Touch-Geräten (kein Hover) übernimmt weiterhin
+   toggleFieldInfo() per Klasse .is-visible statt des hidden-Attributs -
+   Grund: eine reine Attribut-Steuerung hätte sich mit der CSS-Hover-Regel
+   in die Quere kommen können (siehe main.js). */
 .field-info-row {
+    position: relative;
     display: flex;
     justify-content: flex-end;
     margin-bottom: 6px;
@@ -1008,9 +1016,46 @@
 }
 
 .field-info-toggle .icon {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     color: var(--text-muted);
+}
+
+.field-info-text {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 5;
+    width: max-content;
+    max-width: 220px;
+    margin: 0;
+    padding: 8px 12px;
+    background: var(--modal-fill);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-soft);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    text-align: left;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.field-info-text.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Nur auf Geräten mit echter Maus (nicht bei Touch, wo "hover" entweder
+   gar nicht oder nur unzuverlässig nach einem Tap feuert) reicht reines
+   Überfahren - kein Klick nötig. */
+@media (hover: hover) and (pointer: fine) {
+    .field-info-row:hover .field-info-text {
+        opacity: 1;
+    }
 }
 
 .field-info-text {

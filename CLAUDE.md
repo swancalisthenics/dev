@@ -983,6 +983,27 @@ new-swan-design/
     - Auf ausdrücklichen Wunsch bewusst **nichts davon gelöscht oder
       angefasst** - dient nur als Fundstellen-Liste für einen möglichen
       künftigen Aufräum-Durchgang.
+45. **Info-Icon bei Instagram/TikTok (Punkt 40) auf Nutzer-Feedback hin
+    überarbeitet:** Icon+Kreis leicht vergrössert (18px → 22px). Der
+    Hinweistext ist jetzt eine schwebende Sprechblase direkt unter dem
+    Icon (`position: absolute`, "im Vordergrund") statt eines Absatzes im
+    normalen Textfluss unter dem Feld - `.field-info-text` liegt dafür neu
+    *innerhalb* von `.field-info-row` (die selbst zum
+    `position: relative`-Anker wird), nicht mehr als Geschwister des
+    Inputs. Am PC (echte Maus) reicht jetzt reines Hover
+    (`@media (hover: hover) and (pointer: fine)`), kein Klick mehr nötig -
+    auf Touch-Geräten (kein Hover) bleibt Antippen der einzige Weg.
+    Sichtbarkeit läuft dafür nicht mehr über das `hidden`-Attribut,
+    sondern über eine CSS-Klasse `.is-visible`: Attribut und reine
+    CSS-Hover-Regel hätten sich sonst in die Quere kommen können (z. B.
+    Blase bliebe nach Wegbewegen der Maus haengen, wenn vorher zusätzlich
+    per Klick geöffnet wurde). `toggleFieldInfo()` in `main.js` prüft
+    deshalb selbst per `matchMedia('(hover: hover) and (pointer: fine)')`
+    und tut auf Geräten mit echter Maus bewusst nichts (kein Klick-Verhalten
+    mehr dort) - verifiziert: Klick auf einem Hover-fähigen Gerät ändert die
+    Klasse nicht, auf einem simulierten Nicht-Hover-Gerät funktioniert das
+    Klick-Toggle unverändert. `clearProfileForm()` entfernt beim Abmelden
+    entsprechend die Klasse statt das Attribut zu setzen.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
