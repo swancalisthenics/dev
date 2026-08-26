@@ -65,7 +65,13 @@
             <span class="badge badge-pending">Platzhalter-Daten</span>
         </p>
 
-        <div class="profile-layout">
+        <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
+            <p>Du bist nicht angemeldet.</p>
+            <p class="form-hint">Diese Seite ist nur für eingeloggte Mitglieder sichtbar.</p>
+            <button type="button" class="btn btn-primary" onclick="openLoginDialog(event)">Jetzt anmelden</button>
+        </div>
+
+        <div class="profile-layout" id="profileLayout" hidden>
         <div class="glass-card profile-form-card">
             <div class="person-img-placeholder" aria-hidden="true">M</div>
             <form id="profileForm" onsubmit="return handleProfileSubmit(event)">

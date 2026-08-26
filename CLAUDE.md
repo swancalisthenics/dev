@@ -681,8 +681,7 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
 ### Einzelne Tasks (Reihenfolge als Vorschlag)
 
 1. Supabase-Projekt anlegen (Free-Tier), Projekt-URL + Public-API-Key notieren
-   — **offen, muss der Vereins-/Projektinhaber selbst machen** (Konto-
-   Erstellung bei einem Drittanbieter).
+   — **umgesetzt**, Projekt "homepage" (Frankfurt/eu-central-1).
 2. Supabase-JS-SDK per CDN einbinden, Client mit URL + Key initialisieren —
    **umgesetzt** ([js/supabase-client.js](js/supabase-client.js), auf allen
    9 Seiten vor `main.js` eingebunden). Projekt heisst "homepage"
@@ -761,19 +760,21 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
     `pages/mitglieder.html` (mit `TEMP`-Kommentar im Code markiert) — reiner
     Test-Zugang, solange die Seite sonst nirgends erreichbar ist. Muss weg,
     sobald der echte Zugang über das Profil-Dropdown steht.
-13. **Nicht-angemeldet-Zustand für `mitglieder.html` und `mein-profil.html`
-    fehlt noch.** Wichtige Unterscheidung: Die HTML-Seiten selbst sind bei
-    statischem Hosting (GitHub Pages) immer öffentlich abrufbar, das lässt
-    sich nicht verhindern. Was Supabase tatsächlich schützt, sind die
-    Daten — die RLS-Policy liefert ohne gültige eingeloggte Session nichts
-    zurück. Damit ein nicht angemeldeter Besucher, der den Link trotzdem
-    öffnet, keine leere/kaputte Ansicht sieht, braucht beide Seiten vor dem
-    eigentlichen Laden der Daten einen Check per `supabase.auth.getSession()`
-    (bzw. `onAuthStateChange`): ohne gültige Session einen
-    "Bitte melde dich an"-Hinweis mit Login-Anstoss zeigen, erst bei
-    vorhandener Session die Mitgliederliste/das Profilformular überhaupt
-    abfragen. Noch nicht gebaut — die Demo-Version zeigt aktuell
-    unbedingt die Platzhalter-Daten, ohne diesen Check.
+13. **Nicht-angemeldet-Zustand für `mitglieder.html` und `mein-profil.html`**
+    — **umgesetzt** (`#notLoggedIn`-Block + `initAuthGate()` in `main.js`).
+    Wichtige Unterscheidung: Die HTML-Seiten selbst sind bei statischem
+    Hosting (GitHub Pages) immer öffentlich abrufbar, das lässt sich nicht
+    verhindern. Was Supabase tatsächlich schützt, sind die Daten — die
+    RLS-Policy liefert ohne gültige eingeloggte Session nichts zurück. Damit
+    ein nicht angemeldeter Besucher, der den Link trotzdem öffnet, keine
+    leere/kaputte Ansicht sieht, prüfen beide Seiten vor dem eigentlichen
+    Laden der Daten per `supabase.auth.getSession()` (und
+    `onAuthStateChange` für spätere Login-/Logout-Wechsel ohne Reload): ohne
+    gültige Session einen "Du bist nicht angemeldet"-Hinweis mit
+    Login-Button zeigen (`#notLoggedIn`), erst bei vorhandener Session den
+    eigentlichen Inhalt (`#mitgliederContent` bzw. `#profileLayout`)
+    einblenden. Getestet: Ohne Session bleibt der Inhalt korrekt
+    ausgeblendet auf beiden Seiten.
 
 ## ⚠️ Geplant (Entwurf, noch nicht umgesetzt): Trainings-Anmeldung
 

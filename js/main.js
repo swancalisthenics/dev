@@ -546,6 +546,38 @@ if (typeof supabaseClient !== 'undefined') {
     });
 }
 
+// Blendet auf mitgliederbeschraenkten Seiten (mitglieder.html, mein-profil.html)
+// den eigentlichen Inhalt aus und zeigt stattdessen einen Login-Hinweis, solange
+// keine gueltige Supabase-Session besteht. Noetig, weil die Seiten selbst bei
+// statischem Hosting immer oeffentlich abrufbar sind (siehe CLAUDE.md) - ohne
+// diesen Check wuerde ein nicht angemeldeter Besucher stumm eine leere/
+// fehlerhafte Ansicht sehen, weil die eigentlichen Datenabfragen per RLS
+// ohnehin nichts liefern wuerden.
+async function initAuthGate(contentId) {
+    const notice = document.getElementById('notLoggedIn');
+    const content = document.getElementById(contentId);
+    if (!notice || !content) return;
+
+    function applyAuthState(session) {
+        notice.hidden = !!session;
+        content.hidden = !session;
+    }
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    applyAuthState(session);
+
+    supabaseClient.auth.onAuthStateChange((event, newSession) => {
+        applyAuthState(newSession);
+    });
+}
+
+if (document.getElementById('mitgliederContent')) {
+    initAuthGate('mitgliederContent');
+}
+if (document.getElementById('profileLayout')) {
+    initAuthGate('profileLayout');
+}
+
 function closeAuthErrorModal() {
     const modal = document.getElementById('auth-error-modal');
     if (modal) modal.classList.remove('active');

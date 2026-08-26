@@ -64,12 +64,20 @@
             <span class="badge badge-pending">Platzhalter-Daten</span>
         </p>
 
-        <div class="field search-field">
-            <input type="text" id="mitgliederSearch" placeholder="Mitglied suchen...">
+        <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
+            <p>Du bist nicht angemeldet.</p>
+            <p class="form-hint">Diese Seite ist nur für eingeloggte Mitglieder sichtbar.</p>
+            <button type="button" class="btn btn-primary" onclick="openLoginDialog(event)">Jetzt anmelden</button>
         </div>
-        <div class="filter-bar" id="mitgliederFilterBar"></div>
 
-        <div class="mitglieder-grid" id="mitgliederGrid"></div>
+        <div id="mitgliederContent" hidden>
+            <div class="field search-field">
+                <input type="text" id="mitgliederSearch" placeholder="Mitglied suchen...">
+            </div>
+            <div class="filter-bar" id="mitgliederFilterBar"></div>
+
+            <div class="mitglieder-grid" id="mitgliederGrid"></div>
+        </div>
     </section>
 </main>
 
