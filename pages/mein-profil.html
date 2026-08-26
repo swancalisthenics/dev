@@ -49,6 +49,7 @@
                 <button class="profile-toggle" id="profileToggle" onclick="handleProfileToggleClick(event)" aria-label="Mitglieder-Login">
                     <svg id="profileToggleIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
                     <span class="profile-toggle-initial" id="profileToggleInitial" hidden></span>
+                    <svg class="profile-toggle-chevron" id="profileToggleChevron" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
                 <div class="profile-dropdown" id="profileDropdown">
                     <a href="mitglieder.html">Mitglieder</a>
@@ -70,7 +71,6 @@
         <h2 class="section-title">Mein <span class="accent">Profil</span></h2>
         <p class="section-lead">
             Eigene Angaben bearbeiten.
-            <span class="badge badge-pending">Platzhalter-Daten</span>
         </p>
 
         <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
@@ -81,15 +81,15 @@
 
         <div class="profile-layout" id="profileLayout" hidden>
         <div class="glass-card profile-form-card">
-            <div class="person-img-placeholder" aria-hidden="true">M</div>
+            <div class="person-img-placeholder" id="profileAvatarPlaceholder" aria-hidden="true"></div>
             <form id="profileForm" onsubmit="return handleProfileSubmit(event)">
                 <div class="field">
                     <label for="profileName">Name</label>
-                    <input type="text" id="profileName" name="name" value="Max Mustermann" required>
+                    <input type="text" id="profileName" name="name" required>
                 </div>
                 <div class="field">
                     <label for="profileEmail">E-Mail</label>
-                    <input type="email" id="profileEmail" name="email" value="max.mustermann@example.com" required>
+                    <input type="email" id="profileEmail" name="email" required>
                 </div>
                 <label class="toggle">
                     <input type="checkbox" id="profileEmailShare">
@@ -99,11 +99,11 @@
                 <p class="form-hint">Instagram und TikTok sind für andere Mitglieder sichtbar.</p>
                 <div class="field">
                     <label for="profileInstagram">Instagram-Link</label>
-                    <input type="url" id="profileInstagram" name="instagram" value="https://www.instagram.com/maxmustermann">
+                    <input type="url" id="profileInstagram" name="instagram">
                 </div>
                 <div class="field">
                     <label for="profileTiktok">TikTok-Link</label>
-                    <input type="url" id="profileTiktok" name="tiktok" value="https://www.tiktok.com/@maxmustermann">
+                    <input type="url" id="profileTiktok" name="tiktok">
                 </div>
                 <p id="profileNotice" hidden>Speichern ist noch nicht aktiv – folgt in einem der nächsten Schritte.</p>
                 <div class="modal-actions">

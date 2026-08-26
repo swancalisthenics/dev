@@ -235,6 +235,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
     flex-shrink: 0;
     background: var(--glass-fill);
     backdrop-filter: var(--glass-blur);
@@ -244,14 +245,51 @@
     cursor: pointer;
 }
 
+/* Eingeloggt: statt eines runden Icon-Buttons ein breiteres Pill (Avatar +
+   Chevron nebeneinander) - ein einzelner Buchstabe wirkte mittig in einem
+   40px-Kreis gequetscht/unfertig, siehe Punkt 30. */
+.profile-toggle.is-logged-in {
+    width: auto;
+    height: 40px;
+    padding: 0 12px 0 4px;
+    border-radius: var(--radius-pill);
+}
+
 .profile-toggle svg {
     width: 18px;
     height: 18px;
 }
 
 .profile-toggle-initial {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--aurora-coral), var(--aurora-red));
+    color: #fff;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+}
+
+.profile-toggle-chevron.profile-toggle-chevron {
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+}
+
+/* Defensiv: [hidden] verliert gegen jede Autor-Regel, die auf demselben
+   Element auch "display" setzt (gleiches Muster wie bei .self-profile-link,
+   siehe Punkt 20) - hier zwar keine der Regeln oben direkt verantwortlich,
+   aber SVGs behandeln [hidden] browserabhängig unzuverlässig genug, dass es
+   sich lohnt, das explizit zu erzwingen statt sich auf das UA-Stylesheet
+   zu verlassen. */
+#profileToggleIcon[hidden],
+#profileToggleInitial[hidden],
+#profileToggleChevron[hidden] {
+    display: none;
 }
 
 .profile-menu-wrapper {

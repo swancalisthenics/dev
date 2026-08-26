@@ -475,11 +475,18 @@ async function updateProfileToggleUI(session) {
     const btn = document.getElementById('profileToggle');
     const icon = document.getElementById('profileToggleIcon');
     const initialEl = document.getElementById('profileToggleInitial');
+    const chevron = document.getElementById('profileToggleChevron');
     if (!btn || !icon || !initialEl) return;
 
+    // Fuer die beiden <svg>-Elemente bewusst setAttribute/removeAttribute
+    // statt .hidden: SVGElement erbt nicht von HTMLElement, die hidden-
+    // Property spiegelt sich dafuer nie ins echte Attribut (liest sich
+    // korrekt zurueck, [hidden] in CSS matcht aber trotzdem nie).
     if (!session) {
-        icon.hidden = false;
+        icon.removeAttribute('hidden');
         initialEl.hidden = true;
+        if (chevron) chevron.setAttribute('hidden', '');
+        btn.classList.remove('is-logged-in');
         btn.setAttribute('aria-label', 'Mitglieder-Login');
         return;
     }
@@ -497,9 +504,11 @@ async function updateProfileToggleUI(session) {
         displayChar = profile.name.charAt(0).toUpperCase();
     }
 
-    icon.hidden = true;
+    icon.setAttribute('hidden', '');
     initialEl.hidden = false;
     initialEl.textContent = displayChar;
+    if (chevron) chevron.removeAttribute('hidden');
+    btn.classList.add('is-logged-in');
     btn.setAttribute('aria-label', 'Konto-Menü');
 }
 
@@ -629,7 +638,7 @@ if (typeof supabaseClient !== 'undefined') {
 // diesen Check wuerde ein nicht angemeldeter Besucher stumm eine leere/
 // fehlerhafte Ansicht sehen, weil die eigentlichen Datenabfragen per RLS
 // ohnehin nichts liefern wuerden.
-async function initAuthGate(contentId) {
+async function initAuthGate(contentId, onSession) {
     const notice = document.getElementById('notLoggedIn');
     const content = document.getElementById(contentId);
     if (!notice || !content) return;
@@ -637,6 +646,7 @@ async function initAuthGate(contentId) {
     function applyAuthState(session) {
         notice.hidden = !!session;
         content.hidden = !session;
+        if (session && onSession) onSession(session);
     }
 
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -647,11 +657,33 @@ async function initAuthGate(contentId) {
     });
 }
 
+// Fuellt das "Mein Profil"-Formular beim Laden mit den echten, eigenen
+// Daten statt der frueheren "Max Mustermann"-Platzhalterwerte. Fehlt die
+// profiles-Zeile noch (z.B. direkt nach der Einladung, vor dem ersten
+// Speichern), bleiben Name/Social-Links leer und die E-Mail faellt auf die
+// Auth-Konto-Adresse zurueck - kein Fehlerfall, einfach ein neues Profil.
+async function loadOwnProfileIntoForm(session) {
+    const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('name, email, email_oeffentlich, instagram, tiktok')
+        .eq('id', session.user.id)
+        .single();
+    document.getElementById('profileName').value = profile?.name || '';
+    document.getElementById('profileEmail').value = profile?.email || session.user.email;
+    document.getElementById('profileEmailShare').checked = !!profile?.email_oeffentlich;
+    document.getElementById('profileInstagram').value = profile?.instagram || '';
+    document.getElementById('profileTiktok').value = profile?.tiktok || '';
+    const avatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
+    if (avatarPlaceholder) {
+        avatarPlaceholder.textContent = (profile?.name || session.user.email).charAt(0).toUpperCase();
+    }
+}
+
 if (document.getElementById('mitgliederContent')) {
     initAuthGate('mitgliederContent');
 }
 if (document.getElementById('profileLayout')) {
-    initAuthGate('profileLayout');
+    initAuthGate('profileLayout', loadOwnProfileIntoForm);
 }
 
 function closeAuthErrorModal() {
@@ -675,42 +707,39 @@ function closeAuthErrorModal() {
     history.replaceState(null, '', window.location.pathname + window.location.search);
 })();
 
-// --- MEIN-PROFIL-FORMULAR --- Gleicher Platzhalter-Ansatz wie beim Login.
+// --- MEIN-PROFIL-FORMULAR ---
 
-// DEMO-VERSION (aktiv) - siehe Hinweis oben bei handleLoginSubmit.
-function handleProfileSubmit(event) {
+// `upsert` statt `update`: Direkt nach einer Einladung existiert noch keine
+// profiles-Zeile fuer diese Person (siehe CLAUDE.md) - ein `update` auf eine
+// nicht existierende Zeile aendert lautlos 0 Zeilen (kein Fehler, aber auch
+// nichts gespeichert). `upsert` legt die Zeile beim ersten Speichern an.
+async function handleProfileSubmit(event) {
     event.preventDefault();
     const notice = document.getElementById('profileNotice');
-    if (notice) notice.hidden = false;
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { error } = await supabaseClient.from('profiles').upsert({
+        id: user.id,
+        name: document.getElementById('profileName').value,
+        email: document.getElementById('profileEmail').value,
+        email_oeffentlich: document.getElementById('profileEmailShare').checked,
+        instagram: document.getElementById('profileInstagram').value,
+        tiktok: document.getElementById('profileTiktok').value
+    });
+    notice.textContent = error ? ('Speichern fehlgeschlagen: ' + error.message) : 'Gespeichert!';
+    notice.hidden = false;
     return false;
 }
 
-// ECHTE VERSION (auskommentiert) - braucht ebenfalls js/supabase-client.js
-// sowie die eingeloggte User-ID (`supabaseClient.auth.getUser()`).
-// async function handleProfileSubmit(event) {
-//     event.preventDefault();
-//     const notice = document.getElementById('profileNotice');
-//     const { data: { user } } = await supabaseClient.auth.getUser();
-//     const { error } = await supabaseClient.from('profiles').update({
-//         name: document.getElementById('profileName').value,
-//         email: document.getElementById('profileEmail').value,
-//         email_oeffentlich: document.getElementById('profileEmailShare').checked,
-//         instagram: document.getElementById('profileInstagram').value,
-//         tiktok: document.getElementById('profileTiktok').value
-//     }).eq('id', user.id);
-//     notice.textContent = error ? ('Speichern fehlgeschlagen: ' + error.message) : 'Gespeichert!';
-//     notice.hidden = false;
-//     return false;
-// }
-
-// --- PASSWORT ÄNDERN --- Prüft schon jetzt clientseitig, ob "neu" und
-// "bestätigen" übereinstimmen (reine Textvergleich, braucht kein Backend) -
-// das eigentliche Ändern des Passworts braucht dagegen zwingend Supabase.
-
-// DEMO-VERSION (aktiv).
-function handlePasswordSubmit(event) {
+// --- PASSWORT ÄNDERN --- Supabase's `updateUser()` verlangt von sich aus
+// keine erneute Eingabe des alten Passworts (eine gültige Session reicht) -
+// das aktuelle Passwort wird hier deshalb zusätzlich per
+// `signInWithPassword()` geprüft, bevor das neue gesetzt wird, damit
+// "aktuelles Passwort" wie im Formular suggeriert wirklich verifiziert wird
+// und nicht nur eine Formalität ist.
+async function handlePasswordSubmit(event) {
     event.preventDefault();
     const notice = document.getElementById('passwordNotice');
+    const alt = document.getElementById('oldPassword').value;
     const neu = document.getElementById('newPassword').value;
     const bestaetigung = document.getElementById('newPasswordConfirm').value;
     if (neu !== bestaetigung) {
@@ -718,40 +747,18 @@ function handlePasswordSubmit(event) {
         notice.hidden = false;
         return false;
     }
-    notice.textContent = 'Passwort ändern ist noch nicht aktiv – folgt in einem der nächsten Schritte.';
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { error: verifyError } = await supabaseClient.auth.signInWithPassword({ email: user.email, password: alt });
+    if (verifyError) {
+        notice.textContent = 'Aktuelles Passwort ist falsch.';
+        notice.hidden = false;
+        return false;
+    }
+    const { error } = await supabaseClient.auth.updateUser({ password: neu });
+    notice.textContent = error ? ('Fehler: ' + error.message) : 'Passwort geändert!';
     notice.hidden = false;
     return false;
 }
-
-// ECHTE VERSION (auskommentiert) - braucht js/supabase-client.js (Plan-
-// Schritt 2). Supabase's `updateUser()` verlangt von sich aus keine erneute
-// Eingabe des alten Passworts (eine gültige Session reicht) - das aktuelle
-// Passwort wird hier deshalb zusätzlich per `signInWithPassword()` geprüft,
-// bevor das neue gesetzt wird, damit "aktuelles Passwort" wie gewünscht
-// wirklich verifiziert wird und nicht nur eine Formalität ist.
-// async function handlePasswordSubmit(event) {
-//     event.preventDefault();
-//     const notice = document.getElementById('passwordNotice');
-//     const alt = document.getElementById('oldPassword').value;
-//     const neu = document.getElementById('newPassword').value;
-//     const bestaetigung = document.getElementById('newPasswordConfirm').value;
-//     if (neu !== bestaetigung) {
-//         notice.textContent = 'Die neuen Passwörter stimmen nicht überein.';
-//         notice.hidden = false;
-//         return false;
-//     }
-//     const { data: { user } } = await supabaseClient.auth.getUser();
-//     const { error: verifyError } = await supabaseClient.auth.signInWithPassword({ email: user.email, password: alt });
-//     if (verifyError) {
-//         notice.textContent = 'Aktuelles Passwort ist falsch.';
-//         notice.hidden = false;
-//         return false;
-//     }
-//     const { error } = await supabaseClient.auth.updateUser({ password: neu });
-//     notice.textContent = error ? ('Fehler: ' + error.message) : 'Passwort geändert!';
-//     notice.hidden = false;
-//     return false;
-// }
 
 // --- KONTAKT-MODALS (Telefon / E-Mail) ---
 let currentPhoneNumber = '';

@@ -589,6 +589,39 @@ new-swan-design/
     uuid") — kein Bug im Produktivcode, nur ein Artefakt der eigenen
     Testmethode; mit einer frischen, unbenutzten Browser-Tab bestätigt,
     dass echte Seitenaufrufe fehlerfrei bleiben.
+30. **Profil-Button eingeloggt breiter statt rund + echter SVG-`hidden`-Bug
+    gefunden.** Ein einzelner Buchstabe wirkte mittig im 40px-Kreis
+    gequetscht — eingeloggt jetzt ein Pill (`.profile-toggle.is-logged-in`,
+    `border-radius: var(--radius-pill)`, `width: auto`) mit kleinem
+    Avatar-Kreis + Chevron-Icon nebeneinander, ausgeloggt bleibt der
+    40px-Kreis. Beim Bauen echten Bug gefunden: `svgElement.hidden = true`
+    liest sich korrekt zurück, spiegelt sich aber **nie** ins tatsächliche
+    HTML-Attribut, weil `SVGElement` nicht von `HTMLElement` erbt (dort ist
+    die hidden-Property/Attribut-Verknüpfung definiert) — `[hidden]` in CSS
+    matchte dadurch nie, das Icon blieb sichtbar. Fix: für die beiden SVGs
+    im Button (`profileToggleIcon`, `profileToggleChevron`) explizit
+    `setAttribute('hidden', '')`/`removeAttribute('hidden')` statt
+    `.hidden` verwendet. Gleiches Muster wie Punkt 20 (`.self-profile-link`)
+    im Kopf behalten, aber diesmal spezifisch: Betrifft nur `<svg>`, nicht
+    normale Elemente wie `<span>`/`<div>` (dort funktioniert `.hidden`
+    einwandfrei).
+31. **"Mein Profil" liest und speichert jetzt echte Daten** — Formular
+    zeigte bisher fest "Max Mustermann" (HTML-`value`-Attribute), jetzt
+    holt `loadOwnProfileIntoForm()` (`main.js`) beim Laden die eigene Zeile
+    aus `profiles` und füllt das Formular; fehlt sie noch (frisch
+    eingeladen, nie gespeichert), bleiben Name/Social-Links leer und die
+    E-Mail fällt auf die Auth-Konto-Adresse zurück statt zu crashen. Beim
+    Speichern (`handleProfileSubmit`) `upsert` statt `update` verwendet -
+    ein `update` auf eine noch nicht existierende Zeile ändert lautlos 0
+    Zeilen (kein Fehler, aber auch nichts gespeichert), was genau diesen
+    Erstspeichern-Fall kaputt gemacht hätte. Passwort-Formular
+    (`handlePasswordSubmit`) ebenfalls aktiviert (verifiziert das aktuelle
+    Passwort per `signInWithPassword`, siehe Kommentar im Code). Dafür
+    nutzt `initAuthGate()` jetzt einen optionalen Callback-Parameter
+    (`onSession`), der bei vorhandener Session einmalig aufgerufen wird -
+    hält die Gate-Logik selbst weiterhin generisch für beide Seiten
+    (`mitglieder.html` braucht keinen Callback). "Platzhalter-Daten"-Badge
+    entfernt.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
@@ -756,8 +789,8 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
    Datenquelle liest aktuell `DEMO_MITGLIEDER` statt Supabase (siehe
    "Demo- vs. echte Version" oben).
 8. Formular "Eigenes Profil bearbeiten" (Name, E-Mail + Teilen-Toggle,
-   Social-Links; Rolle bewusst nicht editierbar) — **umgesetzt mit
-   Platzhalter-Daten** ([pages/mein-profil.html](pages/mein-profil.html)).
+   Social-Links; Rolle bewusst nicht editierbar) — **umgesetzt, liest und
+   speichert echte Daten** ([pages/mein-profil.html](pages/mein-profil.html)).
    Inkl. separatem Formular "Passwort ändern" (aktuelles Passwort, neues
    Passwort, Bestätigung) — der Passwort-Abgleich (stimmen "neu" und
    "bestätigen" überein?) läuft schon jetzt echt clientseitig, da das kein
@@ -785,11 +818,11 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
     die aktuellen Datenschutz-/Cookie-Angaben decken das noch nicht ab und
     müssen entsprechend ergänzt werden, bevor das Feature produktiv genutzt
     wird.
-12. **⚠️ Vor Livegang entfernen:** Auf `index.html` verlinkt das Wort
-    "Community" im Hero-Fliesstext testweise direkt auf
-    `pages/mitglieder.html` (mit `TEMP`-Kommentar im Code markiert) — reiner
-    Test-Zugang, solange die Seite sonst nirgends erreichbar ist. Muss weg,
-    sobald der echte Zugang über das Profil-Dropdown steht.
+12. **Erledigt:** Der testweise Link auf "Community" im Hero-Fliesstext
+    (zeigte direkt auf `pages/mitglieder.html`, mit `TEMP`-Kommentar
+    markiert) wurde entfernt, jetzt wo der echte Zugang über das
+    Profil-Dropdown steht (Punkt 29) — wieder reiner Fliesstext ohne Link
+    oder Akzentfarbe.
 13. **Nicht-angemeldet-Zustand für `mitglieder.html` und `mein-profil.html`**
     — **umgesetzt** (`#notLoggedIn`-Block + `initAuthGate()` in `main.js`).
     Wichtige Unterscheidung: Die HTML-Seiten selbst sind bei statischem
