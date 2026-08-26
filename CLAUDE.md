@@ -645,6 +645,18 @@ new-swan-design/
     `getBoundingClientRect()`-Höhe) prüfen, nicht nur die Property/das
     Attribut. `#mitgliederContent` zum Vergleich geprüft: hat keine eigene
     Klasse, daher dort keine konkurrierende `display`-Regel, kein Risiko.
+33. **Formular wird beim Abmelden zusätzlich wirklich geleert**, nicht nur
+    ausgeblendet — sonst stünden die Daten der vorherigen Person weiterhin
+    im DOM, nur optisch versteckt (z. B. über die Entwicklertools trotzdem
+    einsehbar). `initAuthGate()` hat dafür jetzt einen zweiten optionalen
+    Callback-Parameter (`onSignedOut`, symmetrisch zu `onSession`), für
+    `mein-profil.html` verdrahtet mit der neuen `clearProfileForm()` -
+    leert Name/E-Mail/Toggle/Instagram/TikTok/Avatar-Anfangsbuchstabe sowie
+    zur Sicherheit auch die drei Passwort-Felder (falls dort beim Abmelden
+    gerade etwas Eingetipptes, aber nicht Abgeschicktes stand).
+    `mitgliederContent`/die Mitgliederliste bewusst nicht mit angefasst -
+    war nicht Teil der Anfrage, kann bei Bedarf später mit demselben Muster
+    ergänzt werden.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

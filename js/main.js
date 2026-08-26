@@ -638,7 +638,7 @@ if (typeof supabaseClient !== 'undefined') {
 // diesen Check wuerde ein nicht angemeldeter Besucher stumm eine leere/
 // fehlerhafte Ansicht sehen, weil die eigentlichen Datenabfragen per RLS
 // ohnehin nichts liefern wuerden.
-async function initAuthGate(contentId, onSession) {
+async function initAuthGate(contentId, onSession, onSignedOut) {
     const notice = document.getElementById('notLoggedIn');
     const content = document.getElementById(contentId);
     if (!notice || !content) return;
@@ -647,6 +647,7 @@ async function initAuthGate(contentId, onSession) {
         notice.hidden = !!session;
         content.hidden = !session;
         if (session && onSession) onSession(session);
+        if (!session && onSignedOut) onSignedOut();
     }
 
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -679,11 +680,29 @@ async function loadOwnProfileIntoForm(session) {
     }
 }
 
+// Leert das Formular beim Abmelden wirklich (nicht nur ausblenden) - sonst
+// stuenden die Daten der vorherigen Person weiterhin im DOM, nur optisch
+// versteckt (z. B. ueber die Entwicklertools trotzdem einsehbar). Betrifft
+// auch die (nie serverseitig gespeicherten) Passwort-Felder, falls beim
+// Abmelden gerade etwas eingetippt, aber nicht abgeschickt war.
+function clearProfileForm() {
+    document.getElementById('profileName').value = '';
+    document.getElementById('profileEmail').value = '';
+    document.getElementById('profileEmailShare').checked = false;
+    document.getElementById('profileInstagram').value = '';
+    document.getElementById('profileTiktok').value = '';
+    document.getElementById('oldPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newPasswordConfirm').value = '';
+    const avatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
+    if (avatarPlaceholder) avatarPlaceholder.textContent = '';
+}
+
 if (document.getElementById('mitgliederContent')) {
     initAuthGate('mitgliederContent');
 }
 if (document.getElementById('profileLayout')) {
-    initAuthGate('profileLayout', loadOwnProfileIntoForm);
+    initAuthGate('profileLayout', loadOwnProfileIntoForm, clearProfileForm);
 }
 
 function closeAuthErrorModal() {
