@@ -827,6 +827,13 @@
     text-align: left;
 }
 
+.form-error {
+    font-size: 0.85rem;
+    color: var(--aurora-red);
+    margin-bottom: 10px;
+    text-align: left;
+}
+
 /* --- CUSTOM SELECT (ersetzt natives <select>: dessen geöffnete
    Options-Liste wird vom Betriebssystem gerendert und lässt sich nicht
    gestalten oder auf die Feldbreite begrenzen) --- */

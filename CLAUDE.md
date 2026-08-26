@@ -517,11 +517,27 @@ new-swan-design/
     kurzen Zahlengruppen über die volle Breite des Sliders (bis zu 1200px)
     hätte `space-between` riesige, leer wirkende Lücken erzeugt statt
     gleichmässiger Grosszügigkeit.
+25. **"Passwort festlegen"-Modal ergänzt** (`#set-password-modal` in
+    `index.html`, `openSetPasswordModal()`/`closeSetPasswordModal()`/
+    `handleSetPasswordSubmit()` in `main.js`) — nötig, weil Supabase nach
+    einem Einladungs- oder Passwort-Recovery-Link niemanden automatisch zu
+    einer "Passwort setzen"-Ansicht schickt, das muss die App selbst
+    anbieten. `supabase-js` erkennt das Auth-Token in der Recovery-URL
+    automatisch (`detectSessionInUrl`, Standardverhalten) und feuert danach
+    ein `PASSWORD_RECOVERY`-Event über `onAuthStateChange` — genau darauf
+    hört `main.js` global und öffnet dann das Modal. Bewusst **keine**
+    Demo-Version diesmal (anders als Login/Profil weiter oben): Das echte
+    Supabase-Projekt existiert inzwischen (siehe unten), das Formular ruft
+    `supabaseClient.auth.updateUser({ password })` direkt echt auf. Client-
+    seitiger Abgleich "stimmen neues Passwort und Bestätigung überein"
+    getestet und funktioniert.
 
-## Geplant: Mitgliederbereich mit Supabase (Konzept, noch nicht begonnen)
+## Mitgliederbereich mit Supabase — in Arbeit
 
-Reine Konzeptphase aus einem Brainstorming-Gespräch — nichts davon ist
-umgesetzt, nichts davon eigenmächtig starten ohne Rücksprache.
+Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
+inzwischen mit einem echten Supabase-Projekt begonnen (Status der
+einzelnen Schritte siehe Task-Liste unten). Nichts eigenmächtig starten
+ohne Rücksprache.
 
 **Grundidee:** Die Seite ist bisher komplett statisch, ohne eigenen Server.
 [Supabase](https://supabase.com) (Postgres-Datenbank + Auth + Storage,
@@ -640,17 +656,26 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
    — **offen, muss der Vereins-/Projektinhaber selbst machen** (Konto-
    Erstellung bei einem Drittanbieter).
 2. Supabase-JS-SDK per CDN einbinden, Client mit URL + Key initialisieren —
-   **offen**, bewusst zurückgestellt bis ein echtes Projekt (Schritt 1)
-   existiert, gegen das sich der Code testen lässt.
-3. Tabelle `profiles` anlegen (Name, E-Mail, Rolle, Social-Links,
-   Profilbild-URL, verknüpft mit der Supabase-Auth-User-ID) — **vorbereitet**,
-   fertiges SQL-Skript in [supabase/schema.sql](supabase/schema.sql), muss
-   nach Schritt 1 einmalig im Supabase SQL-Editor ausgeführt werden.
+   **umgesetzt** ([js/supabase-client.js](js/supabase-client.js), auf allen
+   9 Seiten vor `main.js` eingebunden). Projekt heisst "homepage"
+   (Frankfurt/eu-central-1), Verbindung getestet: Abfrage gegen
+   `public_profiles` kam echt vom Server zurück ("Tabelle existiert nicht"
+   — erwartet, da Schritt 3+4 noch nicht ausgeführt sind).
+3. Tabelle `profiles` anlegen (Name, E-Mail, Rollen, Instagram/TikTok,
+   Profilbild-URL, verknüpft mit der Supabase-Auth-User-ID) — **umgesetzt**,
+   SQL-Skript in [supabase/schema.sql](supabase/schema.sql) im Supabase
+   SQL-Editor ausgeführt ("Success"). `rolle` wurde dabei noch zu `rollen`
+   (Text-Array statt einzelnem Text) geändert, damit ein Mitglied mehrere
+   Rollen gleichzeitig haben kann; `erstellt_am` zu `beigetreten_am`
+   umbenannt.
 4. Row-Level-Security-Policies + `public_profiles`-View einrichten: eigenes
    Profil voll lesen/schreiben, andere Mitglieder nur über die View (blendet
-   private E-Mail automatisch aus) — **vorbereitet**, im selben Skript wie
-   Punkt 3 enthalten, inkl. offenem Punkt zur `rolle`-Absicherung (siehe
-   Kommentar im Skript).
+   private E-Mail automatisch aus) — **umgesetzt**, im selben Skript wie
+   Punkt 3, inkl. offenem Punkt zur `rollen`-Absicherung (siehe Kommentar im
+   Skript). Verifiziert: Eine Abfrage ohne Login liefert jetzt korrekt
+   "permission denied" statt Daten (RLS/Grants greifen wie geplant) - das
+   ist das erwartete, richtige Verhalten fuer nicht eingeloggte Besucher,
+   kein Bug.
 5. Profil-Icon ganz rechts in der Topbar ergänzen (Dark/Light-Toggle rückt
    dafür ein Stück nach links), zeigt ausgeloggt ein Login-Symbol → öffnet
    Login-Formular (E-Mail + Passwort); eingeloggt das eigene Profilbild →

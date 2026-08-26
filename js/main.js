@@ -510,6 +510,56 @@ function handleLoginSubmit(event) {
 //     return false;
 // }
 
+function openSetPasswordModal() {
+    const modal = document.getElementById('set-password-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    updateBodyScrollLock();
+}
+
+function closeSetPasswordModal() {
+    const modal = document.getElementById('set-password-modal');
+    if (modal) modal.classList.remove('active');
+    updateBodyScrollLock();
+}
+
+async function handleSetPasswordSubmit(event) {
+    event.preventDefault();
+    const newPassword = document.getElementById('setPasswordNew').value;
+    const confirmPassword = document.getElementById('setPasswordConfirm').value;
+    const errorEl = document.getElementById('setPasswordError');
+    errorEl.hidden = true;
+
+    if (newPassword !== confirmPassword) {
+        errorEl.textContent = 'Die Passwörter stimmen nicht überein.';
+        errorEl.hidden = false;
+        return false;
+    }
+
+    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+    if (error) {
+        errorEl.textContent = 'Fehler beim Speichern: ' + error.message;
+        errorEl.hidden = false;
+        return false;
+    }
+
+    closeSetPasswordModal();
+    return false;
+}
+
+// Erscheint automatisch, sobald jemand ueber einen Supabase-Recovery-/
+// Einladungs-Link auf die Seite kommt: supabase-js erkennt das Auth-Token
+// in der URL selbststaendig (detectSessionInUrl, per Default aktiv) und
+// feuert danach dieses Event, ohne dass die App den Link-Inhalt selbst
+// parsen muss.
+if (typeof supabaseClient !== 'undefined') {
+    supabaseClient.auth.onAuthStateChange((event) => {
+        if (event === 'PASSWORD_RECOVERY') {
+            openSetPasswordModal();
+        }
+    });
+}
+
 // --- MEIN-PROFIL-FORMULAR --- Gleicher Platzhalter-Ansatz wie beim Login.
 
 // DEMO-VERSION (aktiv) - siehe Hinweis oben bei handleLoginSubmit.

@@ -280,6 +280,27 @@
     </div>
 </div>
 
+<div id="set-password-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeSetPasswordModal()" aria-label="Schliessen">&times;</button>
+        <h3>Passwort festlegen</h3>
+        <form id="setPasswordForm" onsubmit="return handleSetPasswordSubmit(event)">
+            <div class="field">
+                <label for="setPasswordNew">Neues Passwort</label>
+                <input type="password" id="setPasswordNew" name="newPassword" required autocomplete="new-password" minlength="8">
+            </div>
+            <div class="field">
+                <label for="setPasswordConfirm">Passwort bestätigen</label>
+                <input type="password" id="setPasswordConfirm" name="confirmPassword" required autocomplete="new-password" minlength="8">
+            </div>
+            <p id="setPasswordError" class="form-error" hidden></p>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Passwort speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
     <div class="footer-content">
@@ -305,6 +326,8 @@
     <a href="pages/kontakt.html" class="tabbar-item nav-link" data-page="kontakt"><span class="tabbar-icon" aria-hidden="true"></span><span>Kontakt</span></a>
 </nav>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
