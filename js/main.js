@@ -698,9 +698,9 @@ function clearProfileForm() {
     if (avatarPlaceholder) avatarPlaceholder.textContent = '';
 }
 
-if (document.getElementById('mitgliederContent')) {
-    initAuthGate('mitgliederContent');
-}
+// mitgliederContent-Gate wird bewusst in js/mitglieder.js selbst
+// initialisiert, nicht hier - braucht resetAdminUI() als onSignedOut-
+// Callback, das erst dort (nach main.js geladen) definiert ist.
 if (document.getElementById('profileLayout')) {
     initAuthGate('profileLayout', loadOwnProfileIntoForm, clearProfileForm);
 }
@@ -776,7 +776,25 @@ async function handlePasswordSubmit(event) {
     const { error } = await supabaseClient.auth.updateUser({ password: neu });
     notice.textContent = error ? ('Fehler: ' + error.message) : 'Passwort geändert!';
     notice.hidden = false;
+    if (!error) {
+        // Nach erfolgreichem Aendern die Felder wirklich leeren, nicht nur
+        // die Erfolgsmeldung zeigen - sonst stehen die zuletzt getippten
+        // Passwoerter (inkl. des jetzt alten) weiter unnoetig im Formular.
+        document.getElementById('passwordForm').reset();
+    }
     return false;
+}
+
+// Wechselt ein einzelnes Passwort-Feld zwischen verstecktem und
+// Klartext-Zustand, tauscht dabei auch das Augen-Icon passend.
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('.icon');
+    const wechsleZuKlartext = input.type === 'password';
+    input.type = wechsleZuKlartext ? 'text' : 'password';
+    icon.classList.toggle('icon-eye', !wechsleZuKlartext);
+    icon.classList.toggle('icon-eye-slash', wechsleZuKlartext);
+    btn.setAttribute('aria-label', wechsleZuKlartext ? 'Passwort verstecken' : 'Passwort anzeigen');
 }
 
 // --- KONTAKT-MODALS (Telefon / E-Mail) ---

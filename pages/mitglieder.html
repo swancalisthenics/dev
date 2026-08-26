@@ -74,6 +74,7 @@
 
         <div class="view-as-toggle-wrap">
             <button type="button" class="btn btn-secondary" id="viewAsToggle" onclick="toggleViewAsNormal()" hidden>Ansicht: Admin (als normales Mitglied testen)</button>
+            <p id="viewAsNotice" class="form-hint" hidden></p>
         </div>
 
         <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
@@ -102,9 +103,27 @@
         <div class="mitglieder-badges" id="mitgliedModalBadges"></div>
         <a href="mein-profil.html" class="self-profile-link" id="mitgliedModalSelfLink" hidden>Profil ansehen <span aria-hidden="true">&#8599;</span></a>
         <div class="mitglieder-links" id="mitgliedModalLinks"></div>
-        <div class="field mitglied-rollen-editor" id="mitgliedRollenEditor" hidden>
-            <label for="mitgliedRollenInput">Rollen (Admin-Bereich, Komma-getrennt)</label>
-            <input type="text" id="mitgliedRollenInput" placeholder="z. B. Admin, Vorstand">
+        <div class="mitglied-rollen-editor" id="mitgliedRollenEditor" hidden>
+            <label>Rollen (Admin-Bereich)</label>
+            <label class="toggle">
+                <input type="checkbox" value="Vorstand" class="mitglied-rollen-checkbox">
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label">Vorstand</span>
+            </label>
+            <label class="toggle">
+                <input type="checkbox" value="Mitglied" class="mitglied-rollen-checkbox">
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label">Mitglied</span>
+            </label>
+            <label class="toggle">
+                <input type="checkbox" value="Ehrenmitglied" class="mitglied-rollen-checkbox">
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label">Ehrenmitglied</span>
+            </label>
+            <div class="field">
+                <label for="mitgliedRollenExtra">Weitere Rolle (optional)</label>
+                <input type="text" id="mitgliedRollenExtra" placeholder="z. B. Präsident">
+            </div>
             <button type="button" class="btn btn-secondary" onclick="saveMitgliedRollen()">Rollen speichern</button>
             <p id="mitgliedRollenNotice" class="form-hint" hidden></p>
         </div>

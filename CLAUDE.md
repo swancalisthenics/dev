@@ -658,11 +658,13 @@ new-swan-design/
     war nicht Teil der Anfrage, kann bei Bedarf später mit demselben Muster
     ergänzt werden.
 34. **Admins können im Mitglied-Modal Rollen für andere (und sich selbst)
-    vergeben** — neues Textfeld "Rollen (Komma-getrennt)" in
-    `#mitglied-modal`, nur sichtbar für Admins (`js/mitglieder.js`,
-    `saveMitgliedRollen()`). Rollen sind weiterhin Freitext (siehe
-    `rollen text[]`), also z. B. auch "Präsident" oder jede andere
-    frei erfundene Bezeichnung möglich — bewusst **mit echtem "ä"**
+    vergeben** — in `#mitglied-modal`, nur sichtbar für Admins
+    (`js/mitglieder.js`, `saveMitgliedRollen()`). UI: drei `.toggle`-Zeilen
+    (Vorstand/Mitglied/Ehrenmitglied, `BEKANNTE_ROLLEN`) + ein Textfeld für
+    frei Erfundenes (ursprünglich ein einzelnes Komma-getrenntes Textfeld
+    für alle Rollen, auf Wunsch durch die geführteren Toggles ersetzt).
+    Rollen sind weiterhin Freitext (siehe `rollen text[]`), also z. B. auch
+    "Präsident" über das Zusatzfeld möglich — bewusst **mit echtem "ä"**
     geschrieben (nicht "ae"), wo es als tatsächlicher Rollen-Name im Code
     vorkommt (Kommentare in `.sql`-Dateien nutzen sonst weiterhin ae/oe/ue
     aus Gewohnheit, das ist reiner Beschreibungstext, keine Dateninhalte).
@@ -673,11 +675,10 @@ new-swan-design/
     oder Admin-Rechte verlieren soll, läuft ausschliesslich direkt über
     Supabase (SQL-Editor), nie über die Website. Durchgesetzt an zwei
     Stellen:
-    - **Clientseitig** (`saveMitgliedRollen()`): Erkennt einen Versuch,
-      "Admin" hinzuzufügen oder zu entfernen, korrigiert die einzureichende
-      Liste vorher automatisch zurück und zeigt eine ehrliche Meldung
-      ("... kann hier nicht vergeben/entzogen werden – nur direkt über
-      Supabase.") statt eines stillen Servereingriffs.
+    - **Clientseitig** (`saveMitgliedRollen()`): "Admin" taucht in den
+      Toggles gar nicht erst als Option auf (statt es anzubieten und dann
+      zu verwerfen) - der bisherige Admin-Status wird beim Speichern
+      einfach unverändert aus den vorher geladenen Daten übernommen.
     - **Serverseitig, massgeblich** (`supabase/002-admin-rollen.sql`, neue
       Migration nach `schema.sql`): Der bisherige einfache
       Selbst-Befoerderungs-Schutz (aus schema.sql, Punkt zur alten
@@ -710,7 +711,69 @@ new-swan-design/
     Admin sich die normale Mitglieder-Ansicht anschauen kann, ohne die
     eigenen Admin-Rechte tatsächlich (auch nur kurzzeitig) zu verlieren.
     Setzt sich bei jedem Neuladen der Seite zurück (kein „versehentlich in
-    Nicht-Admin-Ansicht steckenbleiben“).
+    Nicht-Admin-Ansicht steckenbleiben“). Ergänzt um `#viewAsNotice`: reine
+    Button-Text-Änderung beim Klick war zu unauffällig (Effekt selbst zeigt
+    sich erst beim nächsten Öffnen einer Karte) - jetzt zusätzlich ein
+    deutlicher Hinweistext direkt unter dem Button bei jedem Umschalten.
+35. **Bug: Der Admin-Umschalter blieb nach dem Abmelden sichtbar**, inkl.
+    der veralteten Meldung aus der letzten Interaktion vor dem Abmelden.
+    Ursache: `mitgliederContent`s Gate wurde bisher direkt in `main.js`
+    initialisiert (`initAuthGate('mitgliederContent')`, ohne Callback),
+    während die eigentliche Mitgliederliste in `js/mitglieder.js` über eine
+    komplett **eigenständige** IIFE geladen wurde, die nichts vom Login-
+    Zustand wusste. Beim Abmelden gab es dadurch **keine** Stelle, die
+    `currentUserIsAdmin`/`viewAsNormalMember` zurücksetzt. Fix:
+    `initAuthGate()`-Aufruf für `mitgliederContent` von `main.js` nach
+    `js/mitglieder.js` verschoben (Reihenfolge-Grund: der `onSignedOut`-
+    Callback `resetAdminUI()` existiert erst dort, `main.js` lädt vorher);
+    die alte IIFE wurde zur benannten Funktion `loadMitgliederListe(session)`
+    und läuft jetzt als `onSession`-Callback von `initAuthGate()` - dadurch
+    automatisch bei jedem Login/Logout neu statt nur einmal beim Laden
+    (Nebeneffekt: keine unnötigen 401-Anfragen mehr für nicht angemeldete
+    Besucher, vorher wurde der Fetch immer versucht).
+36. **Wichtige, wiederkehrende Lektion (4. Fall im selben Projekt, siehe
+    auch Punkte 20 und 30-32): Jede Klasse mit eigenem `display` schlägt
+    das `[hidden]`-Attribut.** Nach `.self-profile-link`, den beiden
+    Lightbox-SVGs und `.profile-layout` traf es diesmal `.btn`
+    (`display: inline-flex`) - der Admin-Umschalter-Button blieb trotz
+    `btn.hidden = true` sichtbar, weil `.btn` (jede Komponente, die diese
+    Klasse nutzt!) dagegen gewinnt. Statt weiter einzelne
+    `#id[hidden] { display: none; }`-Sonderregeln nachzutragen, sobald es
+    wieder auffällt, jetzt **eine globale Regel in `css/base.css`**:
+    `[hidden] { display: none !important; }`, direkt beim Reset ganz oben.
+    `!important` ist hier bewusst die einzige Ausnahme von "kein
+    !important" im Projekt, weil es das einzige Mittel ist, das
+    zuverlässig JEDE aktuelle und künftige Autor-Regel schlägt. Getestet:
+    bricht nichts Bestehendes (Login-Modal, Countdown-Zustände,
+    Passwort-Modal weiterhin korrekt sichtbar/unsichtbar). **Für die
+    Zukunft:** Bei jedem neuen `element.hidden = ...`/`hidden`-Attribut
+    nicht mehr nur `element.hidden` prüfen (das liest sich immer korrekt
+    zurück), sondern beim Testen `getComputedStyle(element).display`
+    kontrollieren - dank der globalen Regel sollte das jetzt aber
+    durchgehend von selbst funktionieren, ohne weitere Handarbeit pro
+    Element.
+37. **Passwort-Formular auf "Mein Profil" verbessert:** Nach erfolgreichem
+    Ändern werden alle drei Felder jetzt wirklich geleert
+    (`document.getElementById('passwordForm').reset()`), vorher blieben die
+    zuletzt getippten Werte (inkl. des jetzt ungültigen alten Passworts)
+    einfach stehen. Ausserdem ein Augen-Icon zum Anzeigen/Verstecken bei
+    allen drei Feldern (`togglePasswordVisibility()` in `main.js`,
+    `.password-input-wrap`/`.password-toggle-visibility` in
+    `components.css`) - `assets/icons/eye.svg`/`eye-slash.svg` sind neu
+    angelegt (kein fertiges Icon dieser Art im Projekt oder in `home`
+    vorhanden, deshalb selbst gezeichnet statt kopiert wie sonst üblich:
+    Linsenform + Pupille per `fill-rule="evenodd"`, beim Slash-Icon
+    zusätzlich ein diagonaler Balken als zweiter `<path>`). Geprüft: beide
+    SVGs sind gültiges XML, Maske löst korrekt auf (18×18px, `mask-image`
+    zeigt auf die Datei) - das exakte optische Ergebnis (Kurvenform) konnte
+    ich selbst nicht sehen (kein Screenshot in dieser Umgebung möglich),
+    falls es nicht gut aussieht bitte kurz Bescheid geben.
+
+    **Dabei geprüft (Nutzerfrage): Die Dark/Light-Mode-Icons
+    (`.theme-icon-moon`/`.theme-icon-sun`) sind bereits vollständig lokal**
+    - nicht mal eine eigene Datei, sondern direkt als Inline-SVG im
+    `<head>`/Topbar-Markup jeder Seite eingebettet, komplett unabhängig von
+    jeder externen Bibliothek oder CDN.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

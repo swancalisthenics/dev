@@ -127,18 +127,41 @@
 /* Nur für Admins sichtbar (siehe js/mitglieder.js) - rein lokale
    "Ansicht wechseln"-Simulation, keine echte Rollen-Änderung. */
 .view-as-toggle-wrap {
+    max-width: 480px;
+    margin: 0 auto 24px;
     text-align: center;
-    margin-bottom: 20px;
+}
+
+/* .form-hint (components.css) ist bewusst standardmässig linksbündig für
+   Formularfelder - hier drunter aber zentriert unter dem Button, deshalb
+   an dieser Stelle explizit überschrieben. */
+.view-as-toggle-wrap #viewAsNotice {
+    text-align: center;
+    margin: 10px 0 0;
 }
 
 /* Ebenfalls nur für Admins sichtbar, im Mitglied-Modal - Admin-Status
    selbst lässt sich hier bewusst nicht ändern (siehe Trigger in
-   supabase/002-admin-rollen.sql). */
+   supabase/002-admin-rollen.sql), taucht deshalb auch nicht als Option
+   auf. Drei .toggle-Zeilen (Vorstand/Mitglied/Ehrenmitglied) + ein
+   Textfeld für frei erfundene Rollen wie "Präsident". */
 .mitglied-rollen-editor {
     margin-top: 18px;
     padding-top: 18px;
     border-top: 1px solid var(--glass-border);
     text-align: left;
+}
+
+.mitglied-rollen-editor > label:first-child {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* Kompakter als der .toggle-Standardabstand (20px) - hier stehen direkt
+   drei Zeilen untereinander, nicht einzeln in einem längeren Formular. */
+.mitglied-rollen-editor .toggle {
+    margin-bottom: 12px;
 }
 
 .mitglied-rollen-editor .btn {

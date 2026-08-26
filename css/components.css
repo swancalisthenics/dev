@@ -57,6 +57,8 @@
 .icon-book-open { -webkit-mask-image: url(../assets/icons/book-open.svg); mask-image: url(../assets/icons/book-open.svg); }
 .icon-tiktok { -webkit-mask-image: url(../assets/icons/tiktok.svg); mask-image: url(../assets/icons/tiktok.svg); }
 .icon-images { -webkit-mask-image: url(../assets/icons/images-regular.svg); mask-image: url(../assets/icons/images-regular.svg); }
+.icon-eye { -webkit-mask-image: url(../assets/icons/eye.svg); mask-image: url(../assets/icons/eye.svg); }
+.icon-eye-slash { -webkit-mask-image: url(../assets/icons/eye-slash.svg); mask-image: url(../assets/icons/eye-slash.svg); }
 
 /* --- BUTTONS --- */
 .btn {
@@ -914,6 +916,35 @@
 .field textarea:focus {
     outline: 2px solid var(--aurora-red);
     outline-offset: 1px;
+}
+
+/* Auge-Button zum Anzeigen/Verstecken bei Passwort-Feldern - der Wrapper
+   braucht position:relative, das Input zusaetzlich rechts Platz fuer den
+   Button (sonst ueberlappt getippter Text das Icon). */
+.password-input-wrap {
+    position: relative;
+}
+
+.password-input-wrap input {
+    padding-right: 44px;
+}
+
+.password-toggle-visibility {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+}
+
+.password-toggle-visibility .icon {
+    width: 18px;
+    height: 18px;
 }
 
 .form-hint {

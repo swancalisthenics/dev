@@ -122,15 +122,30 @@
             <form id="passwordForm" onsubmit="return handlePasswordSubmit(event)">
                 <div class="field">
                     <label for="oldPassword">Aktuelles Passwort</label>
-                    <input type="password" id="oldPassword" required autocomplete="current-password">
+                    <div class="password-input-wrap">
+                        <input type="password" id="oldPassword" required autocomplete="current-password">
+                        <button type="button" class="password-toggle-visibility" onclick="togglePasswordVisibility('oldPassword', this)" aria-label="Passwort anzeigen">
+                            <span class="icon icon-eye" aria-hidden="true"></span>
+                        </button>
+                    </div>
                 </div>
                 <div class="field">
                     <label for="newPassword">Neues Passwort</label>
-                    <input type="password" id="newPassword" required autocomplete="new-password">
+                    <div class="password-input-wrap">
+                        <input type="password" id="newPassword" required autocomplete="new-password">
+                        <button type="button" class="password-toggle-visibility" onclick="togglePasswordVisibility('newPassword', this)" aria-label="Passwort anzeigen">
+                            <span class="icon icon-eye" aria-hidden="true"></span>
+                        </button>
+                    </div>
                 </div>
                 <div class="field">
                     <label for="newPasswordConfirm">Neues Passwort bestätigen</label>
-                    <input type="password" id="newPasswordConfirm" required autocomplete="new-password">
+                    <div class="password-input-wrap">
+                        <input type="password" id="newPasswordConfirm" required autocomplete="new-password">
+                        <button type="button" class="password-toggle-visibility" onclick="togglePasswordVisibility('newPasswordConfirm', this)" aria-label="Passwort anzeigen">
+                            <span class="icon icon-eye" aria-hidden="true"></span>
+                        </button>
+                    </div>
                 </div>
                 <p id="passwordNotice" hidden></p>
                 <div class="modal-actions">

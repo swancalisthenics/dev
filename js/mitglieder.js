@@ -21,6 +21,32 @@ function toggleViewAsNormal() {
     if (rollenEditor) {
         rollenEditor.hidden = !(currentUserIsAdmin && !viewAsNormalMember);
     }
+    // Deutliche Rueckmeldung direkt beim Klick - der Button-Text allein
+    // aendert sich zwar auch, ist aber leicht zu uebersehen, vor allem weil
+    // der eigentliche Effekt (Rollen-Editor im Modal) erst beim naechsten
+    // Oeffnen einer Karte sichtbar wird.
+    const notice = document.getElementById('viewAsNotice');
+    if (notice) {
+        notice.textContent = viewAsNormalMember
+            ? 'Testansicht aktiv: Du siehst die Seite jetzt wie ein normales Mitglied (Rollen-Bearbeitung im Modal ist ausgeblendet).'
+            : 'Zurück in der normalen Admin-Ansicht.';
+        notice.hidden = false;
+    }
+}
+
+// Setzt den Admin-Zustand beim Abmelden wirklich zurueck - sonst blieben
+// der Umschalter-Button und seine Meldung von der vorherigen (echten)
+// Admin-Session sichtbar, obwohl currentUserIsAdmin/viewAsNormalMember
+// laengst veraltet waeren (siehe initAuthGate-Aufruf ganz unten).
+function resetAdminUI() {
+    currentUserIsAdmin = false;
+    viewAsNormalMember = false;
+    const btn = document.getElementById('viewAsToggle');
+    if (btn) btn.hidden = true;
+    const notice = document.getElementById('viewAsNotice');
+    if (notice) notice.hidden = true;
+    const rollenEditor = document.getElementById('mitgliedRollenEditor');
+    if (rollenEditor) rollenEditor.hidden = true;
 }
 
 function updateViewAsToggleUI() {
@@ -93,7 +119,11 @@ function openMitgliedModal(m) {
         rollenEditor.hidden = !zeigeAdminUI;
         if (zeigeAdminUI) {
             editingMitgliedId = m.id;
-            document.getElementById('mitgliedRollenInput').value = m.rollen.join(', ');
+            rollenEditor.querySelectorAll('.mitglied-rollen-checkbox').forEach(cb => {
+                cb.checked = m.rollen.includes(cb.value);
+            });
+            const weitereRollen = m.rollen.filter(r => !BEKANNTE_ROLLEN.includes(r) && r !== 'Admin');
+            document.getElementById('mitgliedRollenExtra').value = weitereRollen.join(', ');
             const notice = document.getElementById('mitgliedRollenNotice');
             notice.hidden = true;
         }
@@ -103,35 +133,34 @@ function openMitgliedModal(m) {
     updateBodyScrollLock();
 }
 
+// Checkboxen fuer diese drei, "Admin" bewusst nie als Option (siehe
+// saveMitgliedRollen unten) - alles andere (auch frei Erfundenes wie
+// "Präsident") ueber das zusaetzliche Textfeld.
+const BEKANNTE_ROLLEN = ['Vorstand', 'Mitglied', 'Ehrenmitglied'];
+
 // Nur sichtbar/nutzbar fuer Admins, die sich nicht gerade als normales
-// Mitglied ausgeben (siehe openMitgliedModal oben). Die eigentliche
-// Absicherung liegt aber in der Datenbank (Trigger + Policies, siehe
-// supabase/002-admin-rollen.sql), nicht hier im UI - "Admin" selbst laesst
-// sich damit bewusst weder vergeben noch entziehen, das laeuft nur direkt
-// ueber Supabase. Die Korrektur hier spiegelt das nur clientseitig, damit
-// sofort eine ehrliche Meldung statt eines stillen Server-Overrides kommt.
+// Mitglied ausgeben (siehe openMitgliedModal oben). "Admin" taucht in den
+// Checkboxen absichtlich gar nicht erst auf (statt es anzubieten und dann
+// zu verwerfen) - der bisherige Admin-Status wird hier einfach unveraendert
+// uebernommen. Die eigentliche Absicherung liegt trotzdem in der Datenbank
+// (Trigger + Policies, siehe supabase/002-admin-rollen.sql), nicht hier im
+// UI - falls doch mal direkt per API manipuliert wuerde.
 async function saveMitgliedRollen() {
-    const input = document.getElementById('mitgliedRollenInput');
     const notice = document.getElementById('mitgliedRollenNotice');
-    let neueRollen = input.value.split(',').map(r => r.trim()).filter(Boolean);
+    const editor = document.getElementById('mitgliedRollenEditor');
+    const ausgewaehlt = Array.from(editor.querySelectorAll('.mitglied-rollen-checkbox:checked')).map(cb => cb.value);
+    const weitere = document.getElementById('mitgliedRollenExtra').value.split(',').map(r => r.trim()).filter(Boolean);
+    let neueRollen = [...ausgewaehlt, ...weitere];
 
     if (!neueRollen.length) {
-        notice.textContent = 'Mindestens eine Rolle angeben.';
+        notice.textContent = 'Mindestens eine Rolle auswählen oder eintragen.';
         notice.hidden = false;
         return;
     }
 
     const mitglied = alleMitglieder.find(m => m.id === editingMitgliedId);
-    const warAdmin = !!mitglied?.rollen.includes('Admin');
-    const istJetztAdmin = neueRollen.includes('Admin');
-    let adminHinweis = '';
-    if (warAdmin && !istJetztAdmin) {
+    if (mitglied?.rollen.includes('Admin')) {
         neueRollen.push('Admin');
-        adminHinweis = ' (Admin-Status kann hier nicht entzogen werden – nur direkt über Supabase.)';
-    } else if (!warAdmin && istJetztAdmin) {
-        neueRollen = neueRollen.filter(r => r !== 'Admin');
-        if (!neueRollen.length) neueRollen = ['Mitglied'];
-        adminHinweis = ' (Admin-Status kann hier nicht vergeben werden – nur direkt über Supabase.)';
     }
 
     const { error } = await supabaseClient
@@ -146,8 +175,7 @@ async function saveMitgliedRollen() {
     }
 
     if (mitglied) mitglied.rollen = neueRollen;
-    input.value = neueRollen.join(', ');
-    notice.textContent = 'Gespeichert!' + adminHinweis;
+    notice.textContent = 'Gespeichert!';
     notice.hidden = false;
     renderMitgliederGrid(alleMitglieder);
     document.getElementById('mitgliedModalBadges').innerHTML = `
@@ -200,8 +228,12 @@ function initMitgliederFilter(mitglieder) {
 // `email` ist darin bereits NULL, wenn das Mitglied sie nicht geteilt hat.
 // `isSelf` kommt aus dem Vergleich mit der eigenen User-ID, nicht aus den
 // Daten. `rollen` ist ein Array, ein Mitglied kann mehrere Rollen haben.
-(async function () {
-    const { data: { user } } = await supabaseClient.auth.getUser();
+// Wird als onSession-Callback von initAuthGate() unten aufgerufen (nicht
+// mehr als eigenstaendige IIFE) - dadurch laeuft das automatisch bei jedem
+// Login/Logout neu, inkl. korrektem Reset ueber resetAdminUI() als
+// onSignedOut-Callback (siehe weiter oben - ohne den blieb der
+// Admin-Umschalter nach dem Abmelden faelschlich sichtbar).
+async function loadMitgliederListe(session) {
     const { data, error } = await supabaseClient
         .from('public_profiles')
         .select('id, name, email, rollen, instagram, tiktok, profilbild_url');
@@ -210,7 +242,7 @@ function initMitgliederFilter(mitglieder) {
         id: p.id,
         name: p.name,
         initial: p.name.charAt(0).toUpperCase(),
-        isSelf: p.id === user.id,
+        isSelf: p.id === session.user.id,
         rollen: p.rollen,
         email: p.email,
         instagram: p.instagram,
@@ -220,4 +252,6 @@ function initMitgliederFilter(mitglieder) {
     updateViewAsToggleUI();
     renderMitgliederGrid(alleMitglieder);
     initMitgliederFilter(alleMitglieder);
-})();
+}
+
+initAuthGate('mitgliederContent', loadMitgliederListe, resetAdminUI);

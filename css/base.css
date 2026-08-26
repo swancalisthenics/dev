@@ -67,6 +67,20 @@
     box-sizing: border-box;
 }
 
+/* Globale Absicherung fuer das [hidden]-Attribut: Eine Autor-Regel mit
+   eigenem "display" (z. B. .btn, .profile-layout, jede Flex-/Grid-Klasse)
+   gewinnt sonst immer gegen die display:none-Regel des User-Agent-
+   Stylesheets, egal wie spaet/spezifisch die eigene Regel ist - das hat in
+   diesem Projekt schon mehrfach zu Elementen gefuehrt, die trotz
+   `element.hidden = true` sichtbar blieben (siehe CLAUDE.md). !important
+   ist hier bewusst die Ausnahme von der Regel "kein !important", weil es
+   das einzige zuverlaessige Mittel ist, das JEDE aktuelle und kuenftige
+   Autor-Regel schlaegt, ohne dass man bei jeder neuen Komponente wieder
+   manuell eine Override-Regel ergaenzen muss. */
+[hidden] {
+    display: none !important;
+}
+
 html {
     scroll-behavior: smooth;
 }
