@@ -59,6 +59,7 @@
 .icon-images { -webkit-mask-image: url(../assets/icons/images-regular.svg); mask-image: url(../assets/icons/images-regular.svg); }
 .icon-eye { -webkit-mask-image: url(../assets/icons/eye.svg); mask-image: url(../assets/icons/eye.svg); }
 .icon-eye-slash { -webkit-mask-image: url(../assets/icons/eye-slash.svg); mask-image: url(../assets/icons/eye-slash.svg); }
+.icon-circle-question { -webkit-mask-image: url(../assets/icons/circle-question.svg); mask-image: url(../assets/icons/circle-question.svg); }
 
 /* --- BUTTONS --- */
 .btn {
@@ -668,6 +669,18 @@
     .profile-layout .profile-form-card {
         margin: 0;
     }
+
+    /* Ohne festes "width" bestimmt allein der Inhalt die Breite (max-width
+       ist nur eine Obergrenze, kein Zwang) - seit der Hinweistext und die
+       Labels bei Instagram/TikTok durch das kompaktere Info-Icon-System
+       ersetzt wurden (Punkt 40), hatte diese Karte spürbar weniger langen
+       Fliesstext und schrumpfte dadurch sichtbar schmaler. Nur die
+       Profil-Karte selbst (nicht die "Passwort ändern"-Karte daneben, die
+       dieselbe .profile-form-card-Klasse teilt, aber inhaltlich unverändert
+       blieb und weiterhin ihre eigene Inhaltsbreite behalten soll). */
+    .profile-layout .profile-form-card:not(.password-details) {
+        width: 480px;
+    }
 }
 
 /* Standardmässig eingeklappt (natives <details>, kein JS nötig) - Passwort
@@ -973,6 +986,37 @@
     color: var(--aurora-red);
     margin-bottom: 10px;
     text-align: left;
+}
+
+/* Info-Icon oben rechts über einem Feld (z. B. Instagram/TikTok auf
+   "Mein Profil") - ersetzt dort das Label, das stattdessen als Platzhalter
+   im Input steht. Eigene Zeile über dem Input statt innerhalb (wie beim
+   Passwort-Auge), damit ein langer eingetippter Link nicht unter das Icon
+   laeuft. Klick blendet die zugehoerige .field-info-text darunter ein/aus. */
+.field-info-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 6px;
+}
+
+.field-info-toggle {
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    line-height: 0;
+}
+
+.field-info-toggle .icon {
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+}
+
+.field-info-text {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: 6px;
 }
 
 /* --- CUSTOM SELECT (ersetzt natives <select>: dessen geöffnete

@@ -96,14 +96,25 @@
                     <span class="toggle-track"><span class="toggle-thumb"></span></span>
                     <span class="toggle-label">E-Mail mit anderen teilen</span>
                 </label>
-                <p class="form-hint">Instagram und TikTok sind für andere Mitglieder sichtbar.</p>
                 <div class="field">
-                    <label for="profileInstagram">Instagram-Link</label>
-                    <input type="url" id="profileInstagram" name="instagram">
+                    <div class="field-info-row">
+                        <button type="button" class="field-info-toggle" onclick="toggleFieldInfo('instagramInfo')" aria-label="Hinweis zur Sichtbarkeit anzeigen">
+                            <span class="icon icon-circle-question" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <input type="url" id="profileInstagram" name="instagram" placeholder="Instagram" aria-label="Instagram-Link">
+                    <p class="field-info-text" id="instagramInfo" hidden>Wird für andere Mitglieder sichtbar.</p>
+                    <p class="form-error" id="instagramError" hidden></p>
                 </div>
                 <div class="field">
-                    <label for="profileTiktok">TikTok-Link</label>
-                    <input type="url" id="profileTiktok" name="tiktok">
+                    <div class="field-info-row">
+                        <button type="button" class="field-info-toggle" onclick="toggleFieldInfo('tiktokInfo')" aria-label="Hinweis zur Sichtbarkeit anzeigen">
+                            <span class="icon icon-circle-question" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <input type="url" id="profileTiktok" name="tiktok" placeholder="TikTok" aria-label="TikTok-Link">
+                    <p class="field-info-text" id="tiktokInfo" hidden>Wird für andere Mitglieder sichtbar.</p>
+                    <p class="form-error" id="tiktokError" hidden></p>
                 </div>
                 <p id="profileNotice" hidden>Speichern ist noch nicht aktiv – folgt in einem der nächsten Schritte.</p>
                 <div class="modal-actions">

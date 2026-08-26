@@ -159,6 +159,27 @@ create view public.public_profiles as
 
 grant select on public.public_profiles to authenticated;
 
+-- Zeigt Admins zusaetzlich Accounts, die schon eingeladen wurden (existieren
+-- in auth.users), aber noch nie ihr Profil gespeichert haben (noch keine
+-- Zeile in public.profiles) - siehe pages/mitglieder.html. Bewusst KEIN
+-- Trigger auf auth.users, der automatisch eine Profil-Zeile anlegt: ein
+-- fehlerhafter Trigger dort wuerde sonst jede kuenftige Einladung
+-- fehlschlagen lassen, nicht nur die aktuelle. Admin-Beschraenkung sitzt
+-- direkt in der View: Nicht-Admins bekommen von dieser Abfrage immer 0
+-- Zeilen zurueck. Rollen lassen sich fuer diese Accounts bewusst noch nicht
+-- vergeben - erst moeglich, sobald die Person sich einmal eingeloggt und
+-- ihr Profil gespeichert hat.
+create view public.eingeladene_ohne_profil as
+    select u.id, u.email, u.created_at as eingeladen_am
+    from auth.users u
+    where not exists (select 1 from public.profiles p where p.id = u.id)
+      and exists (
+          select 1 from public.profiles me
+          where me.id = auth.uid() and 'Admin' = any(me.rollen)
+      );
+
+grant select on public.eingeladene_ohne_profil to authenticated;
+
 -- Profilbilder: eigener Storage-Bucket, Policies analog zur Tabelle oben.
 -- Erst noetig, sobald der Foto-Upload (Schritt 9) umgesetzt wird - Bucket
 -- "profilbilder" im Dashboard unter Storage anlegen, dann:

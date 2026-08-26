@@ -713,6 +713,10 @@ function clearProfileForm() {
     document.getElementById('oldPassword').value = '';
     document.getElementById('newPassword').value = '';
     document.getElementById('newPasswordConfirm').value = '';
+    document.getElementById('instagramInfo').hidden = true;
+    document.getElementById('tiktokInfo').hidden = true;
+    document.getElementById('instagramError').hidden = true;
+    document.getElementById('tiktokError').hidden = true;
     const avatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
     if (avatarPlaceholder) avatarPlaceholder.textContent = '';
 }
@@ -751,17 +755,60 @@ function closeAuthErrorModal() {
 // profiles-Zeile fuer diese Person (siehe CLAUDE.md) - ein `update` auf eine
 // nicht existierende Zeile aendert lautlos 0 Zeilen (kein Fehler, aber auch
 // nichts gespeichert). `upsert` legt die Zeile beim ersten Speichern an.
+// Blendet den Sichtbarkeits-Hinweis unter einem Feld (z.B. Instagram/
+// TikTok auf "Mein Profil") per Klick auf das Fragezeichen-Icon ein/aus.
+function toggleFieldInfo(id) {
+    const el = document.getElementById(id);
+    if (el) el.hidden = !el.hidden;
+}
+
+// Prueft, ob eine eingegebene URL wirklich zu einer der erlaubten Domains
+// gehoert, nicht nur irgendeine gueltige URL ist - z.B. damit im Instagram-
+// Feld nicht versehentlich ein TikTok- oder ein voellig anderer Link landet.
+// "www."-Praefix wird ignoriert, `URL()` wirft bei nicht parsbaren Werten
+// (z.B. Freitext ohne echtes URL-Format).
+function hostMatchesAny(value, erlaubteHosts) {
+    try {
+        const host = new URL(value).hostname.toLowerCase().replace(/^www\./, '');
+        return erlaubteHosts.includes(host);
+    } catch {
+        return false;
+    }
+}
+
 async function handleProfileSubmit(event) {
     event.preventDefault();
     const notice = document.getElementById('profileNotice');
+    notice.hidden = true;
+
+    const instagramInput = document.getElementById('profileInstagram');
+    const tiktokInput = document.getElementById('profileTiktok');
+    const instagramError = document.getElementById('instagramError');
+    const tiktokError = document.getElementById('tiktokError');
+    instagramError.hidden = true;
+    tiktokError.hidden = true;
+
+    let gueltig = true;
+    if (instagramInput.value && !hostMatchesAny(instagramInput.value, ['instagram.com'])) {
+        instagramError.textContent = 'Das sieht nicht nach einem Instagram-Link aus.';
+        instagramError.hidden = false;
+        gueltig = false;
+    }
+    if (tiktokInput.value && !hostMatchesAny(tiktokInput.value, ['tiktok.com', 'vm.tiktok.com'])) {
+        tiktokError.textContent = 'Das sieht nicht nach einem TikTok-Link aus.';
+        tiktokError.hidden = false;
+        gueltig = false;
+    }
+    if (!gueltig) return false;
+
     const { data: { user } } = await supabaseClient.auth.getUser();
     const { error } = await supabaseClient.from('profiles').upsert({
         id: user.id,
         name: document.getElementById('profileName').value,
         email: document.getElementById('profileEmail').value,
         email_oeffentlich: document.getElementById('profileEmailShare').checked,
-        instagram: document.getElementById('profileInstagram').value,
-        tiktok: document.getElementById('profileTiktok').value
+        instagram: instagramInput.value,
+        tiktok: tiktokInput.value
     });
     notice.textContent = error ? ('Speichern fehlgeschlagen: ' + error.message) : 'Gespeichert!';
     notice.hidden = false;

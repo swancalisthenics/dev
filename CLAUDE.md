@@ -834,7 +834,78 @@ new-swan-design/
       üblich), der "Abmelden"-Button ruft jetzt `openLogoutConfirm(event)`
       statt `handleLogout()`. Getestet: Dialog öffnet/schliesst korrekt
       (`.active`-Klasse + `display`), Abbrechen ruft keinen `signOut()` auf.
-39. **Login-Modal schliesst sich nicht mehr bei versehentlichem Klick
+39. **Admins sehen jetzt auch offene Einladungen** (Accounts, die schon
+    in Supabase Auth existieren, aber noch nie ihr Profil gespeichert
+    haben - siehe Punkt 6 in "Wie geht die Mitgliederabfrage" oben, dort
+    war so ein Account bisher komplett unsichtbar). Über
+    `superpowers:brainstorming` durchgesprochen, bewusst gegen einen
+    Trigger auf `auth.users` entschieden: ein fehlerhafter Trigger dort
+    würde sonst jede künftige Einladung fehlschlagen lassen, nicht nur die
+    aktuelle - ein zu grosses Risiko für ein Feature, das nur eine
+    Sichtbarkeits-Ergänzung ist. Stattdessen eine neue, rein lesende View
+    `public.eingeladene_ohne_profil`
+    ([supabase/003-eingeladene-ohne-profil.sql](supabase/003-eingeladene-ohne-profil.sql),
+    **noch nicht im Supabase-Dashboard ausgeführt** - muss dort im
+    SQL-Editor nachgeholt werden, sonst bleibt die neue Sektion für alle
+    leer): liest `id`/`email`/`created_at` aus `auth.users`, filtert per
+    `not exists` auf `profiles` bereits eingeladene-aber-nie-gespeicherte
+    Accounts heraus, und liefert für Nicht-Admins durch einen zweiten
+    `exists`-Check immer 0 Zeilen zurück - die Admin-Beschränkung sitzt
+    damit direkt in der Datenbank, nicht nur im Frontend versteckt.
+    `js/mitglieder.js` fragt diese View zusätzlich ab (nur wenn
+    `currentUserIsAdmin`, spart Nicht-Admins die unnötige Anfrage) und
+    rendert pro Zeile eine eigene, nicht anklickbare Karte (Badge
+    "Einladung ausstehend" + E-Mail statt Name/Rollen - es gibt ja noch
+    keine echte `profiles`-Zeile, also nichts zu bearbeiten) unterhalb des
+    normalen Grids, in einer neuen Sektion `#eingeladeneListe`. Bewusst
+    **nicht** ins Rollen-Vergabe-UI eingebunden: Auf Nachfrage entschieden,
+    dass Rollen weiterhin erst vergeben werden können, sobald die Person
+    sich einmal eingeloggt und ihr Profil gespeichert hat (normaler
+    Ablauf, unverändert) - keine vorab-Zuweisung für noch nicht
+    eingeloggte Accounts, das hätte eine echte `profiles`-Zeile schon vor
+    dem ersten Login gebraucht (mehr bewegliche Teile für wenig Nutzen).
+    Verschwindet zusammen mit dem Rollen-Editor beim "als normales
+    Mitglied testen" (rein clientseitig, wie der Rest dieses Toggles) und
+    beim Abmelden (`resetAdminUI()`). Getestet per manuell gesetzten
+    Testdaten (kein echter ausstehender Invite im Projekt verfügbar):
+    Karte erscheint/verschwindet korrekt mit `currentUserIsAdmin`/
+    `viewAsNormalMember`, wird bei `resetAdminUI()` sauber geleert, keine
+    Konsolenfehler.
+40. **Instagram/TikTok-Felder auf "Mein Profil": Sichtbarkeits-Hinweis
+    hinter Info-Icon, Platzhalter statt Label, echte Link-Validierung beim
+    Speichern.** Kein passendes Fragezeichen/Info-Icon im Projekt oder in
+    `home` vorhanden - neu angelegt (`assets/icons/circle-question.svg`,
+    gleiches Vorgehen wie bei `eye.svg`/`eye-slash.svg`: von Hand
+    gezeichnet, da kein FontAwesome-Original zum Kopieren da war).
+    - Die bisher immer sichtbare Zeile "Instagram und TikTok sind für
+      andere Mitglieder sichtbar." ist weg. Stattdessen hat jedes der
+      beiden Felder eine eigene kleine `.field-info-toggle`-Schaltfläche
+      (Fragezeichen-Icon) oben rechts über dem Input - Klick blendet den
+      Hinweistext direkt darunter ein/aus (`toggleFieldInfo()` in
+      `main.js`, simples Anzeigen/Verstecken, kein Popup mit eigener
+      Positionierung). Bewusst eine eigene Zeile über dem Input statt ein
+      Icon innerhalb (wie beim Passwort-Auge) - ein langer eingetippter
+      Link würde sonst unter das Icon laufen.
+    - `<label>` bei beiden Feldern entfernt, dafür `placeholder="Instagram"`
+      bzw. `"TikTok"`. Da Placeholder allein ein bekanntes
+      Screenreader-Problem sind (verschwinden beim Tippen, gelten nicht als
+      vollwertiges Label), zusätzlich ein `aria-label` mit dem vollen
+      Feldnamen ergänzt - rein für Barrierefreiheit, ändert nichts optisch.
+    - **Validierung beim Speichern** (`handleProfileSubmit` in `main.js`):
+      Leeres Feld bleibt gültig (beide Felder optional). Ist ein Wert
+      eingetragen, prüft `hostMatchesAny()` per `new URL(...).hostname` (nicht
+      per String-`includes()` - wichtig, sonst wäre z. B.
+      `evilinstagram.com.attacker.io` faelschlich als gueltig durchgerutscht),
+      ob der Host wirklich zu `instagram.com` bzw. `tiktok.com`/
+      `vm.tiktok.com` (Kurzlink beim Teilen aus der TikTok-App) gehört -
+      "www."-Präfix wird dabei ignoriert. Passt der Host nicht (oder ist der
+      Wert gar keine gültige URL), wird nichts gespeichert, sondern direkt
+      unter dem betroffenen Feld ein freundlicher Fehlertext angezeigt
+      (`.form-error`, gleiche Klasse wie bei den Passwort-Fehlermeldungen),
+      z. B. "Das sieht nicht nach einem Instagram-Link aus." `clearProfileForm()`
+      (Abmelden) setzt die neuen Hinweis-/Fehlertexte ebenfalls zurück, nach
+      demselben Muster wie die restlichen Formularfelder.
+41. **Login-Modal schliesst sich nicht mehr bei versehentlichem Klick
     daneben.** Ein einzelner geteilter `window`-Klick-Handler in `main.js`
     schloss bisher mehrere Modals (Telefon/E-Mail-Kontakt, Lightbox, Login,
     Mitglied-Detail), sobald der Klick den Hintergrund/Overlay statt den
@@ -850,6 +921,29 @@ new-swan-design/
     per simuliertem Klick auf das Overlay-Element: Modal bleibt aktiv
     (`classList.contains('active')` weiterhin `true`), der X-Button schliesst
     es unverändert korrekt.
+42. **Bug durch Punkt 40 verursacht: Profil-Karte auf "Mein Profil" wurde
+    am PC sichtbar schmaler.** `.profile-form-card` hatte schon immer nur
+    `max-width: 480px`, nie ein echtes `width` - eine Obergrenze allein
+    erzwingt keine Breite, ohne explizites `width`/`flex-basis` bestimmt
+    bei einer Flex-Row der tatsächliche Inhalt die Breite (Schrumpf-auf-
+    Inhalt). Die jetzt entfernte, recht lange Hinweiszeile ("Instagram und
+    TikTok sind für andere Mitglieder sichtbar.") plus die beiden Labels
+    waren offenbar der breiteste Text in der Karte - ohne sie schrumpfte
+    die Karte spürbar. Per Breiten-Messung im Browser bestätigt: live
+    (gepusht) 447.5px, lokal (Bug) nur noch 304.7px - die "Passwort
+    ändern"-Karte daneben (teilt dieselbe Klasse, aber inhaltlich
+    unverändert) blieb bei beiden exakt gleich (250.8px), war also nie
+    betroffen. Fix: `.profile-layout .profile-form-card:not(.password-details)
+    { width: 480px; }` im bestehenden 768px-Breakpoint-Block (nur Desktop,
+    nur die Profil-Karte selbst) - nutzt den ohnehin schon deklarierten
+    `max-width`-Wert als echte Breite, macht die Karte damit unabhängig vom
+    zufälligen Textumfang. Mobil unverändert (Karte bleibt dort
+    Schrumpf-auf-Inhalt), bei 768px (Breakpoint-Grenze) kein horizontaler
+    Overflow. **Lektion:** Eine reine `max-width`-Regel ohne `width` ist
+    bei textlastigen Karten in einer Flex-Row ein verstecktes Risiko - jede
+    künftige Text-/Label-Kürzung an so einer Karte kann sie unbeabsichtigt
+    schmaler werden lassen, auch wenn die CSS-Regel selbst gar nicht
+    angefasst wurde.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

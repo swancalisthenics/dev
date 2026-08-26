@@ -5,6 +5,7 @@
 // Details (Social-Links etc.) für genau diese eine Person.
 
 let alleMitglieder = [];
+let alleEingeladene = [];
 let currentUserIsAdmin = false;
 let viewAsNormalMember = false;
 let editingMitgliedId = null;
@@ -21,6 +22,7 @@ function toggleViewAsNormal() {
     if (rollenEditor) {
         rollenEditor.hidden = !(currentUserIsAdmin && !viewAsNormalMember);
     }
+    renderEingeladeneOhneProfil();
     // Deutliche Rueckmeldung direkt beim Klick - der Button-Text allein
     // aendert sich zwar auch, ist aber leicht zu uebersehen, vor allem weil
     // der eigentliche Effekt (Rollen-Editor im Modal) erst beim naechsten
@@ -41,12 +43,41 @@ function toggleViewAsNormal() {
 function resetAdminUI() {
     currentUserIsAdmin = false;
     viewAsNormalMember = false;
+    alleEingeladene = [];
     const btn = document.getElementById('viewAsToggle');
     if (btn) btn.hidden = true;
     const notice = document.getElementById('viewAsNotice');
     if (notice) notice.hidden = true;
     const rollenEditor = document.getElementById('mitgliedRollenEditor');
     if (rollenEditor) rollenEditor.hidden = true;
+    const eingeladeneListe = document.getElementById('eingeladeneListe');
+    if (eingeladeneListe) eingeladeneListe.hidden = true;
+}
+
+// Zeigt Accounts, die schon eingeladen wurden (existieren in auth.users),
+// aber noch nie ihr Profil gespeichert haben - kommen aus der View
+// `eingeladene_ohne_profil` (siehe supabase/003-eingeladene-ohne-profil.sql),
+// die selbst schon nach Admin filtert (liefert fuer Nicht-Admins immer 0
+// Zeilen). Nur eine E-Mail statt Name/Rollen, da noch keine echte
+// profiles-Zeile existiert - bewusst nicht anklickbar, es gibt nichts zu
+// bearbeiten. Zusaetzlich hier clientseitig an "als normales Mitglied
+// testen" gekoppelt, damit dieser Testmodus die Seite wirklich wie ein
+// normales Mitglied zeigt.
+function renderEingeladeneOhneProfil() {
+    const container = document.getElementById('eingeladeneListe');
+    if (!container) return;
+    const zeigen = currentUserIsAdmin && !viewAsNormalMember && alleEingeladene.length > 0;
+    container.hidden = !zeigen;
+    if (!zeigen) return;
+    container.innerHTML = `
+        <h3 class="eingeladene-heading">Ausstehende Einladungen</h3>
+        ${alleEingeladene.map(e => `
+            <div class="glass-card eingeladene-card">
+                <span class="badge badge-pending">Einladung ausstehend</span>
+                <span class="eingeladene-email">${e.email}</span>
+            </div>
+        `).join('')}
+    `;
 }
 
 function updateViewAsToggleUI() {
@@ -248,6 +279,21 @@ async function loadMitgliederListe(session) {
     updateViewAsToggleUI();
     renderMitgliederGrid(alleMitglieder);
     initMitgliederFilter(alleMitglieder);
+
+    // Nur der Vollstaendigkeit halber an currentUserIsAdmin gekoppelt (spart
+    // normalen Mitgliedern die unnoetige Anfrage) - die eigentliche
+    // Absicherung sitzt in der View selbst (siehe
+    // supabase/003-eingeladene-ohne-profil.sql), die fuer Nicht-Admins
+    // ohnehin immer 0 Zeilen liefert.
+    if (currentUserIsAdmin) {
+        const { data: eingeladeneData } = await supabaseClient
+            .from('eingeladene_ohne_profil')
+            .select('id, email, eingeladen_am');
+        alleEingeladene = eingeladeneData || [];
+    } else {
+        alleEingeladene = [];
+    }
+    renderEingeladeneOhneProfil();
 }
 
 initAuthGate('mitgliederContent', loadMitgliederListe, resetAdminUI);

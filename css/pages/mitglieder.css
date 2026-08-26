@@ -124,6 +124,39 @@
     height: 18px;
 }
 
+/* Nur für Admins sichtbar (siehe js/mitglieder.js), Accounts die schon
+   eingeladen wurden aber noch nie ihr Profil gespeichert haben - daher nur
+   E-Mail statt Name/Rollen, keine Karte im .mitglieder-grid-Stil (nichts
+   anklickbar, es gibt nichts zu bearbeiten). */
+.eingeladene-liste {
+    margin: 32px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--glass-border);
+    max-width: 720px;
+}
+
+.eingeladene-heading {
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 700;
+    color: var(--aurora-red);
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+}
+
+.eingeladene-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.eingeladene-email {
+    color: var(--text-muted);
+    word-break: break-word;
+}
+
 /* Nur für Admins sichtbar (siehe js/mitglieder.js) - rein lokale
    "Ansicht wechseln"-Simulation, keine echte Rollen-Änderung. */
 .view-as-toggle-wrap {
