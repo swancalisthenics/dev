@@ -534,8 +534,27 @@ document.addEventListener('click', (event) => {
     }
 });
 
-async function handleLogout() {
+// Fragt vor dem echten Abmelden nochmal nach (eigenes Modal statt
+// window.confirm(), damit es optisch zum Rest der Seite passt) - ein
+// versehentlicher Klick auf "Abmelden" im Dropdown sollte nicht sofort
+// die Sitzung beenden.
+function openLogoutConfirm(event) {
+    if (event) event.preventDefault();
     closeProfileDropdown();
+    const modal = document.getElementById('logout-confirm-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    updateBodyScrollLock();
+}
+
+function closeLogoutConfirm() {
+    const modal = document.getElementById('logout-confirm-modal');
+    if (modal) modal.classList.remove('active');
+    updateBodyScrollLock();
+}
+
+async function confirmLogout() {
+    closeLogoutConfirm();
     await supabaseClient.auth.signOut();
 }
 
@@ -846,7 +865,6 @@ window.addEventListener('click', (e) => {
     if (e.target.id === 'phone-modal') closePhoneDialog();
     if (e.target.id === 'email-modal') closeEmailDialog();
     if (e.target.id === 'image-lightbox') closeLightbox();
-    if (e.target.id === 'login-modal') closeLoginDialog();
     if (e.target.id === 'mitglied-modal') closeMitgliedModal();
 });
 

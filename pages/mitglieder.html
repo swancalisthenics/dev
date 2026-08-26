@@ -55,7 +55,7 @@
                 <div class="profile-dropdown" id="profileDropdown">
                     <a href="mein-profil.html">Mein Profil</a>
                     <a href="mitglieder.html">Mitglieder</a>
-                    <button type="button" onclick="handleLogout()">Abmelden</button>
+                    <button type="button" onclick="openLogoutConfirm(event)">Abmelden</button>
                 </div>
             </div>
         </div>
@@ -96,36 +96,41 @@
 
 <!-- MITGLIED-PROFIL-MODAL -->
 <div id="mitglied-modal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content mitglied-modal-content">
         <button class="modal-close" onclick="closeMitgliedModal()" aria-label="Schliessen">&times;</button>
-        <div class="mitglieder-avatar mitglieder-avatar-lg" id="mitgliedModalAvatar" aria-hidden="true"></div>
-        <h3 class="mitglieder-modal-name" id="mitgliedModalName"></h3>
-        <div class="mitglieder-badges" id="mitgliedModalBadges"></div>
-        <a href="mein-profil.html" class="self-profile-link" id="mitgliedModalSelfLink" hidden>Profil ansehen <span aria-hidden="true">&#8599;</span></a>
-        <div class="mitglieder-links" id="mitgliedModalLinks"></div>
-        <div class="mitglied-rollen-editor" id="mitgliedRollenEditor" hidden>
-            <label>Rollen (Admin-Bereich)</label>
-            <label class="toggle">
-                <input type="checkbox" value="Vorstand" class="mitglied-rollen-checkbox">
-                <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                <span class="toggle-label">Vorstand</span>
-            </label>
-            <label class="toggle">
-                <input type="checkbox" value="Mitglied" class="mitglied-rollen-checkbox">
-                <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                <span class="toggle-label">Mitglied</span>
-            </label>
-            <label class="toggle">
-                <input type="checkbox" value="Ehrenmitglied" class="mitglied-rollen-checkbox">
-                <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                <span class="toggle-label">Ehrenmitglied</span>
-            </label>
-            <div class="field">
-                <label for="mitgliedRollenExtra">Weitere Rolle (optional)</label>
-                <input type="text" id="mitgliedRollenExtra" placeholder="z. B. Präsident">
+        <div class="mitglied-modal-layout">
+            <div class="mitglied-modal-profile">
+                <div class="mitglieder-avatar mitglieder-avatar-lg" id="mitgliedModalAvatar" aria-hidden="true"></div>
+                <h3 class="mitglieder-modal-name" id="mitgliedModalName"></h3>
+                <div class="mitglieder-badges" id="mitgliedModalBadges"></div>
+                <a href="mein-profil.html" class="self-profile-link" id="mitgliedModalSelfLink" hidden>Profil ansehen <span aria-hidden="true">&#8599;</span></a>
+                <div class="mitglieder-links" id="mitgliedModalLinks"></div>
             </div>
-            <button type="button" class="btn btn-secondary" onclick="saveMitgliedRollen()">Rollen speichern</button>
-            <p id="mitgliedRollenNotice" class="form-hint" hidden></p>
+            <div class="mitglied-rollen-editor" id="mitgliedRollenEditor" hidden>
+                <label>Rollen (Admin-Bereich)</label>
+                <label class="toggle">
+                    <input type="checkbox" value="Vorstand" class="mitglied-rollen-checkbox">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Vorstand</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" value="Mitglied" class="mitglied-rollen-checkbox">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Mitglied</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" value="Ehrenmitglied" class="mitglied-rollen-checkbox">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Ehrenmitglied</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" value="Präsident" class="mitglied-rollen-checkbox">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Präsident</span>
+                </label>
+                <button type="button" class="btn btn-secondary" onclick="saveMitgliedRollen()">Rollen speichern</button>
+                <p id="mitgliedRollenNotice" class="form-hint" hidden></p>
+            </div>
         </div>
     </div>
 </div>
@@ -162,6 +167,17 @@
                 <button type="submit" class="btn btn-primary">Anmelden</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div id="logout-confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeLogoutConfirm()" aria-label="Schliessen">&times;</button>
+        <h3>Wirklich abmelden?</h3>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="confirmLogout()">Abmelden</button>
+            <button type="button" class="btn btn-secondary" onclick="closeLogoutConfirm()">Abbrechen</button>
+        </div>
     </div>
 </div>
 

@@ -775,6 +775,82 @@ new-swan-design/
     `<head>`/Topbar-Markup jeder Seite eingebettet, komplett unabhängig von
     jeder externen Bibliothek oder CDN.
 
+38. **Mitglied-Modal überarbeitet: alle Rollen ausser Admin jetzt als
+    Toggles, Profil/Rollen-Editor nebeneinander, plus Abmelden-Bestätigung.**
+    Vier Änderungen aus einer einzigen Nutzeranfrage (Screenshots vom Handy
+    mit handschriftlichen Markierungen):
+    - Das Freitextfeld "Weitere Rolle" im Rollen-Editor ist komplett weg.
+      "Präsident" (bisher nur über dieses Textfeld möglich) ist jetzt eine
+      vierte feste Toggle-Zeile neben Vorstand/Mitglied/Ehrenmitglied -
+      `BEKANNTE_ROLLEN` in `js/mitglieder.js` um `'Präsident'` ergänzt, alle
+      `mitgliedRollenExtra`-Referenzen in `openMitgliedModal()` und
+      `saveMitgliedRollen()` entfernt. Rollen bleiben technisch weiterhin
+      Freitext in der Datenbank (`rollen text[]`) - es gibt nur keinen Weg
+      mehr, das über dieses UI zu nutzen. Falls künftig doch mal eine ganz
+      neue Rolle gebraucht wird, die (noch) nicht in `BEKANNTE_ROLLEN`
+      steht, geht das vorerst nur direkt per Supabase SQL, nicht mehr übers
+      Mitglied-Modal.
+    - **Ab 768px stehen Profil (links) und Rollen-Editor (rechts)
+      nebeneinander** statt untereinander (`pages/mitglieder.html`:
+      `.mitglied-modal-layout` umschliesst `.mitglied-modal-profile` und
+      `.mitglied-rollen-editor` als Geschwister; CSS in
+      `css/pages/mitglieder.css`). Bewusst **nicht** bedingungslos wie bei
+      `.profile-layout` (mein-profil.html) umgesetzt: Der Rollen-Editor ist
+      nur für Admins sichtbar (und nicht während "als normales Mitglied
+      testen") - eine unbedingte Verbreiterung des Modals hätte für JEDES
+      normale Mitglied bei JEDEM Öffnen einer Karte ein unnötig breites
+      Modal mit viel Leerraum neben dem zentrierten Profil bedeutet. Daher
+      läuft die Verbreiterung (360px → 640px) und Zeilen-Umschaltung über
+      `.mitglied-modal-content:has(.mitglied-rollen-editor:not([hidden]))`
+      - reagiert automatisch korrekt, egal ob der Editor gerade sichtbar
+      ist oder nicht, ohne eigene JS-Logik dafür. Per
+      `getBoundingClientRect()` verifiziert: Bei sichtbarem Editor liegen
+      Profil (200px) und Editor (358px) auf gleicher Höhe nebeneinander,
+      Modal 640px breit; ohne Editor bleibt das Modal bei den normalen
+      360px. Mobil weiterhin gestapelt (unverändert, bis 320px ohne
+      horizontalen Scroll geprüft).
+    - **Bug behoben: Der "Ansicht: Admin (als normales Mitglied
+      testen)"-Button lief auf schmalen Handys über seinen eigenen Rand
+      hinaus.** `.btn` (components.css) setzt `white-space: nowrap` -
+      passend für kurze Standard-Buttons, aber dieses lange, dynamische
+      Label passte auf schmalen Screens nicht auf eine Zeile und lief
+      dadurch sichtbar über die Button-Pille hinaus statt umzubrechen. Fix:
+      `.view-as-toggle-wrap .btn { white-space: normal; text-align: center;
+      }` - bricht jetzt sauber auf 2 Zeilen um. Bei 320px Breite geprüft:
+      Button wächst in der Höhe (64px statt einzeilig), kein Text-Overflow,
+      keine horizontale Seiten-Scrollbar.
+    - **Neuer Bestätigungsdialog vor dem Abmelden**, auf allen 9 Seiten
+      (jede hat ihre eigene Topbar-Kopie). Bisher rief der
+      "Abmelden"-Button im Profil-Dropdown direkt `handleLogout()` auf, das
+      sofort `supabaseClient.auth.signOut()` ausführte - ein versehentlicher
+      Klick (z. B. Fehltipp auf dem Handy direkt neben "Mein Profil") hatte
+      keine Rückfrage. `handleLogout()` in `js/main.js` durch drei Funktionen
+      ersetzt: `openLogoutConfirm(event)` (schliesst das Profil-Dropdown,
+      zeigt `#logout-confirm-modal`), `closeLogoutConfirm()` (Abbrechen/X),
+      `confirmLogout()` (einzige Stelle, die tatsächlich `signOut()`
+      aufruft). Jede der 9 Seiten hat ihr eigenes `#logout-confirm-modal`
+      bekommen (gleiches Muster wie das bestehende Login-Modal - jede Seite
+      trägt ihre Modals dupliziert statt zentral, wie im ganzen Projekt
+      üblich), der "Abmelden"-Button ruft jetzt `openLogoutConfirm(event)`
+      statt `handleLogout()`. Getestet: Dialog öffnet/schliesst korrekt
+      (`.active`-Klasse + `display`), Abbrechen ruft keinen `signOut()` auf.
+39. **Login-Modal schliesst sich nicht mehr bei versehentlichem Klick
+    daneben.** Ein einzelner geteilter `window`-Klick-Handler in `main.js`
+    schloss bisher mehrere Modals (Telefon/E-Mail-Kontakt, Lightbox, Login,
+    Mitglied-Detail), sobald der Klick den Hintergrund/Overlay statt den
+    Dialog selbst traf (`e.target.id === '...'`). Beim Login-Formular störte
+    das: ein knapper Fehlklick daneben verwarf E-Mail/Passwort komplett
+    ohne Rückfrage. `logout-confirm-modal`, `set-password-modal` und
+    `auth-error-modal` waren aus genau diesem Grund schon vorher bewusst
+    **nicht** in diesem Handler enthalten (nur über ihre eigenen
+    Buttons schliessbar) - `login-modal` jetzt ebenfalls entfernt, gleiches
+    Prinzip. Bewusst **nicht** angefasst (auf Nachfrage bestätigt, nur das
+    Login-Modal soll sich ändern): `mitglied-modal`, `phone-modal`,
+    `email-modal` bleiben weiterhin bei Klick daneben schliessbar. Getestet
+    per simuliertem Klick auf das Overlay-Element: Modal bleibt aktiv
+    (`classList.contains('active')` weiterhin `true`), der X-Button schliesst
+    es unverändert korrekt.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
@@ -961,8 +1037,9 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
    bleibt es gestapelt.
 9. Profilbild-Upload: Storage-Bucket einrichten, Verkleinerung per
    Canvas-API vor dem Upload, Anzeige als Profilbild.
-10. Logout-Funktion — **umgesetzt** (`handleLogout()` in `main.js`, Teil
-    des Profil-Dropdowns, siehe Punkt 29).
+10. Logout-Funktion — **umgesetzt** (`openLogoutConfirm()`/`closeLogoutConfirm()`/
+    `confirmLogout()` in `main.js`, Teil des Profil-Dropdowns mit
+    Bestätigungsdialog, siehe Punkt 29 und 38).
 11. **Datenschutzerklärung/Impressum aktualisieren** (`pages/rechtliches.html`):
     Sobald der Mitgliederbereich live geht, verarbeitet die Seite erstmals
     echte personenbezogene Daten (Name, E-Mail, Profilbild, Social-Links,

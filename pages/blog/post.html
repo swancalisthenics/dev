@@ -55,7 +55,7 @@
                 <div class="profile-dropdown" id="profileDropdown">
                     <a href="../mein-profil.html">Mein Profil</a>
                     <a href="../mitglieder.html">Mitglieder</a>
-                    <button type="button" onclick="handleLogout()">Abmelden</button>
+                    <button type="button" onclick="openLogoutConfirm(event)">Abmelden</button>
                 </div>
             </div>
         </div>
@@ -107,6 +107,17 @@
                 <button type="submit" class="btn btn-primary">Anmelden</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div id="logout-confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeLogoutConfirm()" aria-label="Schliessen">&times;</button>
+        <h3>Wirklich abmelden?</h3>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="confirmLogout()">Abmelden</button>
+            <button type="button" class="btn btn-secondary" onclick="closeLogoutConfirm()">Abbrechen</button>
+        </div>
     </div>
 </div>
 

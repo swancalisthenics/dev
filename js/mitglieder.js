@@ -122,8 +122,6 @@ function openMitgliedModal(m) {
             rollenEditor.querySelectorAll('.mitglied-rollen-checkbox').forEach(cb => {
                 cb.checked = m.rollen.includes(cb.value);
             });
-            const weitereRollen = m.rollen.filter(r => !BEKANNTE_ROLLEN.includes(r) && r !== 'Admin');
-            document.getElementById('mitgliedRollenExtra').value = weitereRollen.join(', ');
             const notice = document.getElementById('mitgliedRollenNotice');
             notice.hidden = true;
         }
@@ -133,10 +131,10 @@ function openMitgliedModal(m) {
     updateBodyScrollLock();
 }
 
-// Checkboxen fuer diese drei, "Admin" bewusst nie als Option (siehe
-// saveMitgliedRollen unten) - alles andere (auch frei Erfundenes wie
-// "Präsident") ueber das zusaetzliche Textfeld.
-const BEKANNTE_ROLLEN = ['Vorstand', 'Mitglied', 'Ehrenmitglied'];
+// Feste Toggle-Optionen im Rollen-Editor. "Admin" bewusst nie als Option
+// (siehe saveMitgliedRollen unten) - Admin laesst sich nur direkt per
+// Supabase SQL vergeben/entziehen, nie ueber dieses UI.
+const BEKANNTE_ROLLEN = ['Vorstand', 'Mitglied', 'Ehrenmitglied', 'Präsident'];
 
 // Nur sichtbar/nutzbar fuer Admins, die sich nicht gerade als normales
 // Mitglied ausgeben (siehe openMitgliedModal oben). "Admin" taucht in den
@@ -148,12 +146,10 @@ const BEKANNTE_ROLLEN = ['Vorstand', 'Mitglied', 'Ehrenmitglied'];
 async function saveMitgliedRollen() {
     const notice = document.getElementById('mitgliedRollenNotice');
     const editor = document.getElementById('mitgliedRollenEditor');
-    const ausgewaehlt = Array.from(editor.querySelectorAll('.mitglied-rollen-checkbox:checked')).map(cb => cb.value);
-    const weitere = document.getElementById('mitgliedRollenExtra').value.split(',').map(r => r.trim()).filter(Boolean);
-    let neueRollen = [...ausgewaehlt, ...weitere];
+    let neueRollen = Array.from(editor.querySelectorAll('.mitglied-rollen-checkbox:checked')).map(cb => cb.value);
 
     if (!neueRollen.length) {
-        notice.textContent = 'Mindestens eine Rolle auswählen oder eintragen.';
+        notice.textContent = 'Mindestens eine Rolle auswählen.';
         notice.hidden = false;
         return;
     }
