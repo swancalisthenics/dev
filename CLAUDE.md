@@ -944,6 +944,45 @@ new-swan-design/
     künftige Text-/Label-Kürzung an so einer Karte kann sie unbeabsichtigt
     schmaler werden lassen, auch wenn die CSS-Regel selbst gar nicht
     angefasst wurde.
+43. **Augen-Icon zum Passwort-Anzeigen jetzt auch im Login-Modal.** Bisher
+    nur bei den 3 Feldern in "Passwort ändern" auf Mein Profil (Punkt 37) -
+    auf Wunsch jetzt zusätzlich beim `loginPassword`-Feld, auf allen 9
+    Seiten (jede hat ihre eigene Kopie des Login-Modals). Reine
+    Wiederverwendung des bestehenden Musters (`.password-input-wrap`,
+    `.password-toggle-visibility`, `togglePasswordVisibility()`) - keine
+    neue CSS- oder JS-Arbeit nötig, die Funktion war bereits generisch
+    genug für ein weiteres Feld. `supabase/003-eingeladene-ohne-profil.sql`
+    (Punkt 39) ist inzwischen im Supabase-Dashboard ausgeführt - die
+    "Ausstehende Einladungen"-Sektion ist damit produktiv nutzbar.
+44. **Audit auf toten Code/ungenutzte Dateien - nur dokumentiert, noch
+    NICHTS davon gelöscht/geändert.** Per zwei parallelen Explore-Agents
+    geprüft (einer für CSS-Klassen, einer für JS-Funktionen und
+    referenzierte Dateien), jeweils gegen sowohl statische `class="..."`-
+    Attribute als auch dynamisch per Template-Literal/`classList` erzeugte
+    Klassen bzw. `onclick=`/`onsubmit=`-Referenzen:
+    - **JS ist sauber:** alle 60 geprüften Top-Level-Funktionen
+      (`js/main.js`, `js/mitglieder.js`, `js/blog.js`) werden tatsächlich
+      irgendwo aufgerufen - keine einzige ungenutzte Funktion gefunden.
+    - **3 ungenutzte CSS-Klassen:** `.slide-placeholder`
+      (`css/pages/home.css:152`, bewusst als Platzhalter für einen
+      künftigen ähnlichen Fall belassen, siehe Punkt 21 - kein
+      Aufräum-Kandidat), `.sr-only` (`css/base.css:277`), `.icon-images`
+      (`css/components.css:59`, zeigt auf `images-regular.svg`) - die
+      letzten beiden sind echte Kandidaten zum Entfernen.
+    - **11 nie referenzierte Icon-SVGs** in `assets/icons/`: `arrow-up`,
+      `bars-solid-full`, `bitcoin`, `github`, `images-solid`, `linkedin`,
+      `openai`, `snapchat`, `spotify`, `x-twitter`, `youtube` - vermutlich
+      Reste des kompletten FontAwesome-Ordners, der beim Projektstart aus
+      `home` mitkopiert wurde (siehe Design-System-Abschnitt oben), aber
+      nie alle einzeln gebraucht wurden.
+    - **8 nie referenzierte Bilder** in `assets/images/`: `comingSoon.png`,
+      `nicolas.alt.png`, `team.jpg`, `test3.png`,
+      `blogs/handstand1.jpeg`, `blogs/jedes-alter.jpeg`, `blogs/xs.jpeg`,
+      sowie die unverkleinerte Originalversion `blogs/5.7.2026.JPG` (nur
+      die `-klein`-Variante wird tatsächlich verwendet).
+    - Auf ausdrücklichen Wunsch bewusst **nichts davon gelöscht oder
+      angefasst** - dient nur als Fundstellen-Liste für einen möglichen
+      künftigen Aufräum-Durchgang.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

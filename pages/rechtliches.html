@@ -120,7 +120,12 @@
             </div>
             <div class="field">
                 <label for="loginPassword">Passwort</label>
-                <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+                <div class="password-input-wrap">
+                    <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+                    <button type="button" class="password-toggle-visibility" onclick="togglePasswordVisibility('loginPassword', this)" aria-label="Passwort anzeigen">
+                        <span class="icon icon-eye" aria-hidden="true"></span>
+                    </button>
+                </div>
             </div>
             <p id="loginNotice" hidden>Anmeldung ist noch nicht aktiv – folgt in einem der nächsten Schritte.</p>
             <div class="modal-actions">
