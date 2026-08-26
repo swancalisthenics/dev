@@ -12,6 +12,16 @@
 
 class SiteTopbar extends HTMLElement {
     connectedCallback() {
+        // Beides muss hier im Custom Element selbst gesetzt werden, nicht am
+        // Aufrufort in jeder Seite: (1) class="topbar" - components.css haengt
+        // Position/Hintergrund/z-index daran auf (siehe .topbar dort), sonst
+        // muesste jede der 9 Seiten das Attribut einzeln mitschleppen. (2)
+        // role="banner" - das entfernte <header class="topbar"> war direktes
+        // Kind von <body> und hatte dadurch implizit die ARIA-Landmark-Rolle
+        // "banner" (Screenreader-Sprungmarke); ein autonomes Custom Element
+        // hat keine implizite Rolle, das muss also explizit nachgezogen werden.
+        this.classList.add('topbar');
+        this.setAttribute('role', 'banner');
         const base = document.body.dataset.base || '';
         const page = document.body.dataset.page || '';
         // Sonderfall Home: auf index.html selbst ein reiner Anker (kein
