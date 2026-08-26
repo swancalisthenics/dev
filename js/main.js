@@ -560,6 +560,27 @@ if (typeof supabaseClient !== 'undefined') {
     });
 }
 
+function closeAuthErrorModal() {
+    const modal = document.getElementById('auth-error-modal');
+    if (modal) modal.classList.remove('active');
+    updateBodyScrollLock();
+}
+
+// Supabase haengt bei einem ungueltigen/abgelaufenen Recovery- oder
+// Einladungs-Link "#error=...&error_code=otp_expired&..." an die URL,
+// ohne dass dafuer ein onAuthStateChange-Event feuert (es kommt ja keine
+// Session zustande). Ohne diese Pruefung wuerde man stumm auf der
+// normalen Startseite landen, ohne zu wissen, dass etwas schiefging.
+(function checkAuthUrlError() {
+    if (!window.location.hash.includes('error=')) return;
+    const modal = document.getElementById('auth-error-modal');
+    if (modal) {
+        modal.classList.add('active');
+        updateBodyScrollLock();
+    }
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+})();
+
 // --- MEIN-PROFIL-FORMULAR --- Gleicher Platzhalter-Ansatz wie beim Login.
 
 // DEMO-VERSION (aktiv) - siehe Hinweis oben bei handleLoginSubmit.

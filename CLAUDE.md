@@ -531,6 +531,22 @@ new-swan-design/
     `supabaseClient.auth.updateUser({ password })` direkt echt auf. Client-
     seitiger Abgleich "stimmen neues Passwort und Bestätigung überein"
     getestet und funktioniert.
+26. **Fehlermeldung für abgelaufene/ungültige Auth-Links ergänzt**
+    (`#auth-error-modal` in `index.html`, `checkAuthUrlError()` in
+    `main.js`) — beim Testen echt aufgetreten: Ein zu alter Recovery-Link
+    hängt `#error=access_denied&error_code=otp_expired&...` an die URL,
+    ohne dass dafür ein `onAuthStateChange`-Event feuert (es kommt ja keine
+    Session zustande) — ohne diese Ergänzung landet man dabei stumm auf der
+    normalen Startseite, ohne zu wissen, dass der Link ungültig war. Sucht
+    beim Laden nach `error=` im URL-Hash, zeigt dann eine Meldung
+    ("Vorstand kontaktieren" statt technischem Supabase-Fehlertext, da noch
+    kein Self-Service-Reset existiert), räumt den Hash danach per
+    `history.replaceState` auf. Fallstrick beim eigenen Testen: Zwei
+    `navigate()`-Aufrufe auf dieselbe Seite, die sich nur im Hash
+    unterscheiden, lösen im Testbrowser keinen echten Seiten-Reload aus
+    (Same-Document-Navigation, Skripte laufen nicht neu) - für einen echten
+    Test zuerst auf eine andere Seite und dann erst auf die Fehler-URL
+    navigiert.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
