@@ -464,6 +464,82 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight') lightboxNext();
 });
 
+// --- PROFIL-ICON: eingeloggt vs. ausgeloggt --- Ausgeloggt oeffnet ein
+// Klick das Login-Modal (siehe unten); eingeloggt zeigt das Icon stattdessen
+// den Anfangsbuchstaben und oeffnet ein Dropdown (Mitglieder/Mein Profil/
+// Abmelden). Echtes Profilbild folgt erst mit Schritt 9 (Foto-Upload).
+let currentSession = null;
+
+async function updateProfileToggleUI(session) {
+    currentSession = session;
+    const btn = document.getElementById('profileToggle');
+    const icon = document.getElementById('profileToggleIcon');
+    const initialEl = document.getElementById('profileToggleInitial');
+    if (!btn || !icon || !initialEl) return;
+
+    if (!session) {
+        icon.hidden = false;
+        initialEl.hidden = true;
+        btn.setAttribute('aria-label', 'Mitglieder-Login');
+        return;
+    }
+
+    // Zeigt den Anfangsbuchstaben aus profiles.name; fehlt die Zeile noch
+    // (z.B. direkt nach der Einladung, bevor "Mein Profil" je gespeichert
+    // wurde), faellt es auf den ersten Buchstaben der E-Mail zurueck.
+    let displayChar = session.user.email.charAt(0).toUpperCase();
+    const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('name')
+        .eq('id', session.user.id)
+        .single();
+    if (profile && profile.name) {
+        displayChar = profile.name.charAt(0).toUpperCase();
+    }
+
+    icon.hidden = true;
+    initialEl.hidden = false;
+    initialEl.textContent = displayChar;
+    btn.setAttribute('aria-label', 'Konto-Menü');
+}
+
+function handleProfileToggleClick(event) {
+    if (currentSession) {
+        event.preventDefault();
+        const dropdown = document.getElementById('profileDropdown');
+        if (dropdown) dropdown.classList.toggle('open');
+    } else {
+        openLoginDialog(event);
+    }
+}
+
+function closeProfileDropdown() {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown) dropdown.classList.remove('open');
+}
+
+document.addEventListener('click', (event) => {
+    const wrapper = document.querySelector('.profile-menu-wrapper');
+    if (wrapper && !wrapper.contains(event.target)) {
+        closeProfileDropdown();
+    }
+});
+
+async function handleLogout() {
+    closeProfileDropdown();
+    await supabaseClient.auth.signOut();
+}
+
+if (typeof supabaseClient !== 'undefined') {
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        updateProfileToggleUI(session);
+    });
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        updateProfileToggleUI(session);
+        if (event === 'SIGNED_OUT') closeProfileDropdown();
+    });
+}
+
 // --- LOGIN-MODAL (Mitgliederbereich) --- Zeigt aktuell nur das Formular;
 // echtes Einloggen folgt erst, sobald die Supabase-Anbindung steht.
 function openLoginDialog(event) {

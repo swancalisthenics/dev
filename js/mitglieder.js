@@ -20,7 +20,7 @@ function renderMitgliederGrid(mitglieder) {
             <div class="mitglieder-avatar" aria-hidden="true">${m.initial}</div>
             <h3>${m.name}</h3>
             <div class="mitglieder-badges">
-                <span class="badge badge-category">${m.rolle}</span>
+                ${m.rollen.map(r => `<span class="badge badge-category">${r}</span>`).join('')}
                 ${m.isSelf ? '<span class="badge badge-pending">Das bist du</span>' : ''}
             </div>
         </div>
@@ -49,7 +49,7 @@ function openMitgliedModal(m) {
     document.getElementById('mitgliedModalName').textContent = m.name;
 
     document.getElementById('mitgliedModalBadges').innerHTML = `
-        <span class="badge badge-category">${m.rolle}</span>
+        ${m.rollen.map(r => `<span class="badge badge-category">${r}</span>`).join('')}
         ${m.isSelf ? '<span class="badge badge-pending">Das bist du</span>' : ''}
     `;
 
@@ -78,7 +78,7 @@ function initMitgliederFilter(mitglieder) {
     const searchInput = document.getElementById('mitgliederSearch');
     if (!filterBar) return;
 
-    const rollen = ['Alle', ...new Set(mitglieder.map(m => m.rolle))];
+    const rollen = ['Alle', ...new Set(mitglieder.flatMap(m => m.rollen))];
     filterBar.innerHTML = rollen.map((rolle, i) => `
         <button class="filter-btn${i === 0 ? ' active' : ''}" data-rolle="${rolle}">${rolle}</button>
     `).join('');
@@ -87,7 +87,7 @@ function initMitgliederFilter(mitglieder) {
         const activeRolle = filterBar.querySelector('.filter-btn.active').dataset.rolle;
         const suchtext = (searchInput?.value || '').trim().toLowerCase();
         const gefiltert = mitglieder.filter(m =>
-            (activeRolle === 'Alle' || m.rolle === activeRolle) &&
+            (activeRolle === 'Alle' || m.rollen.includes(activeRolle)) &&
             m.name.toLowerCase().includes(suchtext)
         );
         renderMitgliederGrid(gefiltert);
@@ -104,34 +104,26 @@ function initMitgliederFilter(mitglieder) {
     if (searchInput) searchInput.addEventListener('input', applyFilter);
 }
 
-// DEMO-VERSION (aktiv) - liest DEMO_MITGLIEDER aus js/mitglieder-data.js.
-alleMitglieder = DEMO_MITGLIEDER;
-renderMitgliederGrid(alleMitglieder);
-initMitgliederFilter(alleMitglieder);
-
-// ECHTE VERSION (auskommentiert) - braucht js/supabase-client.js (Plan-
-// Schritt 2, noch nicht angelegt) mit einem global verfügbaren
-// `supabaseClient`. Ersetzt die drei Zeilen oben. Liest bewusst aus der
-// `public_profiles`-View (nicht direkt aus `profiles`), da die View private
-// E-Mails automatisch ausblendet (siehe supabase/schema.sql) - `email` ist
-// darin bereits NULL, wenn das Mitglied sie nicht geteilt hat, die
-// Render-Funktion oben muss dafür nicht angepasst werden. `isSelf` kommt
-// hier aus dem Vergleich mit der eigenen User-ID, nicht aus den Daten.
-// (async function () {
-//     const { data: { user } } = await supabaseClient.auth.getUser();
-//     const { data, error } = await supabaseClient
-//         .from('public_profiles')
-//         .select('id, name, email, rolle, instagram, tiktok, profilbild_url');
-//     if (error) return;
-//     alleMitglieder = data.map(p => ({
-//         name: p.name,
-//         initial: p.name.charAt(0).toUpperCase(),
-//         isSelf: p.id === user.id,
-//         rolle: p.rolle,
-//         email: p.email,
-//         instagram: p.instagram,
-//         tiktok: p.tiktok
-//     }));
-//     renderMitgliederGrid(alleMitglieder);
-//     initMitgliederFilter(alleMitglieder);
-// })();
+// Liest aus der `public_profiles`-View (nicht direkt aus `profiles`), da die
+// View private E-Mails automatisch ausblendet (siehe supabase/schema.sql) -
+// `email` ist darin bereits NULL, wenn das Mitglied sie nicht geteilt hat.
+// `isSelf` kommt aus dem Vergleich mit der eigenen User-ID, nicht aus den
+// Daten. `rollen` ist ein Array, ein Mitglied kann mehrere Rollen haben.
+(async function () {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data, error } = await supabaseClient
+        .from('public_profiles')
+        .select('id, name, email, rollen, instagram, tiktok, profilbild_url');
+    if (error) return;
+    alleMitglieder = data.map(p => ({
+        name: p.name,
+        initial: p.name.charAt(0).toUpperCase(),
+        isSelf: p.id === user.id,
+        rollen: p.rollen,
+        email: p.email,
+        instagram: p.instagram,
+        tiktok: p.tiktok
+    }));
+    renderMitgliederGrid(alleMitglieder);
+    initMitgliederFilter(alleMitglieder);
+})();

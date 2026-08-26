@@ -559,6 +559,36 @@ new-swan-design/
     eigene Foto/Dropdown (Plan-Schritt 5, zweite Hälfte) — nur das Modal
     schliesst sich, kein sichtbares "eingeloggt"-Zeichen in der Topbar bis
     dahin.
+28. **Mitgliederliste auf echte Daten umgestellt** (`js/mitglieder.js`) —
+    Demo-Version + `js/mitglieder-data.js` gelöscht (Datei komplett entfernt,
+    nirgends mehr referenziert), echte Version aktiviert: liest aus
+    `public_profiles`, `isSelf` per Vergleich mit `supabaseClient.auth.getUser()`.
+    Dabei aufgefallen und korrigiert: Der vorbereitete Code stammte noch von
+    vor der `rolle` → `rollen`-Umstellung (Punkt in "Geplant"-Abschnitt oben)
+    und ging von einer einzelnen Rolle pro Person aus. Rendering (Karten +
+    Modal) und Filterleiste zeigen/filtern jetzt korrekt über alle Rollen
+    einer Person (`m.rollen.map(...)`/`flatMap`/`.includes()` statt
+    Gleichheitsvergleich mit einem einzelnen String). "Platzhalter-Daten"-
+    Badge auf der Seite entfernt, da nicht mehr zutreffend.
+29. **Profil-Icon zeigt bei Login den eigenen Anfangsbuchstaben + Dropdown**
+    (Mitglieder/Mein Profil/Abmelden) statt nur des Login-Symbols — der
+    bisher fehlende zweite Teil von Plan-Schritt 5, plus die neue
+    **Logout-Funktion** (Schritt 10). Betrifft alle 9 Seiten (gleiche
+    Topbar überall): `.profile-menu-wrapper` umschliesst Button + absolut
+    positioniertes `.profile-dropdown` (gleiches Muster wie
+    `.custom-select-options`, siehe Punkt 8). `updateProfileToggleUI()` in
+    `main.js` läuft bei jedem Seitenaufruf (`getSession()`) und bei jedem
+    Login/Logout (`onAuthStateChange`) neu; holt den Anfangsbuchstaben aus
+    `profiles.name`, fällt auf den ersten Buchstaben der E-Mail zurück,
+    falls die Profil-Zeile noch fehlt (z. B. direkt nach einer Einladung).
+    Dropdown schliesst bei Klick ausserhalb (`document`-Klick-Listener,
+    prüft `wrapper.contains(event.target)`). Ausgeloggt bleibt das
+    Verhalten unverändert (Klick öffnet Login-Modal). Beim Testen selbst
+    eine ungültige (nicht-UUID) Test-ID verwendet, die einen echten
+    400-Fehler von Postgres provozierte ("invalid input syntax for type
+    uuid") — kein Bug im Produktivcode, nur ein Artefakt der eigenen
+    Testmethode; mit einer frischen, unbenutzten Browser-Tab bestätigt,
+    dass echte Seitenaufrufe fehlerfrei bleiben.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
@@ -713,10 +743,9 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
 6. Einladungs-Workflow statt Sign-up-Formular: Mitglieder werden einzeln
    über das Supabase-Dashboard eingeladen.
 7. Neue Seite "Mitglieder" (erreichbar über das Profil-Dropdown, kein
-   eigener Nav-Punkt), inkl. Namenssuche und Rollen-Filter — **umgesetzt mit
-   Platzhalter-Daten** ([pages/mitglieder.html](pages/mitglieder.html),
+   eigener Nav-Punkt), inkl. Namenssuche und Rollen-Filter — **umgesetzt,
+   liest echte Daten** ([pages/mitglieder.html](pages/mitglieder.html),
    [css/pages/mitglieder.css](css/pages/mitglieder.css),
-   [js/mitglieder-data.js](js/mitglieder-data.js),
    [js/mitglieder.js](js/mitglieder.js)). Bewusst **kein** Team-Karten-Layout
    (`.people-grid`/`.person-card`) — dort wären die Karten für potenziell
    viele Mitglieder zu gross. Stattdessen ein eigenes, kompaktes
@@ -747,7 +776,8 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
    bleibt es gestapelt.
 9. Profilbild-Upload: Storage-Bucket einrichten, Verkleinerung per
    Canvas-API vor dem Upload, Anzeige als Profilbild.
-10. Logout-Funktion.
+10. Logout-Funktion — **umgesetzt** (`handleLogout()` in `main.js`, Teil
+    des Profil-Dropdowns, siehe Punkt 29).
 11. **Datenschutzerklärung/Impressum aktualisieren** (`pages/rechtliches.html`):
     Sobald der Mitgliederbereich live geht, verarbeitet die Seite erstmals
     echte personenbezogene Daten (Name, E-Mail, Profilbild, Social-Links,
