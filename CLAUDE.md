@@ -581,6 +581,10 @@ new-swan-design/
     Login/Logout (`onAuthStateChange`) neu; holt den Anfangsbuchstaben aus
     `profiles.name`, fällt auf den ersten Buchstaben der E-Mail zurück,
     falls die Profil-Zeile noch fehlt (z. B. direkt nach einer Einladung).
+    Reihenfolge im Dropdown: "Mein Profil" vor "Mitglieder". Hintergrund
+    nutzt `var(--modal-fill)`, nicht `--glass-fill-strong` — gleicher Grund
+    wie beim Login-Modal (Punkt 18): Im Dark Mode zu durchsichtig, Inhalt
+    dahinter (z. B. die rote "Profil"-Überschrift) schien sichtbar durch.
     Dropdown schliesst bei Klick ausserhalb (`document`-Klick-Listener,
     prüft `wrapper.contains(event.target)`). Ausgeloggt bleibt das
     Verhalten unverändert (Klick öffnet Login-Modal). Beim Testen selbst

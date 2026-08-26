@@ -303,7 +303,7 @@
     right: 0;
     z-index: 50;
     min-width: 160px;
-    background: var(--glass-fill-strong);
+    background: var(--modal-fill);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
