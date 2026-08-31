@@ -1254,6 +1254,39 @@ new-swan-design/
     `.field input:read-only` (`components.css`, gedimmt per
     `opacity: 0.6`) macht den gesperrten Zustand optisch erkennbar.
 
+52. **"Zugang anfragen" ergänzt: Wer noch kein Konto hat, kann über das
+    Login-Modal Name + E-Mail hinterlassen.** Auslöser: "Allow new users to
+    sign up" stand im Supabase-Dashboard auf aktiv - jeder mit einer echten
+    E-Mail-Adresse hätte sich damit direkt per API ein Konto anlegen können,
+    komplett am eigenen Einladungs-Workflow vorbei (siehe "Zugriff nur für
+    echte Mitglieder" oben), und wäre damit automatisch in die Rolle
+    `authenticated` gerutscht - genug, um z. B. `public_profiles` zu lesen.
+    Auf eigene Nachfrage geprüft und bestätigt: Inzwischen ausgeschaltet.
+    Als nutzerfreundlicher Ersatz für einen eigenen Zugang jetzt ein
+    Anfrage-Formular statt eines offenen Sign-ups:
+    - Login-Modal (`js/site-chrome.js`) hat einen Link "Noch kein Konto?
+      Zugang anfragen" unter dem Anmelden-Button - schliesst das Login-Modal
+      und öffnet ein neues, eigenes `#account-request-modal` (Name +
+      E-Mail), nach demselben `openXDialog()`/`closeXDialog()`/
+      `handleXSubmit()`-Muster wie die übrigen Modals in `main.js`.
+    - Neue Tabelle `public.konto_anfragen`
+      ([supabase/008-konto-anfragen.sql](supabase/008-konto-anfragen.sql),
+      **noch nicht ausgeführt**) mit RLS: bewusst nur eine INSERT-Policy für
+      `anon` und `authenticated` (`with check (true)`) - jeder darf eine
+      Anfrage anlegen, aber niemand kann sie über den öffentlichen Key
+      wieder lesen, ändern oder löschen (RLS ohne passende Policy für einen
+      Befehlstyp verweigert diesen Befehlstyp komplett). Lesen/Löschen für
+      Admins ist ein bewusst noch offener, separater Task - auf
+      ausdrücklichen Wunsch vorerst nicht mitgebaut.
+    - Dabei aufgefallen und mitgefixt: `a { color: inherit }` (globaler
+      Reset in `base.css`) liess einen Link innerhalb von `.form-hint`
+      (gedämpfter Fliesstext) optisch komplett mit dem umgebenden Text
+      verschmelzen - der neue "Zugang anfragen"-Link war dadurch kaum als
+      klickbar erkennbar. Neue Regel `.form-hint a` (Akzentrot +
+      Unterstreichung, gleiches Rot-Muster wie alle anderen Links im
+      Projekt) behebt das generisch für jeden künftigen Link in einem
+      `.form-hint`, nicht nur diesen einen.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
