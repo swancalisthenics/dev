@@ -1,1 +1,1 @@
-Die seite ist über diesen Link erreichbar: https://n-brand.github.io/dev/
+Die seite ist über diesen Link erreichbar: https://swancalisthenics.github.io/dev/
