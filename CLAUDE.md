@@ -1729,6 +1729,16 @@ oben).
    gespeichert wird (z. B. ein Zeitstempel-Feld auf `profiles`), und ob das
    Modal direkt an den bestehenden Passwort-setzen-Schritt drangehängt wird
    oder als eigener, separater erster Schritt danach läuft.
+5. **Tutorial für neue Nutzer.** Eine Art geführte Einführung, die neuen
+   Mitgliedern die Seite (Mitgliederbereich, eigenes Profil, Rollen usw.)
+   erklärt - naheliegend zusammen mit Punkt 4 als Teil des "erstes Login"-
+   Ablaufs, aber noch nicht festgelegt, ob wirklich in einem Schritt oder
+   getrennt. Form (z. B. Schritt-für-Schritt-Overlay, einmaliges
+   Willkommens-Modal, eigene Hilfe-Seite) ist noch offen.
+6. **Ein Postfach.** Noch unausgearbeitet, was genau das umfassen soll (z. B.
+   Nachrichten zwischen Mitgliedern, oder eher ein Ankündigungsbrett vom
+   Vorstand an alle - siehe die verwandte, ebenfalls noch unausgearbeitete
+   Idee weiter oben unter "Weitere Ideen für den Login").
 
 ## Code-Stil
 
