@@ -81,9 +81,14 @@
             <div class="mitglied-rollen-editor" id="mitgliedRollenEditor" hidden>
                 <label>Rollen (Admin-Bereich)</label>
                 <label class="toggle">
-                    <input type="checkbox" value="Mitglied" class="mitglied-rollen-checkbox">
+                    <input type="checkbox" value="Aktivmitglied" class="mitglied-rollen-checkbox">
                     <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                    <span class="toggle-label">Mitglied</span>
+                    <span class="toggle-label">Aktivmitglied</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" value="Passivmitglied" class="mitglied-rollen-checkbox">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Passivmitglied</span>
                 </label>
                 <label class="toggle">
                     <input type="checkbox" value="Ehrenmitglied" class="mitglied-rollen-checkbox">
@@ -94,6 +99,11 @@
                     <input type="checkbox" value="Präsident" class="mitglied-rollen-checkbox">
                     <span class="toggle-track"><span class="toggle-thumb"></span></span>
                     <span class="toggle-label">Präsident</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" value="Gönner" class="mitglied-rollen-checkbox">
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Gönner</span>
                 </label>
                 <button type="button" class="btn btn-secondary" onclick="saveMitgliedRollen()">Rollen speichern</button>
                 <p id="mitgliedRollenNotice" class="form-hint" hidden></p>

@@ -1361,6 +1361,32 @@ new-swan-design/
       schliesst das Modal, Fehler zeigt die Meldung und lässt die Anfrage
       unangetastet in der Liste stehen.
 
+56. **Rollen-Taxonomie umgebaut: "Mitglied" ersetzt durch "Aktivmitglied"/
+    "Passivmitglied", neu dazu "Gönner"; "keine Rolle" ist jetzt gültig und
+    der Standard für neue Konten.** `BEKANNTE_ROLLEN` in `js/mitglieder.js`
+    und die fünf Toggle-Zeilen in `pages/mitglieder.html` jetzt:
+    Aktivmitglied/Passivmitglied/Ehrenmitglied/Präsident/Gönner. Die
+    "Mindestens eine Rolle auswählen"-Prüfung in `saveMitgliedRollen()` ist
+    komplett entfernt (nicht nur die Meldung angepasst) - ein Mitglied mit
+    `rollen: []` ist ein normaler, absichtlicher Zustand (z. B. direkt nach
+    dem Beitritt, bevor der Vorstand eine Mitgliedsart zuweist), keine
+    Fehlermeldung mehr dafür. Passend dazu `profiles.rollen`s Spalten-
+    Default von `array['Mitglied']` auf `'{}'` geändert - in `schema.sql`
+    direkt sowie als eigene Migration
+    ([supabase/012-rollen-taxonomie.sql](supabase/012-rollen-taxonomie.sql),
+    **noch nicht ausgeführt**) für die schon laufende Datenbank.
+    - Bewusst **keine** Daten-Migration für bereits vorhandene
+      "Mitglied"-Zeilen (gleiches Vorgehen wie beim Entfernen von
+      "Vorstand", Punkt 49): Ob eine bestehende Person eher Aktiv- oder
+      Passivmitglied ist, kann nur der Vorstand inhaltlich entscheiden,
+      keine automatische Regel. Das alte "Mitglied" bleibt in der
+      Datenbank stehen, bis es im Rollen-Editor manuell durch eine der
+      neuen Rollen ersetzt wird.
+    - Getestet ohne die echte Datenbank anzufassen: alle 5 Toggle-Werte
+      korrekt vorhanden (inkl. Umlaute "Präsident"/"Gönner"), Speichern mit
+      allen Toggles aus ruft `admin_set_rollen` erfolgreich mit
+      `neue_rollen: []` auf statt einer Fehlermeldung.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
