@@ -1333,6 +1333,34 @@ new-swan-design/
       `<img src=x onerror="...">` erscheint als reiner, harmloser Text in
       der Karte, kein Skript feuert.
 
+55. **Admins können Konto-Anfragen jetzt löschen**, mit Bestätigungsdialog
+    (Punkt 54 liess bewusst nur Ansehen zu, Löschen war als eigener,
+    späterer Task angekündigt). Jede Karte in "Ausstehende Anfragen" hat
+    einen "Löschen"-Button (`.anfrage-loeschen-btn`, kleiner/rechtsbündig
+    dank `flex: 1` auf `.eingeladene-email` davor - betrifft auch die
+    "Ausstehende Einladungen"-Karten mit, dort optisch unauffällig, da sie
+    ohnehin schon die volle Restbreite einnehmen). Klick öffnet
+    `#delete-anfrage-confirm-modal` (gleiches `openXConfirm()`/
+    `closeXConfirm()`/`confirmX()`-Muster wie `openLogoutConfirm()`,
+    Punkt 38) statt sofort zu löschen - `anfrageZumLoeschenId` merkt sich
+    dabei, welche Anfrage gerade zur Debatte steht (analog zu
+    `editingMitgliedId`). Erst der "Löschen"-Button *im Modal* ruft
+    tatsächlich `supabaseClient.from('konto_anfragen').delete()` auf.
+    - Neue Policy ([supabase/011-konto-anfragen-admin-delete.sql](supabase/011-konto-anfragen-admin-delete.sql),
+      **noch nicht ausgeführt**), gleiches Admin-Check-Muster wie die
+      SELECT-Policy aus Punkt 54.
+    - Bei einem Fehler (z. B. Policy noch nicht ausgeführt) bleibt das
+      Modal offen und zeigt die Fehlermeldung in `#deleteAnfrageError`,
+      statt die Anfrage lokal aus der Liste zu entfernen, obwohl der
+      Löschversuch serverseitig gar nicht durchging - nur bei echtem
+      Erfolg wird `alleKontoAnfragen` gefiltert, neu gerendert und das
+      Modal geschlossen.
+    - Getestet ohne die echte Datenbank anzufassen: `supabaseClient.from()`
+      im Browser gezielt für `konto_anfragen` gemockt (einmal Erfolg, einmal
+      Fehler) - Erfolg entfernt die Karte korrekt aus Liste und DOM und
+      schliesst das Modal, Fehler zeigt die Meldung und lässt die Anfrage
+      unangetastet in der Liste stehen.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
