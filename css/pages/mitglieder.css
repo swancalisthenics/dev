@@ -1,14 +1,20 @@
 /* --- MITGLIEDER-GRID --- Bewusst viel kompakter als die Team-Karten
    (.people-grid/.person-card in components.css): hier können deutlich mehr
-   Personen aufgelistet sein, deshalb kleine Karten, 2 Spalten schon mobil.
-   Ein Klick/Tap auf eine Karte öffnet #mitglied-modal mit den Details
-   (siehe pages/mitglieder.html, js/mitglieder.js) - die Karte selbst zeigt
-   nur Foto, Name und Rolle. */
+   Personen aufgelistet sein, deshalb kleine Karten. Ein Klick/Tap auf eine
+   Karte öffnet #mitglied-modal mit den Details (siehe pages/mitglieder.html,
+   js/mitglieder.js) - die Karte selbst zeigt nur Foto, Name und Rolle.
+   `repeat(auto-fill, minmax(...))` statt fester Spaltenzahl: die Anzahl
+   Spalten ergibt sich von selbst aus der verfügbaren Breite (mind. 3 auf
+   praktisch jedem Handy dank 100px-Minimum, deutlich mehr auf breiten PC-
+   Screens) - kein manuelles Nachpflegen mehrerer Breakpoints mehr nötig.
+   max-width jetzt wie der Rest der Seite (--max-width, siehe base.css)
+   statt der bisherigen 720px, die auf breiten Screens viel ungenutzten
+   Leerraum links/rechts liess. */
 .mitglieder-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 14px;
-    max-width: 720px;
+    max-width: var(--max-width);
     margin: 0 auto;
 }
 
@@ -22,8 +28,13 @@
     grid-column: 1 / -1;
 }
 
+/* Ab hier duerfen die Karten wieder etwas grosszuegiger werden (mehr
+   Platz pro Karte), damit der Zuwachs an Spalten auf breiten Screens nicht
+   in winzigen, gedraengten Kacheln endet - der obere Mindestwert wirkt nur
+   als Untergrenze, "auto-fill" packt bis dahin ohnehin so viele Spalten
+   wie reinpassen. */
 @media (min-width: 640px) {
-    .mitglieder-grid { grid-template-columns: repeat(3, 1fr); }
+    .mitglieder-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 }
 
 .mitglieder-card {
@@ -32,9 +43,12 @@
     padding: 18px 10px;
 }
 
+/* Von 64px auf 52px verkleinert - bei mindestens 3 Karten pro Zeile schon
+   auf dem Handy (siehe .mitglieder-grid oben) liess die alte Grösse dem
+   Namen darunter kaum noch Platz. */
 .mitglieder-avatar {
-    width: 64px;
-    height: 64px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     margin: 0 auto 10px;
     display: flex;
@@ -44,7 +58,7 @@
     color: #fff;
     font-family: 'Libre Baskerville', serif;
     font-weight: 700;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     border: 2px solid var(--glass-border);
 }
 
