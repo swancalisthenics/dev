@@ -1004,11 +1004,9 @@ new-swan-design/
     Klasse nicht, auf einem simulierten Nicht-Hover-Gerät funktioniert das
     Klick-Toggle unverändert. `clearProfileForm()` entfernt beim Abmelden
     entsprechend die Klasse statt das Attribut zu setzen.
-46. **Bug gefunden und behoben (Migration `005-fix-admin-update-policy.sql`,
-    Ausführung/Live-Bestätigung noch ausstehend): Rollen-Speichern für ein
-    fremdes Profil schlug fehl - Ursache war eine bekannt tückische
-    Postgres-Eigenheit bei mehreren permissiven UPDATE-Policies auf derselben
-    Tabelle, nicht Trigger, Session oder Client-Code.**
+46. **Bug gefunden und live bestätigt behoben (nach zwei fehlgeschlagenen
+    RLS-Policy-Fixversuchen, gelöst per Workaround statt Policy-Reparatur):
+    Rollen-Speichern für ein fremdes Profil schlug fehl.**
     Auslöser: Admin öffnet Alessandros Mitglied-Modal, aktiviert "Präsident",
     klickt "Rollen speichern" - `rollen` in der DB bleibt unverändert bei
     `["Mitglied"]`.
@@ -1079,16 +1077,50 @@ new-swan-design/
       genau um dieses Thema) - die Doku verspricht sauberes ODER, das
       Zusammenspiel mehrerer Policies für denselben Befehl kann in der
       Praxis aber unerwartete zusätzliche Bedingungen erzeugen.
-    - **Fix:** Beide UPDATE-Policies zu einer einzigen zusammengelegt, mit
-      dem `OR` direkt innerhalb einer Policy statt über Postgres' eigene
-      Mehrfach-Policy-Kombination - das umgeht die fragile Interaktion
-      komplett, statt sie zu reparieren. Trigger
+    - **Fixversuch 1, fehlgeschlagen:** Beide UPDATE-Policies zu einer
+      einzigen zusammengelegt, mit dem `OR` direkt innerhalb einer Policy
+      statt über Postgres' eigene Mehrfach-Policy-Kombination
+      ([`supabase/005-fix-admin-update-policy.sql`](supabase/005-fix-admin-update-policy.sql)).
+      Nach Ausführung per `pg_policies` bestätigt: nur noch eine einzige
+      UPDATE-Policy vorhanden, korrekt zusammengesetzt. Trotzdem lieferte
+      derselbe `EXPLAIN (ANALYZE, VERBOSE)`-Test exakt denselben,
+      nicht mit `OR` verknüpften dritten Filterbestandteil `auth.uid() =
+      id` wie vorher - widerlegt also die Annahme, dass es *speziell* an
+      mehreren Policies lag.
+    - **Fixversuch 2, ebenfalls fehlgeschlagen:** Per Recherche bestätigt,
+      dass ein RLS-Policy-Ausdruck, der per Subquery dieselbe Tabelle
+      liest, die er selbst schützt, ein bekanntes, oft dokumentiertes
+      Muster für unerwartetes Verhalten ist - üblicher Fix: die Prüfung in
+      eine `SECURITY DEFINER`-Funktion `is_admin()` auslagern, bewusst als
+      `language plpgsql` (nicht `sql`) geschrieben, weil Postgres einfache
+      `sql`-Funktionen beim Planen "inlinen" kann, wodurch der
+      `SECURITY DEFINER`-Schutz wieder verloren ginge
+      ([`supabase/006-admin-check-security-definer.sql`](supabase/006-admin-check-security-definer.sql)).
+      Trotz dieser spezifisch vermiedenen Falle: identisches Ergebnis,
+      "Success. No rows returned" weiterhin.
+    - **Fix 3, funktioniert - Workaround statt Policy-Reparatur:** Auf
+      Vorschlag, das Problem zu umgehen statt es weiter an der Wurzel zu
+      suchen: Die Rollen-Änderung läuft nicht mehr über einen direkten
+      `.update()`-Aufruf (unterliegt der ungeklärten RLS-Eigenheit),
+      sondern über eine neue `SECURITY DEFINER`-Funktion
+      `admin_set_rollen(target_id, neue_rollen)`, die die Berechtigung
+      selbst per einfachem `if not exists(...) then raise exception`
+      prüft und das UPDATE danach direkt ausführt - keine
+      RLS-Policy-Auswertung mehr für diesen Schreibzugriff nötig
+      ([`supabase/007-admin-set-rollen-rpc.sql`](supabase/007-admin-set-rollen-rpc.sql)).
+      `js/mitglieder.js`s `saveMitgliedRollen()` ruft jetzt
+      `supabaseClient.rpc('admin_set_rollen', {...})` statt
+      `supabaseClient.from('profiles').update(...)` auf. Trigger
       `protect_rollen_column_trigger` (schützt den Admin-Status selbst)
-      blieb unverändert, war laut Untersuchung nie das Problem.
-      [`supabase/005-fix-admin-update-policy.sql`](supabase/005-fix-admin-update-policy.sql)
-      - **noch nicht im Supabase-Dashboard ausgeführt**, danach zusätzlich
-      per erneutem `EXPLAIN`-Test und live im Mitglied-Modal zu bestätigen,
-      bevor dieser Punkt endgültig als abgeschlossen gilt.
+      blieb während aller drei Versuche unverändert und feuert weiterhin
+      ganz normal, unabhängig davon, auf welchem Weg das UPDATE ausgelöst
+      wird - war laut gesamter Untersuchung nie das Problem. **Live im
+      Mitglied-Modal getestet und bestätigt funktionierend.** Die genaue
+      Postgres-interne Ursache für den hartnäckigen dritten Filterbestandteil
+      bleibt letztlich ungeklärt (auch mit offiziellem PostgreSQL-Wissen
+      und gezielter Recherche zu genau diesem Bug-Bild nicht gefunden) -
+      der Workaround funktioniert nachweislich, ohne dass die exakte
+      Postgres-Query-Planer-Mechanik dahinter vollständig verstanden ist.
     - **Nebenbei erledigt:** `supabase/004-namen-backfill.sql` (händisch
       gepflegte Namen für Maddie/Nicci/Giada/Louie, die vier bis dahin
       profillosen Einladungen) wurde im Zuge dieser Untersuchung im

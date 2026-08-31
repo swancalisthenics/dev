@@ -190,24 +190,21 @@ async function saveMitgliedRollen() {
         neueRollen.push('Admin');
     }
 
-    // count: 'exact' statt nur error zu prüfen - eine per RLS blockierte
-    // Änderung (z.B. fehlende Admin-Policy in der DB) liefert von Supabase
-    // *keinen* Fehler, sondern still 0 geänderte Zeilen zurück. Ohne diese
-    // Prüfung zeigte der Editor "Gespeichert!" an, obwohl in der Datenbank
-    // nichts passiert war.
-    const { error, count } = await supabaseClient
-        .from('profiles')
-        .update({ rollen: neueRollen }, { count: 'exact' })
-        .eq('id', editingMitgliedId);
+    // Laeuft ueber die SECURITY DEFINER-Funktion admin_set_rollen() statt
+    // eines direkten .update() (siehe supabase/007-admin-set-rollen-rpc.sql
+    // und CLAUDE.md Punkt 46) - ein direktes .update() unterlag einer
+    // bisher ungeklaerten Postgres-RLS-Eigenheit bei selbstbezueglichen
+    // Admin-Checks (auch nach zwei gezielten RLS-Fixversuchen weiterhin
+    // reproduzierbar), die Admins am Bearbeiten fremder Zeilen hinderte.
+    // Die Funktion prueft die Berechtigung selbst per einfachem
+    // if-exists-Check und wirft bei fehlender Berechtigung eine klare
+    // Exception, die hier als error.message ankommt - kein stilles
+    // 0-Zeilen-Problem mehr moeglich.
+    const { error } = await supabaseClient
+        .rpc('admin_set_rollen', { target_id: editingMitgliedId, neue_rollen: neueRollen });
 
     if (error) {
         notice.textContent = 'Fehler: ' + error.message;
-        notice.hidden = false;
-        return;
-    }
-
-    if (!count) {
-        notice.textContent = 'Fehler: Keine Zeile geändert - fehlt die Admin-Policy in der Datenbank (supabase/002-admin-rollen.sql ausgeführt)?';
         notice.hidden = false;
         return;
     }
