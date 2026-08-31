@@ -1387,6 +1387,15 @@ new-swan-design/
       allen Toggles aus ruft `admin_set_rollen` erfolgreich mit
       `neue_rollen: []` auf statt einer Fehlermeldung.
 
+57. **"Keine Mitglieder gefunden." stand bei einer leeren Suche links statt
+    zentriert.** `.mitglieder-grid` ist ein 2-/3-spaltiges CSS-Grid - die
+    Meldung (ein einzelnes `<p class="section-lead">`) war darin einfach
+    ein normales Grid-Item und landete dadurch nur in der ersten Spalte;
+    ihr eigenes `text-align: center` zentrierte folglich nur innerhalb
+    dieser schmalen Spalte, nicht über die ganze Zeile. Fix:
+    `.mitglieder-grid p { grid-column: 1 / -1; }` lässt sie alle Spalten
+    überspannen.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
