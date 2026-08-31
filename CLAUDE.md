@@ -1004,6 +1004,70 @@ new-swan-design/
     Klasse nicht, auf einem simulierten Nicht-Hover-Gerät funktioniert das
     Klick-Toggle unverändert. `clearProfileForm()` entfernt beim Abmelden
     entsprechend die Klasse statt das Attribut zu setzen.
+46. **Topbar sowie Login- und Logout-Bestätigungs-Modal waren bis hierhin auf
+    allen 9 HTML-Seiten identisch dupliziert - jetzt zwei gemeinsame Custom
+    Elements (`<site-topbar>`, `<site-account-modals>`) in einer neuen Datei
+    `js/site-chrome.js`.** Fünf zusammenhängende Aspekte dieser Migration
+    (in drei Tasks über alle 9 Seiten ausgerollt, jede Seite einzeln
+    reviewt):
+    - **Problem:** Die komplette Topbar-Navigation (`<header class="topbar">`,
+      ~33 Zeilen) sowie Login- und Logout-Bestätigungs-Modal lagen identisch
+      kopiert in jeder der 9 Seiten (`index.html`, `pages/*.html`,
+      `pages/blog/*.html`). Jede Änderung an einem dieser Blöcke bedeutete
+      9x identische Handbearbeitung - genau das war bereits eingetreten
+      (siehe Punkt 41: Der Fix am Login-Modal für den
+      Klick-daneben-schliesst-Handler musste auf allen 9 identischen Kopien
+      korrekt sitzen, nicht nur an einer einzigen Stelle geändert werden).
+      Damit ist der dort beschriebene Wartungsaufwand für diese beiden
+      Blöcke erledigt.
+    - **Lösung:** Ein einfaches `fetch()` einer ausgelagerten
+      HTML-Partial-Datei schied aus, weil `fetch()` unter `file://` per CORS
+      blockiert wird ("Cross origin requests are only supported for HTTP")
+      und die Seite laut Überblick weiterhin ohne Build-Schritt direkt per
+      Doppelklick funktionieren muss - aus demselben Grund schied auch
+      `<script type="module">` aus (dieselbe Cross-Origin-Sperre wie
+      `fetch()`, auch rein lokal). Stattdessen füllen zwei neue Custom
+      Elements ihr `innerHTML` aus einem Template-String (kein `fetch()`,
+      kein CORS-Problem): `<site-topbar>` ersetzt den kompletten
+      `<header class="topbar">`-Block, `<site-account-modals>` bündelt
+      Login- und Logout-Modal in einem Element, weil beide im Quelltext
+      aller 9 Seiten ohnehin immer direkt hintereinander standen. Bewusst
+      **kein** Shadow DOM, damit das bestehende globale CSS (`.topbar`,
+      `.profile-dropdown`, `.modal-overlay` usw. in `components.css`)
+      unverändert weiter greift, statt gegen ein isoliertes
+      Shadow-Root-Stylesheet neu geschrieben werden zu müssen.
+    - **`data-base`-Mechanismus:** Die relativen Pfade im Template laufen
+      über ein neues `data-base`-Attribut auf `<body>`: `""` auf
+      `index.html`, `"../"` unter `pages/*.html`, `"../../"` unter
+      `pages/blog/*.html`. Alle Links im Template sind root-relativ
+      geschrieben (z. B. `${base}pages/team.html`), damit exakt eine Formel
+      für alle drei Ordnertiefen reicht, statt pro Tiefe unterschiedliche
+      relative Pfade pflegen zu müssen. Sonderfall Home-Link: Auf
+      `index.html` selbst ist Home ein reiner Anker (`#home`, kein Reload,
+      wenn `page === 'home'`), auf jeder anderen Seite ein echter
+      Seitenwechsel (`${base}index.html#home`) - entspricht exakt dem
+      Verhalten von vor der Migration, extra geprüft, um hier keine
+      Regression einzubauen.
+    - **Lektion aus dem ersten Fix-Durchgang (Task 1):** Der ursprüngliche
+      Entwurf liess `class="topbar"` und die implizite `banner`-Landmark am
+      Call-Site verloren gehen - `<site-topbar></site-topbar>` ohne Klasse
+      rendert unstyled (kein `position: fixed`, kein Hintergrund, siehe
+      `.topbar` in `components.css`), und ein autonomes Custom Element hat,
+      anders als ein `<header>` direkt unter `<body>`, keine implizite
+      ARIA-Rolle mehr - das Screenreader-"Sprung zum Header" war damit
+      sang- und klanglos verschwunden. Ein erster Fix-Versuch reparierte das
+      noch am Call-Site (`<site-topbar class="topbar">` einzeln in
+      `index.html`) - im Review korrekt bemängelt, weil das exakt die
+      9x-Handarbeit reproduziert hätte, die diese Migration eigentlich
+      auflösen sollte. Endgültig behoben, indem `SiteTopbar.connectedCallback()`
+      in `js/site-chrome.js` sich selbst `class="topbar"` und
+      `role="banner"` gibt, bevor es sein `innerHTML` füllt - jede der 9
+      Seiten trägt seither nur noch das nackte `<site-topbar></site-topbar>`.
+    - **Bewusst nicht angefasst:** Footer und mobile Tab-Bar (`.tabbar`)
+      bleiben weiterhin literal auf allen 9 Seiten dupliziert - beide
+      ausserhalb des Umfangs dieser Migration. `index.html`s
+      `#set-password-modal`/`#auth-error-modal` existieren ohnehin nur auf
+      `index.html`, waren also nie Teil des 9x-Duplikationsproblems.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
