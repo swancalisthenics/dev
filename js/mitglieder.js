@@ -10,6 +10,7 @@ let alleKontoAnfragen = [];
 let currentUserIsAdmin = false;
 let viewAsNormalMember = false;
 let editingMitgliedId = null;
+let anfrageZumLoeschenId = null;
 
 // Rein lokale Simulation fuer die Dauer des Seitenaufrufs (kein Reload-
 // sicherer Zustand, keine Datenbank-Aenderung) - ein Admin kann sich damit
@@ -98,11 +99,11 @@ function escapeHtml(text) {
 }
 
 // Zeigt Konto-Anfragen ueber "Zugang anfragen" im Login-Modal (siehe
-// supabase/008-konto-anfragen.sql) - anders als bei eingeladeneListe gibt
-// es hier noch keine Admin-Aktion (Annehmen/Ablehnen), nur die reine
-// Sichtbarkeit; Loeschen/Bearbeiten ist ein bewusst separater, spaeterer
-// Task. Gleiches .eingeladene-*-Markup/CSS wie renderEingeladeneOhneProfil()
-// wiederverwendet statt eigener Klassen, da optisch identisch gewuenscht.
+// supabase/008-konto-anfragen.sql). Noch keine Annehmen-Aktion (dafuer
+// muesste erst noch ein echter Einladungs-Trigger von hier aus gebaut
+// werden) - nur Ansehen und Loeschen. Gleiches .eingeladene-*-Markup/CSS
+// wie renderEingeladeneOhneProfil() wiederverwendet statt eigener Klassen,
+// da optisch identisch gewuenscht.
 function renderKontoAnfragen() {
     const container = document.getElementById('kontoAnfragenListe');
     if (!container) return;
@@ -115,9 +116,47 @@ function renderKontoAnfragen() {
             <div class="glass-card eingeladene-card">
                 <span class="badge badge-pending">Zugang angefragt</span>
                 <span class="eingeladene-email">${escapeHtml(a.name)} – ${escapeHtml(a.email)}</span>
+                <button type="button" class="btn btn-secondary anfrage-loeschen-btn" onclick="openDeleteAnfrageConfirm('${a.id}')">Löschen</button>
             </div>
         `).join('')}
     `;
+}
+
+// a.id ist ein server-generiertes UUID (gen_random_uuid()), nie
+// Nutzereingabe - im Gegensatz zu name/email oben unbedenklich direkt ins
+// onclick-Attribut interpoliert.
+function openDeleteAnfrageConfirm(id) {
+    anfrageZumLoeschenId = id;
+    const errorEl = document.getElementById('deleteAnfrageError');
+    if (errorEl) errorEl.hidden = true;
+    const modal = document.getElementById('delete-anfrage-confirm-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    updateBodyScrollLock();
+}
+
+function closeDeleteAnfrageConfirm() {
+    anfrageZumLoeschenId = null;
+    const modal = document.getElementById('delete-anfrage-confirm-modal');
+    if (modal) modal.classList.remove('active');
+    updateBodyScrollLock();
+}
+
+async function confirmDeleteAnfrage() {
+    if (!anfrageZumLoeschenId) return;
+    const { error } = await supabaseClient
+        .from('konto_anfragen')
+        .delete()
+        .eq('id', anfrageZumLoeschenId);
+    if (error) {
+        const errorEl = document.getElementById('deleteAnfrageError');
+        errorEl.textContent = 'Löschen fehlgeschlagen: ' + error.message;
+        errorEl.hidden = false;
+        return;
+    }
+    alleKontoAnfragen = alleKontoAnfragen.filter(a => a.id !== anfrageZumLoeschenId);
+    renderKontoAnfragen();
+    closeDeleteAnfrageConfirm();
 }
 
 function updateViewAsToggleUI() {

@@ -115,6 +115,19 @@
     </div>
 </div>
 
+<!-- KONTO-ANFRAGE LOESCHEN BESTAETIGEN -->
+<div id="delete-anfrage-confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeDeleteAnfrageConfirm()" aria-label="Schliessen">&times;</button>
+        <h3>Anfrage wirklich löschen?</h3>
+        <p id="deleteAnfrageError" class="form-error" hidden></p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="confirmDeleteAnfrage()">Löschen</button>
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteAnfrageConfirm()">Abbrechen</button>
+        </div>
+    </div>
+</div>
+
 <!-- LOGIN-/LOGOUT-MODAL (Mitgliederbereich) -->
 <site-account-modals></site-account-modals>
 
