@@ -98,6 +98,7 @@ class SiteAccountModals extends HTMLElement {
                 <div class="modal-content">
                     <button class="modal-close" onclick="closeAccountRequestDialog()" aria-label="Schliessen">&times;</button>
                     <h3>Zugang anfragen</h3>
+                    <p class="form-hint">Deine Anfrage wird innerhalb der nächsten 72 Stunden bearbeitet. Wenn du berechtigt bist, einen Zugang zu erhalten, bekommst du eine Nachricht per E-Mail.</p>
                     <form id="accountRequestForm" onsubmit="return handleAccountRequestSubmit(event)">
                         <div class="field">
                             <label for="requestName">Name</label>
