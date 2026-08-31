@@ -1411,6 +1411,21 @@ new-swan-design/
     Getestet: 375px breit → 3 Spalten, 1400px breit → 7 Spalten, jeweils
     ohne Überlauf oder abgeschnittenen Text.
 
+59. **Zwei Nachbesserungen zur dichteren Mitglieder-Ansicht (Punkt 58),
+    beide auf Nutzer-Feedback hin:**
+    - Name und Rollen-Badges in `.mitglieder-card` sind unterhalb 640px
+      nochmal verkleinert (Name 0.95rem → 0.8rem, Badge 0.62rem → 0.52rem,
+      Padding ebenfalls etwas knapper) - bei mindestens 3 Karten pro Zeile
+      schon auf dem Handy brach z. B. "Das bist du" bisher mitten im Wort
+      in zwei Zeilen um und zog dadurch die ganze Grid-Reihe unnötig in die
+      Höhe (CSS Grid richtet Zeilenhöhen an der höchsten Karte aus).
+    - `.eingeladene-card` (Ausstehende Einladungen/Anfragen) ist unterhalb
+      768px jetzt gestapelt statt nebeneinander (Badge oben, Text/E-Mail
+      darunter, beides zentriert) - die bisherige Zeilen-Anordnung liess
+      der E-Mail-Adresse in der schmalen Restbreite neben dem Badge kaum
+      Platz, eine lange Adresse brach dadurch mitten im Wort um (z. B.
+      "nicolas.bra" / "nd.horgen" / "@icloud.co" / "m" auf vier Zeilen).
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,

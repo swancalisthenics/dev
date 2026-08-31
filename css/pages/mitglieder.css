@@ -106,6 +106,21 @@
     font-size: 0.62rem;
 }
 
+/* Noch kleiner unterhalb 640px (gleiche Grenze wie die auto-fill-
+   Untergrenze in .mitglieder-grid) - bei mindestens 3 Karten pro Zeile war
+   z.B. "Das bist du" schon knapp und brach in zwei Zeilen um, was Karten
+   in derselben Grid-Reihe unnötig in die Höhe zog. */
+@media (max-width: 639px) {
+    .mitglieder-card h3 {
+        font-size: 0.8rem;
+    }
+
+    .mitglieder-card .badge {
+        padding: 2px 7px;
+        font-size: 0.52rem;
+    }
+}
+
 .mitglieder-badges {
     display: flex;
     flex-direction: column;
@@ -188,6 +203,21 @@
 .anfrage-loeschen-btn {
     padding: 8px 16px;
     font-size: 0.85rem;
+}
+
+/* Mobil gestapelt statt nebeneinander: Badge + (Name -) E-Mail liessen der
+   E-Mail-Adresse in der schmalen Restbreite neben dem Badge kaum Platz -
+   eine lange Adresse brach dadurch mitten im Wort um ("nicolas.bra" /
+   "nd.horgen" / ...). Badge oben, Text darunter, beides zentriert. */
+@media (max-width: 767px) {
+    .eingeladene-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .eingeladene-email {
+        flex: none;
+    }
 }
 
 /* Nur für Admins sichtbar (siehe js/mitglieder.js) - rein lokale
