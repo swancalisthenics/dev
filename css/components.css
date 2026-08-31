@@ -1006,6 +1006,15 @@
     text-decoration: underline;
 }
 
+/* Abstand zum Anmelden-Button davor - nur fuer einen .form-hint, der direkt
+   auf ein ganzes Formular folgt (wie "Zugang anfragen" im Login-Modal),
+   nicht fuer die vielen anderen .form-hint-Vorkommen INNERHALB eines
+   Formulars (z. B. unter einzelnen Feldern), die keinen Extra-Abstand
+   brauchen. */
+.modal-content > form + .form-hint {
+    margin-top: 16px;
+}
+
 .not-logged-in {
     max-width: 420px;
     margin: 32px auto;
