@@ -1259,6 +1259,38 @@ davon geplant):
 - Mitglieder laden selbst Fotos für den Community-Slider hoch, statt dass
   das nur manuell gepflegt wird.
 
+## Offene Punkte für die Zukunft
+
+Reine Themen-Merkzettel, noch nicht bearbeitet - nichts davon eigenmächtig
+starten ohne Rücksprache (gleiche Regel wie beim Supabase-Mitgliederbereich
+oben).
+
+1. **Google Analytics einbinden.** Kollidiert aktuell direkt mit der
+   Datenschutzerklärung (`pages/rechtliches.html`), die ausdrücklich
+   behauptet: "Wir betreiben kein Backend, nutzen keine Cookies und
+   verwenden keine Webanalyse- oder Tracking-Tools (wie Google Analytics)."
+   Diese Aussage stimmt inzwischen ohnehin nicht mehr ganz (das
+   Supabase-Backend existiert bereits) - die Datenschutzerklärung muss vor
+   oder spätestens zusammen mit Google Analytics überarbeitet werden (siehe
+   auch Punkt 11 in der Supabase-Task-Liste oben, dort aus einem anderen,
+   ebenfalls noch offenen Grund). Ausserdem je nach Umsetzung
+   Cookie-Consent-Pflicht (Schweiz/EU) zu prüfen, sobald es konkret wird.
+2. **Supabase-Projekt pausiert nach Inaktivität, braucht dann ca. 1 Minute
+   zum Aufwachen.** Der kostenlose Supabase-Tier pausiert ein Projekt nach
+   ca. 7 Tagen ganz ohne Anfragen; die erste Anfrage danach weckt es wieder
+   auf, kann dabei aber bis zu etwa einer Minute brauchen, bevor Login/
+   Mitgliederliste/Profil wie gewohnt reagieren. Ohne Erklärung im Frontend
+   wirkt das für ein Mitglied, das die Seite selten besucht, wie ein
+   Absturz oder eine kaputte Seite. Noch zu klären: an welcher Stelle genau
+   ein Hinweis/Ladezustand dafür sinnvoll ist (z. B. beim Login-Versuch,
+   falls die erste Supabase-Anfrage ungewöhnlich lange braucht oder
+   fehlschlägt) und wie der Hinweistext dafür aussehen soll.
+3. **Backup der Supabase-Tabellen und -User.** Aktuell existiert keine
+   eigene Sicherung von `profiles` (bzw. der übrigen Tabellen) oder der
+   `auth.users`-Konten ausserhalb dessen, was Supabase selbst intern
+   vorhält - noch zu klären, wie (z. B. regelmässiger Datenbank-Dump,
+   Supabase-eigene Backup-Funktion je nach Tarif) und wie oft.
+
 ## Code-Stil
 
 - 4-Leerzeichen-Einrückung durchgängig in HTML/CSS/JS.
