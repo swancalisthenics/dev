@@ -634,9 +634,15 @@
     color: var(--text-muted);
 }
 
+/* Kein "margin: auto" hier: .profile-layout ist ein Flex-Container, und
+   ein Flex-Item mit auto-Querachsen-Margin schaltet "align-items: stretch"
+   ab und faellt stattdessen auf Shrink-to-fit zurueck - die Karte waere
+   dadurch unterhalb 768px unabhaengig vom verfuegbaren Platz immer nur so
+   breit wie ihr breitester Inhalt (~305px), umgeben von ungewolltem
+   auto-Rand. Ohne auto-Margin greift stretch normal und die Karte fuellt
+   die volle Breite von .profile-layout. Ab 768px (Media Query unten) wird
+   margin ohnehin explizit auf 0 gesetzt, aendert sich also nicht. */
 .profile-form-card {
-    max-width: 480px;
-    margin: 0 auto;
     padding: 32px 28px;
     text-align: center;
 }
@@ -677,8 +683,16 @@
         justify-content: center;
     }
 
+    /* max-width lebt bewusst nur hier (ab 768px), nicht in der Basisregel
+       oben: unterhalb 768px soll die Karte immer die volle verfuegbare
+       Breite von .profile-layout ausfuellen, auch bei Viewport-Breiten
+       zwischen 480px und 767px (z.B. Tablet-Hochformat, breiteres Handy
+       im Querformat) - mit einem unbedingten max-width waere sie dort per
+       auto-Margin eingerueckt gewesen, obwohl .section kaum noch eigenen
+       Seiten-Abstand hat. */
     .profile-layout .profile-form-card {
         margin: 0;
+        max-width: 480px;
     }
 
     /* Ohne festes "width" bestimmt allein der Inhalt die Breite (max-width

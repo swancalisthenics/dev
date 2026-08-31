@@ -1221,13 +1221,30 @@ new-swan-design/
     die "Team-/Vorstand-Karten" im Design-Spec meinen das reale Gremium,
     nicht die jetzt entfernte Rollen-Option, und wurden deshalb nicht
     geändert.
-50. **Mobiler Seitenabstand auf "Mein Profil" verringert**, damit die
-    Profil-Karte auf schmalen Bildschirmen mehr Breite bekommt: `.section`
-    reserviert siteweit 20px Abstand zum Bildschirmrand (`base.css`) -
-    statt das global zu ändern und ungefragt jede andere Seite zu
-    beeinflussen, gilt die Reduktion auf 12px gezielt nur unterhalb 768px
-    und nur für `body[data-page="mein-profil"] .section` (neue Regel in
-    `components.css`).
+50. **Profil-Karte auf "Mein Profil" füllt die Breite jetzt auch unterhalb
+    768px richtig aus.** Zwei getrennte Ursachen, beide behoben:
+    - `.section` reserviert siteweit 20px Seiten-Abstand zum
+      Bildschirmrand (`base.css`) - statt das global zu ändern und
+      ungefragt jede andere Seite zu beeinflussen, gilt eine Reduktion auf
+      12px gezielt nur unterhalb 768px und nur für
+      `body[data-page="mein-profil"] .section` (neue Regel in
+      `components.css`).
+    - Eigentlicher Hauptfehler, per Chrome-DevTools-Box-Modell vom Nutzer
+      selbst gefunden: `.profile-form-card` hatte `margin: 0 auto` **und**
+      `max-width: 480px` unbedingt gesetzt. `.profile-layout` ist seit der
+      Flexbox-Umstellung ein Flex-Container - ein Flex-Item mit
+      Auto-Rand auf der Querachse schaltet `align-items: stretch` ab und
+      faellt stattdessen auf Shrink-to-fit zurueck: die Karte war dadurch
+      unterhalb 768px immer nur so breit wie ihr breitester Inhalt
+      (gemessen 304.7px), unabhaengig vom tatsaechlich verfuegbaren Platz -
+      die 20px/12px-Section-Reduktion allein aenderte deshalb kaum etwas
+      sichtbar. Fix: `margin: 0 auto` aus der Basisregel entfernt (dadurch
+      greift stretch normal, siehe Kommentar in `components.css`) und
+      `max-width: 480px` in den bestehenden 768px-Breakpoint verschoben,
+      wo es weiterhin gebraucht wird (fuer `.password-details`, die anders
+      als die Profil-Karte kein eigenes festes `width` bekommt). Verhalten
+      ab 768px unveraendert (Profil-Karte weiterhin fix 480px, siehe
+      Punkt 42; Passwort-Karte weiterhin ca. 250px).
 51. **E-Mail-Feld in "Mein Profil" ist jetzt nur noch lesbar**, nicht mehr
     änderbar (`readonly` auf `#profileEmail` in `pages/mein-profil.html`) -
     analog zu den Rollen ist die E-Mail-Adresse in `profiles` administrativ
