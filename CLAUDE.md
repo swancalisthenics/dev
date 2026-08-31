@@ -1426,6 +1426,15 @@ new-swan-design/
       Platz, eine lange Adresse brach dadurch mitten im Wort um (z. B.
       "nicolas.bra" / "nd.horgen" / "@icloud.co" / "m" auf vier Zeilen).
 
+60. **Mitglieder-Karten sind unterhalb 640px jetzt annähernd quadratisch**
+    statt spürbar höher als breit. `.mitglieder-card` bekommt dort
+    `aspect-ratio: 1`, dazu kleinerer Avatar (52px → 40px) und knapperes
+    Padding/Abstände - bei nur einem Badge (der Normalfall) kommt das
+    einer echten quadratischen Karte sehr nah (gemessen 102×113px, Ratio
+    1.11). `aspect-ratio` ist dabei nur ein Richtwert, kein hartes Limit:
+    eine Karte mit mehreren Badges (z. B. "Das bist du" zusätzlich) wird
+    weiterhin automatisch etwas höher, statt Inhalt abzuschneiden.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
