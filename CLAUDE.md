@@ -1194,6 +1194,21 @@ new-swan-design/
       ausserhalb des Umfangs dieser Migration. `index.html`s
       `#set-password-modal`/`#auth-error-modal` existieren ohnehin nur auf
       `index.html`, waren also nie Teil des 9x-Duplikationsproblems.
+48. **Zwei kleine Korrekturen an `saveMitgliedRollen()` (Rollen-Editor im
+    Mitglied-Modal), beide auf Nutzer-Feedback hin:**
+    - Die "Mindestens eine Rolle auswählen"-Meldung erschien fälschlich auch
+      dann, wenn ein Admin bearbeitet wird und alle sichtbaren Toggles
+      abgewählt werden - der behält ja ohnehin die Rolle "Admin" und landet
+      nie wirklich bei 0 Rollen. Ursache: Die Admin-Rückergänzung
+      (`neueRollen.push('Admin')`) lief bisher NACH der Leer-Prüfung, nicht
+      davor. Fix: Reihenfolge getauscht, die Prüfung sieht jetzt die
+      tatsächlich resultierende Rollen-Liste.
+    - Die "Gespeichert!"-Meldung stand als eigene Zeile unter dem Button.
+      Jetzt wie beim bestehenden "Kopiert!"-Button (`copyToClipboard()` in
+      `main.js`, siehe Punkt 14): Der Button-Text wechselt selbst kurz zu
+      "Gespeichert!" (inkl. `.btn.copied`-Klasse fürs Grün), springt nach
+      2 Sekunden zurück. Fehlermeldungen bleiben weiterhin als Text unter
+      dem Button, nur der Erfolgsfall wurde verschoben.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

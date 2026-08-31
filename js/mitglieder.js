@@ -177,17 +177,22 @@ const BEKANNTE_ROLLEN = ['Vorstand', 'Mitglied', 'Ehrenmitglied', 'Präsident'];
 async function saveMitgliedRollen() {
     const notice = document.getElementById('mitgliedRollenNotice');
     const editor = document.getElementById('mitgliedRollenEditor');
+    const btn = editor.querySelector('.btn');
     let neueRollen = Array.from(editor.querySelectorAll('.mitglied-rollen-checkbox:checked')).map(cb => cb.value);
+
+    const mitglied = alleMitglieder.find(m => m.id === editingMitgliedId);
+    // Admin-Rueckergaenzung VOR der "mindestens eine Rolle"-Pruefung, nicht
+    // danach - sonst kam die Meldung faelschlich auch bei einem Admin, der
+    // alle sichtbaren Toggles abwaehlt: der behaelt ja ohnehin "Admin" und
+    // landet nie wirklich bei 0 Rollen.
+    if (mitglied?.rollen.includes('Admin')) {
+        neueRollen.push('Admin');
+    }
 
     if (!neueRollen.length) {
         notice.textContent = 'Mindestens eine Rolle auswählen.';
         notice.hidden = false;
         return;
-    }
-
-    const mitglied = alleMitglieder.find(m => m.id === editingMitgliedId);
-    if (mitglied?.rollen.includes('Admin')) {
-        neueRollen.push('Admin');
     }
 
     // Laeuft ueber die SECURITY DEFINER-Funktion admin_set_rollen() statt
@@ -210,8 +215,16 @@ async function saveMitgliedRollen() {
     }
 
     if (mitglied) mitglied.rollen = neueRollen;
-    notice.textContent = 'Gespeichert!';
-    notice.hidden = false;
+    // Gleiches Muster wie beim bestehenden "Kopiert!"-Button
+    // (copyToClipboard() in main.js): Erfolg zeigt sich kurz im Button
+    // selbst statt in einer zusaetzlichen Zeile darunter.
+    const originalText = btn.textContent;
+    btn.textContent = 'Gespeichert!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+        btn.textContent = originalText;
+        btn.classList.remove('copied');
+    }, 2000);
     renderMitgliederGrid(alleMitglieder);
     document.getElementById('mitgliedModalBadges').innerHTML = `
         ${neueRollen.map(r => `<span class="badge badge-category">${r}</span>`).join('')}
