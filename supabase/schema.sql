@@ -24,10 +24,12 @@ create table public.profiles (
     -- text[] statt Postgres-ENUM, damit neue Rollen jederzeit ohne
     -- Schema-Migration ergaenzt werden koennen UND ein Mitglied mehrere
     -- Rollen gleichzeitig haben kann (z.B. "Präsident" + "Trainer"). Aktuell
-    -- verwendet: "Admin", "Mitglied", "Ehrenmitglied", "Präsident" - wird vom
-    -- Vorstand vergeben, nicht vom Mitglied selbst (siehe UPDATE-Policy
-    -- unten).
-    rollen text[] not null default array['Mitglied'],
+    -- verwendet: "Admin", "Aktivmitglied", "Passivmitglied", "Ehrenmitglied",
+    -- "Präsident", "Gönner" - wird vom Vorstand vergeben, nicht vom Mitglied
+    -- selbst (siehe UPDATE-Policy unten). Default bewusst leer statt einer
+    -- Mitgliedsart: ein frisch eingeladenes Konto hat noch keine vom Vorstand
+    -- zugewiesene Rolle.
+    rollen text[] not null default '{}',
     instagram text,
     tiktok text,
     profilbild_url text,

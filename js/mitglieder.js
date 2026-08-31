@@ -244,7 +244,7 @@ function openMitgliedModal(m) {
 // Feste Toggle-Optionen im Rollen-Editor. "Admin" bewusst nie als Option
 // (siehe saveMitgliedRollen unten) - Admin laesst sich nur direkt per
 // Supabase SQL vergeben/entziehen, nie ueber dieses UI.
-const BEKANNTE_ROLLEN = ['Mitglied', 'Ehrenmitglied', 'Präsident'];
+const BEKANNTE_ROLLEN = ['Aktivmitglied', 'Passivmitglied', 'Ehrenmitglied', 'Präsident', 'Gönner'];
 
 // Nur sichtbar/nutzbar fuer Admins, die sich nicht gerade als normales
 // Mitglied ausgeben (siehe openMitgliedModal oben). "Admin" taucht in den
@@ -260,19 +260,18 @@ async function saveMitgliedRollen() {
     let neueRollen = Array.from(editor.querySelectorAll('.mitglied-rollen-checkbox:checked')).map(cb => cb.value);
 
     const mitglied = alleMitglieder.find(m => m.id === editingMitgliedId);
-    // Admin-Rueckergaenzung VOR der "mindestens eine Rolle"-Pruefung, nicht
-    // danach - sonst kam die Meldung faelschlich auch bei einem Admin, der
-    // alle sichtbaren Toggles abwaehlt: der behaelt ja ohnehin "Admin" und
-    // landet nie wirklich bei 0 Rollen.
+    // "Admin" ist nie eine Checkbox hier (siehe Kommentar oben) - beim
+    // Speichern deshalb unveraendert aus dem bisherigen Stand uebernehmen,
+    // sonst wuerde jedes Speichern der uebrigen Rollen den Admin-Status
+    // dieser Person stillschweigend entfernen.
     if (mitglied?.rollen.includes('Admin')) {
         neueRollen.push('Admin');
     }
 
-    if (!neueRollen.length) {
-        notice.textContent = 'Mindestens eine Rolle auswählen.';
-        notice.hidden = false;
-        return;
-    }
+    // Keine Mindestanzahl mehr: "keine Rolle" ist ein gueltiger, bewusst
+    // moeglicher Zustand (z.B. direkt nach dem Beitritt, bevor der Vorstand
+    // eine Mitgliedsart zugewiesen hat - siehe auch den neuen Standard-Wert
+    // '{}' fuer profiles.rollen in supabase/schema.sql).
 
     // Laeuft ueber die SECURITY DEFINER-Funktion admin_set_rollen() statt
     // eines direkten .update() (siehe supabase/007-admin-set-rollen-rpc.sql

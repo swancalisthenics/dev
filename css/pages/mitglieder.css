@@ -194,8 +194,9 @@
 /* Ebenfalls nur für Admins sichtbar, im Mitglied-Modal - Admin-Status
    selbst lässt sich hier bewusst nicht ändern (siehe Trigger in
    supabase/002-admin-rollen.sql), taucht deshalb auch nicht als Option
-   auf. Drei .toggle-Zeilen (Mitglied/Ehrenmitglied/Präsident) - kein
-   Freitextfeld mehr, "Vorstand" wurde als Rolle wieder entfernt. */
+   auf. Fünf .toggle-Zeilen (Aktivmitglied/Passivmitglied/Ehrenmitglied/
+   Präsident/Gönner) - kein Freitextfeld mehr. "Vorstand" wurde als Rolle
+   wieder entfernt, "Mitglied" wurde durch Aktiv-/Passivmitglied ersetzt. */
 .mitglied-rollen-editor {
     margin-top: 18px;
     padding-top: 18px;
