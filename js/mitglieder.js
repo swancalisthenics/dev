@@ -6,6 +6,7 @@
 
 let alleMitglieder = [];
 let alleEingeladene = [];
+let alleKontoAnfragen = [];
 let currentUserIsAdmin = false;
 let viewAsNormalMember = false;
 let editingMitgliedId = null;
@@ -23,6 +24,7 @@ function toggleViewAsNormal() {
         rollenEditor.hidden = !(currentUserIsAdmin && !viewAsNormalMember);
     }
     renderEingeladeneOhneProfil();
+    renderKontoAnfragen();
     // Deutliche Rueckmeldung direkt beim Klick - der Button-Text allein
     // aendert sich zwar auch, ist aber leicht zu uebersehen, vor allem weil
     // der eigentliche Effekt (Rollen-Editor im Modal) erst beim naechsten
@@ -44,6 +46,7 @@ function resetAdminUI() {
     currentUserIsAdmin = false;
     viewAsNormalMember = false;
     alleEingeladene = [];
+    alleKontoAnfragen = [];
     const btn = document.getElementById('viewAsToggle');
     if (btn) btn.hidden = true;
     const notice = document.getElementById('viewAsNotice');
@@ -52,6 +55,8 @@ function resetAdminUI() {
     if (rollenEditor) rollenEditor.hidden = true;
     const eingeladeneListe = document.getElementById('eingeladeneListe');
     if (eingeladeneListe) eingeladeneListe.hidden = true;
+    const kontoAnfragenListe = document.getElementById('kontoAnfragenListe');
+    if (kontoAnfragenListe) kontoAnfragenListe.hidden = true;
 }
 
 // Zeigt Accounts, die schon eingeladen wurden (existieren in auth.users),
@@ -75,6 +80,41 @@ function renderEingeladeneOhneProfil() {
             <div class="glass-card eingeladene-card">
                 <span class="badge badge-pending">Einladung ausstehend</span>
                 <span class="eingeladene-email">${e.email}</span>
+            </div>
+        `).join('')}
+    `;
+}
+
+// Roh in innerHTML eingesetzter Text muss escaped werden, sonst waere ein
+// <script>-Name in einer Konto-Anfrage gespeichertes XSS gegen jeden Admin,
+// der diese Seite oeffnet - anders als z.B. profiles.name (nur von der
+// eingeloggten Person selbst ueber ihr eigenes Profil setzbar) kommt
+// name/email hier von einem voellig unauthentifizierten Formular, kann
+// also von jedem im Internet frei befuellt werden.
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Zeigt Konto-Anfragen ueber "Zugang anfragen" im Login-Modal (siehe
+// supabase/008-konto-anfragen.sql) - anders als bei eingeladeneListe gibt
+// es hier noch keine Admin-Aktion (Annehmen/Ablehnen), nur die reine
+// Sichtbarkeit; Loeschen/Bearbeiten ist ein bewusst separater, spaeterer
+// Task. Gleiches .eingeladene-*-Markup/CSS wie renderEingeladeneOhneProfil()
+// wiederverwendet statt eigener Klassen, da optisch identisch gewuenscht.
+function renderKontoAnfragen() {
+    const container = document.getElementById('kontoAnfragenListe');
+    if (!container) return;
+    const zeigen = currentUserIsAdmin && !viewAsNormalMember && alleKontoAnfragen.length > 0;
+    container.hidden = !zeigen;
+    if (!zeigen) return;
+    container.innerHTML = `
+        <h3 class="eingeladene-heading">Ausstehende Anfragen</h3>
+        ${alleKontoAnfragen.map(a => `
+            <div class="glass-card eingeladene-card">
+                <span class="badge badge-pending">Zugang angefragt</span>
+                <span class="eingeladene-email">${escapeHtml(a.name)} – ${escapeHtml(a.email)}</span>
             </div>
         `).join('')}
     `;
@@ -311,10 +351,16 @@ async function loadMitgliederListe(session) {
             .from('eingeladene_ohne_profil')
             .select('id, email, eingeladen_am');
         alleEingeladene = eingeladeneData || [];
+        const { data: anfragenData } = await supabaseClient
+            .from('konto_anfragen')
+            .select('id, name, email, erstellt_am');
+        alleKontoAnfragen = anfragenData || [];
     } else {
         alleEingeladene = [];
+        alleKontoAnfragen = [];
     }
     renderEingeladeneOhneProfil();
+    renderKontoAnfragen();
 }
 
 initAuthGate('mitgliederContent', loadMitgliederListe, resetAdminUI);

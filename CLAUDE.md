@@ -1305,6 +1305,34 @@ new-swan-design/
     gemockt, ohne die echte DB anzufassen) - beide Meldungen erscheinen
     korrekt.
 
+54. **Admin-Ansicht "Ausstehende Anfragen" für `konto_anfragen`** (Punkt 52),
+    auf `pages/mitglieder.html` direkt unter "Ausstehende Einladungen" -
+    zeigt Name + E-Mail jeder offenen Konto-Anfrage. Bewusst nur die reine
+    Sichtbarkeit, keine Annehmen-/Ablehnen-Aktion und kein Löschen - das
+    bleibt ein eigener, späterer Task.
+    - **Neue Policy** ([supabase/010-konto-anfragen-admin-select.sql](supabase/010-konto-anfragen-admin-select.sql),
+      **noch nicht ausgeführt**): `konto_anfragen` hatte bisher gar keine
+      SELECT-Policy (Punkt 52); jetzt eine, exakt nach demselben
+      Admin-Check-Muster wie die bestehende Update-Policy auf `profiles`.
+    - `renderKontoAnfragen()` in `js/mitglieder.js` kopiert bewusst das
+      Muster von `renderEingeladeneOhneProfil()` (Punkt 39): gleiche
+      `.eingeladene-*`-CSS-Klassen wiederverwendet statt eigener (optisch
+      identisch gewünscht), gleiche Kopplung an `currentUserIsAdmin`/
+      `viewAsNormalMember`/`resetAdminUI()`.
+    - **Sicherheitsfund dabei:** `name`/`email` kommen aus einem komplett
+      unauthentifizierten Formular (jeder im Internet kann `konto_anfragen`
+      befüllen, siehe Punkt 52) - roh per Template-String in `innerHTML`
+      gesetzt (wie es z. B. `renderMitgliederGrid` mit `profiles.name`
+      bereits tut) wäre das gespeichertes XSS gegen jeden Admin gewesen, der
+      die Seite öffnet. `profiles.name` ist dabei ein deutlich kleineres
+      Risiko (nur von der eingeloggten Person selbst über ihr eigenes,
+      bereits eingeladenes Profil setzbar), wurde deshalb hier bewusst nicht
+      mit angefasst. Neue kleine `escapeHtml()`-Hilfsfunktion (setzt Text
+      als `textContent` in ein Hilfs-Element, liest `innerHTML` davon
+      zurück) für beide Felder ergänzt. Getestet: ein Name mit
+      `<img src=x onerror="...">` erscheint als reiner, harmloser Text in
+      der Karte, kein Skript feuert.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
