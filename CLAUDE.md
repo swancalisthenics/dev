@@ -1004,8 +1004,11 @@ new-swan-design/
     Klasse nicht, auf einem simulierten Nicht-Hover-Gerät funktioniert das
     Klick-Toggle unverändert. `clearProfileForm()` entfernt beim Abmelden
     entsprechend die Klasse statt das Attribut zu setzen.
-46. **Bug-Untersuchung, noch OFFEN: Rollen-Speichern für ein fremdes Profil
-    schlägt fehl, Ursache trotz intensiver Suche noch nicht gefunden.**
+46. **Bug gefunden und behoben (Migration `005-fix-admin-update-policy.sql`,
+    Ausführung/Live-Bestätigung noch ausstehend): Rollen-Speichern für ein
+    fremdes Profil schlug fehl - Ursache war eine bekannt tückische
+    Postgres-Eigenheit bei mehreren permissiven UPDATE-Policies auf derselben
+    Tabelle, nicht Trigger, Session oder Client-Code.**
     Auslöser: Admin öffnet Alessandros Mitglied-Modal, aktiviert "Präsident",
     klickt "Rollen speichern" - `rollen` in der DB bleibt unverändert bei
     `["Mitglied"]`.
@@ -1045,17 +1048,47 @@ new-swan-design/
       affected"** - selbst mit korrekt simulierter Admin-Identität, komplett
       unabhängig von Browser/Netzwerk/Client-Code. Das grenzt die Ursache
       endgültig auf die RLS-Logik selbst ein, nicht auf Session/Cache/JS.
-    - **Für die Fortsetzung noch offen:** `with_check` der Admin-Policy wurde
-      noch nicht separat geprüft (bisher nur `qual`/`USING` gesehen - laut
-      Postgres-Doku identisch zu `USING`, wenn beim Anlegen kein eigener Wert
-      angegeben wurde, aber nicht verifiziert). Ebenfalls noch nicht
-      geprüft: ob eine weitere, bisher übersehene Policy existiert (z. B.
-      eine `RESTRICTIVE`-Policy, die alle `PERMISSIVE`-Policies zusätzlich
-      einschränken würde) - die bisherige `pg_policies`-Abfrage hat nur
-      `policyname`/`cmd` abgefragt, nicht `permissive`/`roles`/`with_check`.
-      Nächster Schritt bei Fortsetzung: `select policyname, cmd, permissive,
-      roles, with_check from pg_policies where schemaname = 'public' and
-      tablename = 'profiles';` und danach gezielt weitersuchen.
+    - **Die beiden zuletzt offenen Verdachte (`with_check`-Inhalt, versteckte
+      `RESTRICTIVE`-Policy) wurden geprüft und beide widerlegt:** Abfrage
+      `select policyname, cmd, permissive, roles, qual, with_check from
+      pg_policies where schemaname = 'public' and tablename = 'profiles';`
+      zeigte alle 4 Policies (SELECT/INSERT/2x UPDATE) als `PERMISSIVE`
+      (keine versteckte `RESTRICTIVE`-Policy), und `with_check` der
+      Admin-Policy war exakt identisch zu `qual`, wie erwartet. Auch das
+      Rollen-Array des Admins selbst war absolut sauber (`'Admin' = any
+      (rollen)` lieferte direkt geprüft `true`, keine Tippfehler/Leerzeichen).
+      Alle Einzelteile für sich betrachtet also korrekt - der Fehler musste
+      im Zusammenspiel liegen.
+    - **Tatsächliche Ursache gefunden per `EXPLAIN (ANALYZE, VERBOSE)` auf
+      dem echten UPDATE** (mit simulierter Admin-Identität in einer
+      `begin`/`rollback`-Transaktion, folgenlos testbar): Der von Postgres
+      tatsächlich angewendete Filter war NICHT das erwartete `(auth.uid() =
+      id) OR admin_check`, sondern zusätzlich noch ein drittes, separates
+      UND: `(name = 'Alessandro') AND ((auth.uid() = id) OR admin_check) AND
+      (auth.uid() = id)`. Dieses dritte, nicht mit ODER an die Admin-Prüfung
+      gekoppelte `auth.uid() = id` machte die gesamte Admin-Berechtigung
+      wirkungslos - ganz gleich, was `admin_check` ergab, musste
+      `auth.uid() = id` trotzdem unabhängig davon zusätzlich stimmen, was
+      nur beim Bearbeiten der eigenen Zeile zutrifft. Das erklärt exakt das
+      beobachtete Muster (eigenes Profil geht, fremdes nie) und ist
+      unabhängig von Trigger, Rollen-Inhalt oder Session - reine
+      RLS-Auswertung. Per Web-Recherche bestätigt: mehrere permissive
+      UPDATE-Policies auf derselben Tabelle sind ein bekannt tückischer
+      Bereich in Postgres (u. a. ein eigener "[HACKERS] Row Level Security
+      UPDATE Confusion"-Thread auf der offiziellen Mailingliste dreht sich
+      genau um dieses Thema) - die Doku verspricht sauberes ODER, das
+      Zusammenspiel mehrerer Policies für denselben Befehl kann in der
+      Praxis aber unerwartete zusätzliche Bedingungen erzeugen.
+    - **Fix:** Beide UPDATE-Policies zu einer einzigen zusammengelegt, mit
+      dem `OR` direkt innerhalb einer Policy statt über Postgres' eigene
+      Mehrfach-Policy-Kombination - das umgeht die fragile Interaktion
+      komplett, statt sie zu reparieren. Trigger
+      `protect_rollen_column_trigger` (schützt den Admin-Status selbst)
+      blieb unverändert, war laut Untersuchung nie das Problem.
+      [`supabase/005-fix-admin-update-policy.sql`](supabase/005-fix-admin-update-policy.sql)
+      - **noch nicht im Supabase-Dashboard ausgeführt**, danach zusätzlich
+      per erneutem `EXPLAIN`-Test und live im Mitglied-Modal zu bestätigen,
+      bevor dieser Punkt endgültig als abgeschlossen gilt.
     - **Nebenbei erledigt:** `supabase/004-namen-backfill.sql` (händisch
       gepflegte Namen für Maddie/Nicci/Giada/Louie, die vier bis dahin
       profillosen Einladungen) wurde im Zuge dieser Untersuchung im
