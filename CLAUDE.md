@@ -1396,6 +1396,21 @@ new-swan-design/
     `.mitglieder-grid p { grid-column: 1 / -1; }` lässt sie alle Spalten
     überspannen.
 
+58. **Mitglieder-Grid nutzt die Bildschirmbreite jetzt sinnvoll aus, statt
+    fest bei 3 Spalten und 720px Breite zu deckeln.** Auf breiten PC-
+    Screens blieb bisher viel Leerraum links/rechts der Karten ungenutzt
+    (720px-Deckel), gleichzeitig passten auf dem Handy nur 2 Karten pro
+    Zeile. `grid-template-columns: repeat(auto-fill, minmax(100px, 1fr))`
+    (ab 640px: `minmax(140px, 1fr)`) ersetzt die feste Spaltenzahl - wie
+    viele Spalten reinpassen, ergibt sich automatisch aus der verfügbaren
+    Breite, kein manuelles Pflegen mehrerer Breakpoints mehr nötig. Neuer
+    `max-width` ist jetzt `var(--max-width)` (1200px, gleicher Wert wie der
+    Rest der Seite) statt der alten 720px. `.mitglieder-avatar` dabei von
+    64px auf 52px verkleinert - bei mindestens 3 Karten pro Zeile schon auf
+    dem Handy liess die alte Größe dem Namen darunter kaum noch Platz.
+    Getestet: 375px breit → 3 Spalten, 1400px breit → 7 Spalten, jeweils
+    ohne Überlauf oder abgeschnittenen Text.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
