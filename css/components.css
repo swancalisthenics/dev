@@ -997,6 +997,15 @@
     text-align: left;
 }
 
+/* "a { color: inherit }" (base.css) laesst einen Link in .form-hint sonst
+   optisch mit dem umgebenden Fliesstext verschmelzen, nicht als klickbar
+   erkennbar - Akzentfarbe + Unterstreichung nach demselben Rot-Muster wie
+   alle anderen Links im Projekt (siehe Design-System in CLAUDE.md). */
+.form-hint a {
+    color: var(--aurora-red);
+    text-decoration: underline;
+}
+
 .not-logged-in {
     max-width: 420px;
     margin: 32px auto;

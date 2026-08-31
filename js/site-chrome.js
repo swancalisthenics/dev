@@ -90,6 +90,28 @@ class SiteAccountModals extends HTMLElement {
                             <button type="submit" class="btn btn-primary">Anmelden</button>
                         </div>
                     </form>
+                    <p class="form-hint">Noch kein Konto? <a href="#" onclick="openAccountRequestDialog(event)">Zugang anfragen</a></p>
+                </div>
+            </div>
+
+            <div id="account-request-modal" class="modal-overlay">
+                <div class="modal-content">
+                    <button class="modal-close" onclick="closeAccountRequestDialog()" aria-label="Schliessen">&times;</button>
+                    <h3>Zugang anfragen</h3>
+                    <form id="accountRequestForm" onsubmit="return handleAccountRequestSubmit(event)">
+                        <div class="field">
+                            <label for="requestName">Name</label>
+                            <input type="text" id="requestName" name="name" required autocomplete="name">
+                        </div>
+                        <div class="field">
+                            <label for="requestEmail">E-Mail</label>
+                            <input type="email" id="requestEmail" name="email" required autocomplete="email">
+                        </div>
+                        <p id="accountRequestNotice" class="form-hint" hidden></p>
+                        <div class="modal-actions">
+                            <button type="submit" class="btn btn-primary">Anfrage senden</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 

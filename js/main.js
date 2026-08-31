@@ -600,6 +600,38 @@ async function handleLoginSubmit(event) {
     return false;
 }
 
+function openAccountRequestDialog(event) {
+    if (event) event.preventDefault();
+    closeLoginDialog();
+    const modal = document.getElementById('account-request-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    updateBodyScrollLock();
+}
+
+function closeAccountRequestDialog() {
+    const modal = document.getElementById('account-request-modal');
+    if (modal) modal.classList.remove('active');
+    updateBodyScrollLock();
+}
+
+async function handleAccountRequestSubmit(event) {
+    event.preventDefault();
+    const name = document.getElementById('requestName').value;
+    const email = document.getElementById('requestEmail').value;
+    const notice = document.getElementById('accountRequestNotice');
+    const { error } = await supabaseClient.from('konto_anfragen').insert({ name, email });
+    if (error) {
+        notice.textContent = 'Anfrage fehlgeschlagen: ' + error.message;
+        notice.hidden = false;
+        return false;
+    }
+    document.getElementById('accountRequestForm').reset();
+    notice.textContent = 'Danke! Deine Anfrage wurde gesendet.';
+    notice.hidden = false;
+    return false;
+}
+
 function openSetPasswordModal() {
     const modal = document.getElementById('set-password-modal');
     if (!modal) return;
@@ -919,6 +951,7 @@ window.addEventListener('click', (e) => {
     if (e.target.id === 'email-modal') closeEmailDialog();
     if (e.target.id === 'image-lightbox') closeLightbox();
     if (e.target.id === 'mitglied-modal') closeMitgliedModal();
+    if (e.target.id === 'account-request-modal') closeAccountRequestDialog();
 });
 
 function copyToClipboard(text, button) {
