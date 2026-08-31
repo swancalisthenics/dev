@@ -641,6 +641,17 @@
     text-align: center;
 }
 
+/* Auf dem Handy nimmt die Karte sonst nur einen schmalen Streifen ein, weil
+   .section (base.css) 20px Seiten-Abstand zum Bildschirmrand reserviert -
+   hier gezielt auf mein-profil.html verringert, statt .section selbst
+   siteweit zu aendern und damit ungefragt jede andere Seite zu beeinflussen. */
+@media (max-width: 767px) {
+    body[data-page="mein-profil"] .section {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
 /* Mobil gestapelt, ab 768px nebeneinander - `gap` übernimmt den Abstand in
    beiden Fällen einheitlich (vorher übereinander praktisch ohne Abstand,
    da .profile-form-card kein eigenes vertikales margin hat). */
@@ -929,6 +940,11 @@
 .field textarea:focus {
     outline: 2px solid var(--aurora-red);
     outline-offset: 1px;
+}
+
+.field input:read-only {
+    opacity: 0.6;
+    cursor: default;
 }
 
 /* Auge-Button zum Anzeigen/Verstecken bei Passwort-Feldern - der Wrapper

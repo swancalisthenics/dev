@@ -23,8 +23,8 @@ create table public.profiles (
     email_oeffentlich boolean not null default false,
     -- text[] statt Postgres-ENUM, damit neue Rollen jederzeit ohne
     -- Schema-Migration ergaenzt werden koennen UND ein Mitglied mehrere
-    -- Rollen gleichzeitig haben kann (z.B. "Vorstand" + "Trainer"). Aktuell
-    -- verwendet: "Admin", "Vorstand", "Mitglied", "Ehrenmitglied" - wird vom
+    -- Rollen gleichzeitig haben kann (z.B. "Präsident" + "Trainer"). Aktuell
+    -- verwendet: "Admin", "Mitglied", "Ehrenmitglied", "Präsident" - wird vom
     -- Vorstand vergeben, nicht vom Mitglied selbst (siehe UPDATE-Policy
     -- unten).
     rollen text[] not null default array['Mitglied'],

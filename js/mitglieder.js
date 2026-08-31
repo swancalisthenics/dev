@@ -165,7 +165,7 @@ function openMitgliedModal(m) {
 // Feste Toggle-Optionen im Rollen-Editor. "Admin" bewusst nie als Option
 // (siehe saveMitgliedRollen unten) - Admin laesst sich nur direkt per
 // Supabase SQL vergeben/entziehen, nie ueber dieses UI.
-const BEKANNTE_ROLLEN = ['Vorstand', 'Mitglied', 'Ehrenmitglied', 'Präsident'];
+const BEKANNTE_ROLLEN = ['Mitglied', 'Ehrenmitglied', 'Präsident'];
 
 // Nur sichtbar/nutzbar fuer Admins, die sich nicht gerade als normales
 // Mitglied ausgeben (siehe openMitgliedModal oben). "Admin" taucht in den

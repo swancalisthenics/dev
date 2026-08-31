@@ -1209,6 +1209,33 @@ new-swan-design/
       "Gespeichert!" (inkl. `.btn.copied`-Klasse fürs Grün), springt nach
       2 Sekunden zurück. Fehlermeldungen bleiben weiterhin als Text unter
       dem Button, nur der Erfolgsfall wurde verschoben.
+49. **Rolle "Vorstand" aus dem Rollen-Editor entfernt.** `rollen` ist eine
+    Freitext-`text[]`-Spalte ohne Enum/CHECK-Constraint (siehe Kommentar in
+    `supabase/schema.sql`), das Entfernen war deshalb ein reiner
+    UI-Eingriff ohne Migration: Toggle-Zeile in `pages/mitglieder.html`
+    entfernt, `'Vorstand'` aus `BEKANNTE_ROLLEN` in `js/mitglieder.js`
+    gestrichen (jetzt `Mitglied`/`Ehrenmitglied`/`Präsident`), Kommentare in
+    `css/pages/mitglieder.css` und `supabase/schema.sql` an die neue
+    Drei-Rollen-Liste angepasst. Bewusst unangetastet: der Kontakthinweis
+    "wende dich an den Vorstand" in `index.html`s Link-abgelaufen-Dialog und
+    die "Team-/Vorstand-Karten" im Design-Spec meinen das reale Gremium,
+    nicht die jetzt entfernte Rollen-Option, und wurden deshalb nicht
+    geändert.
+50. **Mobiler Seitenabstand auf "Mein Profil" verringert**, damit die
+    Profil-Karte auf schmalen Bildschirmen mehr Breite bekommt: `.section`
+    reserviert siteweit 20px Abstand zum Bildschirmrand (`base.css`) -
+    statt das global zu ändern und ungefragt jede andere Seite zu
+    beeinflussen, gilt die Reduktion auf 12px gezielt nur unterhalb 768px
+    und nur für `body[data-page="mein-profil"] .section` (neue Regel in
+    `components.css`).
+51. **E-Mail-Feld in "Mein Profil" ist jetzt nur noch lesbar**, nicht mehr
+    änderbar (`readonly` auf `#profileEmail` in `pages/mein-profil.html`) -
+    analog zu den Rollen ist die E-Mail-Adresse in `profiles` administrativ
+    gepflegte Kontaktinformation, keine vom Mitglied selbst editierbare
+    Angabe. `readonly` statt `disabled`, damit der Wert weiterhin
+    fokussierbar und kopierbar bleibt. Neue generische Regel
+    `.field input:read-only` (`components.css`, gedimmt per
+    `opacity: 0.6`) macht den gesperrten Zustand optisch erkennbar.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
