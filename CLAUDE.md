@@ -1004,6 +1004,67 @@ new-swan-design/
     Klasse nicht, auf einem simulierten Nicht-Hover-Gerät funktioniert das
     Klick-Toggle unverändert. `clearProfileForm()` entfernt beim Abmelden
     entsprechend die Klasse statt das Attribut zu setzen.
+46. **Bug-Untersuchung, noch OFFEN: Rollen-Speichern für ein fremdes Profil
+    schlägt fehl, Ursache trotz intensiver Suche noch nicht gefunden.**
+    Auslöser: Admin öffnet Alessandros Mitglied-Modal, aktiviert "Präsident",
+    klickt "Rollen speichern" - `rollen` in der DB bleibt unverändert bei
+    `["Mitglied"]`.
+    - **Erster Fix, bereits gepusht (Commit `30f48fa`):** `saveMitgliedRollen()`
+      in `js/mitglieder.js` prüfte bisher nur `error`, nicht ob überhaupt eine
+      Zeile betroffen war - eine per RLS blockierte Änderung liefert von
+      Supabase *keinen* Fehler, sondern nur stillschweigend 0 geänderte
+      Zeilen. Jetzt zusätzlich `{ count: 'exact' }` an `.update()` übergeben
+      und `count` prüfen; bei 0 erscheint ein klarer Fehlertext statt eines
+      falschen "Gespeichert!". Behebt nicht die eigentliche Ursache, macht
+      das Symptom aber ehrlich sichtbar statt irreführend.
+    - **Mehrere naheliegende Ursachen geprüft und alle widerlegt** (jeweils
+      direkt in der DB/im Dashboard verifiziert, nicht nur vermutet):
+      - *"Migration 002 wurde nie ausgeführt"* (so stand es in Punkt 34 oben)
+        - **war falsch/veraltet**. Per `pg_policies`/`pg_trigger` direkt
+        geprüft: Policy "Admins duerfen alle Profile bearbeiten" UND Trigger
+        `protect_rollen_column_trigger` existieren beide schon in der
+        Live-DB, mit exakt der erwarteten Bedingung (`EXISTS (SELECT 1 FROM
+        profiles p WHERE p.id = auth.uid() AND 'Admin' = ANY (p.rollen))`
+        als `qual`).
+      - *"Falsche/veraltete Browser-Session"* (es gibt zwei Nicolas-Accounts:
+        "Nicolas Brand" / `info@swancalisthenics.ch`, Rollen
+        `Admin`+`Präsident`; und "Test User (Nicolas)" /
+        `test@example.com`, nur `Mitglied`) - per "Mein Profil" auf der
+        Seite bestätigt: die aktive Session war tatsächlich "Nicolas Brand",
+        also der echte Admin-Account, nicht der Test-Account.
+      - *"Fehlalarm durch die neue `count`-Prüfung selbst"* - widerlegt per
+        Blick in den Table Editor: Alessandros `rollen`-Spalte stand danach
+        nachweislich immer noch auf `["Mitglied"]`, die Zeile wurde also
+        wirklich nicht geändert, kein reines Anzeigeproblem im Frontend.
+    - **Entscheidender Test:** Direkt im SQL-Editor die Admin-Identität
+      simuliert (`set local role authenticated; set local
+      request.jwt.claims = '{"sub": "<admin-uuid>", "role":
+      "authenticated"}'`) und dieselbe `update ... where id =
+      '<alessandro-uuid>'` versucht, in einer Transaktion mit `rollback`
+      (keine echte Änderung, nur zum Testen). Ergebnis: **"Success, no rows
+      affected"** - selbst mit korrekt simulierter Admin-Identität, komplett
+      unabhängig von Browser/Netzwerk/Client-Code. Das grenzt die Ursache
+      endgültig auf die RLS-Logik selbst ein, nicht auf Session/Cache/JS.
+    - **Für die Fortsetzung noch offen:** `with_check` der Admin-Policy wurde
+      noch nicht separat geprüft (bisher nur `qual`/`USING` gesehen - laut
+      Postgres-Doku identisch zu `USING`, wenn beim Anlegen kein eigener Wert
+      angegeben wurde, aber nicht verifiziert). Ebenfalls noch nicht
+      geprüft: ob eine weitere, bisher übersehene Policy existiert (z. B.
+      eine `RESTRICTIVE`-Policy, die alle `PERMISSIVE`-Policies zusätzlich
+      einschränken würde) - die bisherige `pg_policies`-Abfrage hat nur
+      `policyname`/`cmd` abgefragt, nicht `permissive`/`roles`/`with_check`.
+      Nächster Schritt bei Fortsetzung: `select policyname, cmd, permissive,
+      roles, with_check from pg_policies where schemaname = 'public' and
+      tablename = 'profiles';` und danach gezielt weitersuchen.
+    - **Nebenbei erledigt:** `supabase/004-namen-backfill.sql` (händisch
+      gepflegte Namen für Maddie/Nicci/Giada/Louie, die vier bis dahin
+      profillosen Einladungen) wurde im Zuge dieser Untersuchung im
+      Dashboard ausgeführt - alle vier erscheinen jetzt mit echtem Namen in
+      der Mitgliederliste statt nur unter "Ausstehende Einladungen". Die
+      Datei liegt nur lokal im Repo, bewusst nicht committed/gepusht -
+      Supabase-seitige Änderungen werden auf ausdrücklichen Wunsch
+      ausschliesslich manuell über das Dashboard ausgeführt, nicht über
+      gepushte Migrationsdateien.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

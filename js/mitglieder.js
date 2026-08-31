@@ -190,13 +190,24 @@ async function saveMitgliedRollen() {
         neueRollen.push('Admin');
     }
 
-    const { error } = await supabaseClient
+    // count: 'exact' statt nur error zu prüfen - eine per RLS blockierte
+    // Änderung (z.B. fehlende Admin-Policy in der DB) liefert von Supabase
+    // *keinen* Fehler, sondern still 0 geänderte Zeilen zurück. Ohne diese
+    // Prüfung zeigte der Editor "Gespeichert!" an, obwohl in der Datenbank
+    // nichts passiert war.
+    const { error, count } = await supabaseClient
         .from('profiles')
-        .update({ rollen: neueRollen })
+        .update({ rollen: neueRollen }, { count: 'exact' })
         .eq('id', editingMitgliedId);
 
     if (error) {
         notice.textContent = 'Fehler: ' + error.message;
+        notice.hidden = false;
+        return;
+    }
+
+    if (!count) {
+        notice.textContent = 'Fehler: Keine Zeile geändert - fehlt die Admin-Policy in der Datenbank (supabase/002-admin-rollen.sql ausgeführt)?';
         notice.hidden = false;
         return;
     }
