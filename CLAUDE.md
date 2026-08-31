@@ -1720,6 +1720,15 @@ oben).
    `auth.users`-Konten ausserhalb dessen, was Supabase selbst intern
    vorhält - noch zu klären, wie (z. B. regelmässiger Datenbank-Dump,
    Supabase-eigene Backup-Funktion je nach Tarif) und wie oft.
+4. **Beim ersten Anmelden müssen Nutzungsbedingungen akzeptiert werden.**
+   Aktuell gibt es dafür keinen Mechanismus - ein neu eingeladenes
+   Mitglied setzt per `#set-password-modal` sein Passwort und ist danach
+   direkt drin, ohne je etwas zugestimmt zu haben. Noch zu klären: wo der
+   eigentliche Text der Nutzungsbedingungen herkommt/liegt (eigene neue
+   Seite? Teil von `pages/rechtliches.html`?), wie die Zustimmung
+   gespeichert wird (z. B. ein Zeitstempel-Feld auf `profiles`), und ob das
+   Modal direkt an den bestehenden Passwort-setzen-Schritt drangehängt wird
+   oder als eigener, separater erster Schritt danach läuft.
 
 ## Code-Stil
 
