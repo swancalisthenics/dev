@@ -622,7 +622,13 @@ async function handleAccountRequestSubmit(event) {
     const notice = document.getElementById('accountRequestNotice');
     const { error } = await supabaseClient.from('konto_anfragen').insert({ name, email });
     if (error) {
-        notice.textContent = 'Anfrage fehlgeschlagen: ' + error.message;
+        // 23505 = Postgres unique_violation - greift auf lower(email), siehe
+        // supabase/009-konto-anfragen-email-unique.sql. Kein eigener
+        // SELECT-Vorabcheck moeglich, da konto_anfragen bewusst keine
+        // SELECT-Policy fuer anon/authenticated hat (siehe Punkt 52).
+        notice.textContent = error.code === '23505'
+            ? 'Für diese E-Mail liegt bereits eine Anfrage vor.'
+            : 'Anfrage fehlgeschlagen: ' + error.message;
         notice.hidden = false;
         return false;
     }

@@ -1287,6 +1287,24 @@ new-swan-design/
       Projekt) behebt das generisch für jeden künftigen Link in einem
       `.form-hint`, nicht nur diesen einen.
 
+53. **Doppelte Konto-Anfragen abgefangen.** `konto_anfragen` hat bewusst
+    keine SELECT-Policy für `anon`/`authenticated` (Punkt 52) - ein
+    client-seitiger "gibt es diese Mail schon?"-Check per `.select()` wäre
+    also immer leer gelaufen (RLS blockiert, nicht "kein Treffer") und
+    hätte Duplikate nie wirklich verhindert. Stattdessen ein Unique-Index
+    auf `lower(email)`
+    ([supabase/009-konto-anfragen-email-unique.sql](supabase/009-konto-anfragen-email-unique.sql),
+    **noch nicht ausgeführt** - Groß-/Kleinschreibung soll dieselbe Anfrage
+    trotzdem als Duplikat erkennen) direkt in der Tabelle: Der `insert()`-
+    Versuch selbst schlägt bei einer bereits vorhandenen Mail mit dem
+    Postgres-Fehlercode `23505` (unique_violation) fehl.
+    `handleAccountRequestSubmit()` in `js/main.js` fängt genau diesen Code
+    ab und zeigt "Für diese E-Mail liegt bereits eine Anfrage vor." statt
+    der generischen Fehlermeldung. Getestet per simuliertem `23505`- sowie
+    einem anderen Fehlercode (jeweils `supabaseClient.from()` im Browser
+    gemockt, ohne die echte DB anzufassen) - beide Meldungen erscheinen
+    korrekt.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
