@@ -12,6 +12,16 @@
     margin: 0 auto;
 }
 
+/* "Keine Mitglieder gefunden." (renderMitgliederGrid in js/mitglieder.js)
+   ist als einzelnes <p> ein normales Grid-Item und landet dadurch nur in
+   der ersten Spalte statt über die volle Breite - sein eigenes
+   text-align: center (.section-lead) zentriert dann nur innerhalb dieser
+   halben/drittel Breite, nicht über die ganze Zeile. Spannt jetzt alle
+   Spalten. */
+.mitglieder-grid p {
+    grid-column: 1 / -1;
+}
+
 @media (min-width: 640px) {
     .mitglieder-grid { grid-template-columns: repeat(3, 1fr); }
 }
