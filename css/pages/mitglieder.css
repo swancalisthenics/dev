@@ -109,10 +109,28 @@
 /* Noch kleiner unterhalb 640px (gleiche Grenze wie die auto-fill-
    Untergrenze in .mitglieder-grid) - bei mindestens 3 Karten pro Zeile war
    z.B. "Das bist du" schon knapp und brach in zwei Zeilen um, was Karten
-   in derselben Grid-Reihe unnötig in die Höhe zog. */
+   in derselben Grid-Reihe unnötig in die Höhe zog. Zusätzlich Karte,
+   Avatar und Abstände verkleinert, damit die Karte selbst eher quadratisch
+   wirkt statt deutlich höher als breit - bei nur einem Badge (der
+   Normalfall) kommt das jetzt nah an ein echtes Quadrat heran; mit
+   mehreren Badges (z.B. "Das bist du" zusätzlich) wird die Karte weiterhin
+   automatisch etwas höher, das ist Inhalt, kein Rest vom alten Abstand. */
 @media (max-width: 639px) {
+    .mitglieder-card {
+        aspect-ratio: 1;
+        padding: 12px 8px;
+    }
+
+    .mitglieder-card .mitglieder-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+
     .mitglieder-card h3 {
         font-size: 0.8rem;
+        margin-bottom: 4px;
     }
 
     .mitglieder-card .badge {
