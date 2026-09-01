@@ -768,14 +768,21 @@
     font-size: 2.2rem;
 }
 
-.person-img-placeholder[role="button"] {
-    cursor: pointer;
-}
-
 .profile-avatar-wrap {
     position: relative;
     width: fit-content;
     margin: 0 auto 18px;
+}
+
+/* role="button" sitzt auf .profile-avatar-wrap, nicht auf dem inneren
+   .person-img-placeholder-Kreis: border-radius:50% nimmt die Ecken der
+   quadratischen Box vom Hit-Testing aus, und genau dort (unten rechts)
+   sitzt das Kamera-Badge - ein Klick darauf landete dadurch nie beim
+   Kreis selbst, sondern lief ins Leere (der Wrap hatte keinen Handler).
+   Der Wrap ist ein normales Rechteck ohne eigene Rundung, deckt die
+   Badge-Position also immer zuverlaessig ab. */
+.profile-avatar-wrap[role="button"] {
+    cursor: pointer;
 }
 
 .profile-avatar-wrap .person-img-placeholder {
@@ -1007,6 +1014,24 @@
 .field input:read-only {
     opacity: 0.6;
     cursor: default;
+}
+
+/* ::placeholder hat browserseitig eine fixe Grau-Standardfarbe, die nie auf
+   --text-muted/--text-primary reagiert - im Dark Mode dadurch kaum lesbar
+   (z. B. Instagram/TikTok-Felder auf "Mein Profil"). Nur dort auf
+   --text-primary (praktisch Weiss) angehoben, Light Mode bewusst
+   unveraendert (Browser-Grau dort ausreichend lesbar), gleiches
+   Dark-Mode-Override-Muster wie beim Theme-Toggle-Icon oben. */
+:root[data-theme="dark"] .field input::placeholder,
+:root[data-theme="dark"] .field textarea::placeholder {
+    color: var(--text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .field input::placeholder,
+    :root:not([data-theme="light"]) .field textarea::placeholder {
+        color: var(--text-primary);
+    }
 }
 
 /* Auge-Button zum Anzeigen/Verstecken bei Passwort-Feldern - der Wrapper

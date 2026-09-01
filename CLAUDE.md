@@ -1506,6 +1506,54 @@ new-swan-design/
     ausführen**, sonst schlägt jeder Upload-Versuch fehl (Bucket existiert
     noch nicht).
 
+63. **Zwei kleine, per Nutzer-Screenshot gemeldete Regressionen aus den
+    letzten beiden Pushes (Punkt 40 bzw. 62) gefunden und behoben, beide
+    empirisch im Browser nachvollzogen statt nur vermutet:**
+    - **Instagram/TikTok-Platzhaltertext auf "Mein Profil" war im Dark Mode
+      kaum lesbar (grau statt weiss).** Ursache per `git log -S"::placeholder"`
+      über die komplette Historie geprüft: Es gab noch **nie** eine eigene
+      `::placeholder`-Regel im Projekt - der Text lief schon immer auf
+      Chromes fixem UA-Standard-Grau (`rgb(117, 117, 117)`), das nie auf
+      `--text-muted`/`--text-primary` reagiert. Aufgefallen ist das erst
+      jetzt, weil Punkt 40 das gut lesbare `<label>` bei diesen beiden
+      Feldern durch einen reinen `placeholder`-Attributtext ersetzt hat -
+      auf hellem Glas blieb das Grau brauchbar, auf dem dunklen Glas-
+      Hintergrund im Dark Mode wirkt derselbe feste Grauton "ausgegraut".
+      Fix in `css/components.css`: `.field input::placeholder`/
+      `.field textarea::placeholder` bekommen `color: var(--text-primary)`
+      (praktisch Weiss), aber **nur** unter `:root[data-theme="dark"]` bzw.
+      `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) ... }`
+      - exakt dasselbe Dark-Mode-Override-Muster wie beim Theme-Toggle-Icon
+      weiter oben in derselben Datei. Light Mode bewusst unverändert
+      gelassen (nicht Teil der Meldung). Per `getComputedStyle(el,
+      '::placeholder').color` im Browser verifiziert: Dark Mode jetzt
+      `rgb(242, 241, 247)` (= `--text-primary`), Light Mode weiterhin
+      unverändert `rgb(117, 117, 117)`.
+    - **Kamera-Badge auf dem Profilbild (Punkt 62) liess sich nicht
+      anklicken.** `#profileAvatarPlaceholder` ist ein 140×140px-Kreis
+      (`border-radius: 50%`) mit dem eigentlichen Klick-Handler; das neue
+      `.avatar-camera-badge` (`pointer-events: none`, damit Klicks
+      grundsätzlich durchgereicht werden) sitzt unten rechts in der Ecke der
+      quadratischen Bounding-Box. Genau dort nimmt `border-radius` die Ecke
+      vom Hit-Testing aus (der Browser behandelt sie beim Klicken wie
+      "ausserhalb" des Kreises) - ein Klick auf das Badge landete dadurch nie
+      beim Kreis, sondern lief ins Leere. Per `document.elementFromPoint()`
+      auf die exakte Bildschirmmitte des Badges bestätigt: Treffer war
+      `.profile-avatar-wrap` (der Wrapper-Div), nicht der Kreis - und der
+      Wrapper hatte bis dahin keinen eigenen Klick-Handler. Fix in
+      `pages/mein-profil.html`: `role="button"`, `tabindex="0"`,
+      `aria-label`, `onclick`, `onkeydown` von `#profileAvatarPlaceholder`
+      auf `.profile-avatar-wrap` verschoben (die `id` und damit alle
+      `setAvatarDisplay()`-Aufrufe in `main.js` bleiben unverändert auf dem
+      inneren Kreis) - der Wrapper ist ein normales Rechteck ohne eigene
+      Rundung, deckt die Badge-Ecke also immer zuverlässig ab, unabhängig
+      von der genauen Kreisgeometrie. `.person-img-placeholder[role="button"]
+      { cursor: pointer; }` in `css/components.css` entsprechend zu
+      `.profile-avatar-wrap[role="button"]` umgezogen. Verifiziert: derselbe
+      `elementFromPoint()`-Treffer (`.profile-avatar-wrap`) löst jetzt per
+      dispatchtem Klick-Event nachweislich `#profileAvatarInput`s
+      `click()`-Handler aus.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
