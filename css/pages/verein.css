@@ -38,6 +38,27 @@
     margin-bottom: 16px;
 }
 
+.doc-card.is-available {
+    display: block;
+    opacity: 1;
+    transition: transform 0.15s ease;
+}
+
+.doc-card.is-available:hover,
+.doc-card.is-available:focus-visible {
+    transform: translateY(-2px);
+}
+
+.doc-card.is-available .doc-icon {
+    background-color: var(--aurora-red);
+}
+
+.doc-link-hint {
+    color: var(--aurora-red);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
 @media (min-width: 640px) {
     .doc-grid { grid-template-columns: repeat(2, 1fr); }
 }
