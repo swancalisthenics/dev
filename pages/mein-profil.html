@@ -50,8 +50,8 @@
 
         <div class="profile-layout" id="profileLayout" hidden>
         <div class="glass-card profile-form-card">
-            <div class="profile-avatar-wrap">
-                <div class="person-img-placeholder" id="profileAvatarPlaceholder" role="button" tabindex="0" aria-label="Profilbild ändern" onclick="document.getElementById('profileAvatarInput').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('profileAvatarInput').click();}"></div>
+            <div class="profile-avatar-wrap" role="button" tabindex="0" aria-label="Profilbild ändern" onclick="document.getElementById('profileAvatarInput').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('profileAvatarInput').click();}">
+                <div class="person-img-placeholder" id="profileAvatarPlaceholder"></div>
                 <span class="avatar-camera-badge" aria-hidden="true"><span class="icon icon-camera"></span></span>
             </div>
             <input type="file" id="profileAvatarInput" accept="image/*" hidden onchange="handleAvatarFileSelected(event)">
