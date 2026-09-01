@@ -868,6 +868,41 @@ function showToast(message) {
     toastTimeout = setTimeout(() => toast.classList.remove('is-visible'), 2500);
 }
 
+// Archiviert das aktuelle Profilbild (falls vorhanden) unter der naechsten
+// laufenden Nummer im selben avatars-Bucket, bevor es ueberschrieben oder
+// geloescht wird (siehe supabase/014-profilbild-verlauf.sql) - reines
+// Admin-Log, Mitglieder sehen profilbild_verlauf nicht. Gibt bei Erfolg
+// bzw. wenn noch gar kein Bild existiert null zurueck, sonst das Error-Objekt
+// des fehlgeschlagenen Schritts.
+async function archiviereAltesProfilbild(userId) {
+    const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('profilbild_url')
+        .eq('id', userId)
+        .single();
+    if (!profile?.profilbild_url) return null;
+
+    const { data: verlauf } = await supabaseClient
+        .from('profilbild_verlauf')
+        .select('nummer')
+        .eq('profile_id', userId)
+        .order('nummer', { ascending: false })
+        .limit(1);
+    const naechsteNummer = (verlauf?.[0]?.nummer || 0) + 1;
+    const archivName = `${userId}-${naechsteNummer}.jpg`;
+
+    const { error: copyError } = await supabaseClient.storage
+        .from('avatars')
+        .copy(`${userId}.jpg`, archivName);
+    if (copyError) return copyError;
+
+    const { data: { publicUrl } } = supabaseClient.storage.from('avatars').getPublicUrl(archivName);
+    const { error: insertError } = await supabaseClient
+        .from('profilbild_verlauf')
+        .insert({ profile_id: userId, nummer: naechsteNummer, bild_url: publicUrl });
+    return insertError || null;
+}
+
 async function handleAvatarFileSelected(event) {
     const file = event.target.files[0];
     event.target.value = '';
@@ -888,6 +923,14 @@ async function handleAvatarFileSelected(event) {
     }
 
     const { data: { user } } = await supabaseClient.auth.getUser();
+
+    const archivFehler = await archiviereAltesProfilbild(user.id);
+    if (archivFehler) {
+        errorEl.textContent = 'Archivieren des alten Bilds fehlgeschlagen: ' + archivFehler.message;
+        errorEl.hidden = false;
+        return;
+    }
+
     const blob = await resizeImageToJpeg(file);
     const dateiname = `${user.id}.jpg`;
 
@@ -923,6 +966,16 @@ async function handleAvatarFileSelected(event) {
 
 async function removeProfileAvatar() {
     const { data: { user } } = await supabaseClient.auth.getUser();
+
+    const errorEl = document.getElementById('avatarError');
+    errorEl.hidden = true;
+    const archivFehler = await archiviereAltesProfilbild(user.id);
+    if (archivFehler) {
+        errorEl.textContent = 'Archivieren des alten Bilds fehlgeschlagen: ' + archivFehler.message;
+        errorEl.hidden = false;
+        return;
+    }
+
     await supabaseClient.storage.from('avatars').remove([`${user.id}.jpg`]);
     await supabaseClient.from('profiles').update({ profilbild_url: null }).eq('id', user.id);
 
