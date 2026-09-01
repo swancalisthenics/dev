@@ -146,6 +146,12 @@
 <!-- LOGIN-/LOGOUT-MODAL (Mitgliederbereich) -->
 <site-account-modals></site-account-modals>
 
+<!-- Kurze Bestaetigung fuer Profilbild-Upload/-Entfernen, Profil speichern und
+     Passwort aendern (siehe showToast() in main.js) - kein [hidden], da
+     display:none nicht animierbar ist; Ein-/Ausblenden laeuft ueber die
+     .is-visible-Klasse. -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <!-- FOOTER -->
 <footer>
     <div class="footer-content">
