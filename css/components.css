@@ -60,6 +60,7 @@
 .icon-eye { -webkit-mask-image: url(../assets/icons/eye.svg); mask-image: url(../assets/icons/eye.svg); }
 .icon-eye-slash { -webkit-mask-image: url(../assets/icons/eye-slash.svg); mask-image: url(../assets/icons/eye-slash.svg); }
 .icon-circle-question { -webkit-mask-image: url(../assets/icons/circle-question.svg); mask-image: url(../assets/icons/circle-question.svg); }
+.icon-camera { -webkit-mask-image: url(../assets/icons/camera.svg); mask-image: url(../assets/icons/camera.svg); }
 
 /* --- BUTTONS --- */
 .btn {
@@ -769,6 +770,37 @@
 
 .person-img-placeholder[role="button"] {
     cursor: pointer;
+}
+
+.profile-avatar-wrap {
+    position: relative;
+    width: fit-content;
+    margin: 0 auto 18px;
+}
+
+.profile-avatar-wrap .person-img-placeholder {
+    margin: 0;
+}
+
+.avatar-camera-badge {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--aurora-red);
+    border: 2px solid var(--bg-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.avatar-camera-badge .icon {
+    width: 16px;
+    height: 16px;
+    background-color: #fff;
 }
 
 .profile-avatar-remove {
