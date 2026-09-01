@@ -190,6 +190,7 @@ function renderMitgliederGrid(mitglieder) {
 
     grid.querySelectorAll('.mitglieder-card').forEach(card => {
         const member = mitglieder[Number(card.dataset.index)];
+        setAvatarDisplay(card.querySelector('.mitglieder-avatar'), member.profilbildUrl, member.initial);
         const open = () => openMitgliedModal(member);
         card.addEventListener('click', open);
         card.addEventListener('keydown', (e) => {
@@ -207,7 +208,7 @@ function openMitgliedModal(m) {
     const modal = document.getElementById('mitglied-modal');
     if (!modal) return;
 
-    document.getElementById('mitgliedModalAvatar').textContent = m.initial;
+    setAvatarDisplay(document.getElementById('mitgliedModalAvatar'), m.profilbildUrl, m.initial);
     document.getElementById('mitgliedModalName').textContent = m.name;
 
     document.getElementById('mitgliedModalBadges').innerHTML = `
@@ -378,7 +379,8 @@ async function loadMitgliederListe(session) {
         rollen: p.rollen,
         email: p.email,
         instagram: p.instagram,
-        tiktok: p.tiktok
+        tiktok: p.tiktok,
+        profilbildUrl: p.profilbild_url
     }));
     currentUserIsAdmin = alleMitglieder.some(m => m.isSelf && m.rollen.includes('Admin'));
     updateViewAsToggleUI();
