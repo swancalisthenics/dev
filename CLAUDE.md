@@ -1576,6 +1576,46 @@ new-swan-design/
     referenzierten Element-IDs vorhanden, `showToast()` per Konsole manuell
     ausgelöst, Fehlerpfad weiterhin unverändert inline.
 
+65. **Verlauf frueherer Profilbilder als reines Admin-Log ergaenzt**
+    ([supabase/014-profilbild-verlauf.sql](supabase/014-profilbild-verlauf.sql),
+    **noch nicht ausgeführt**). Bisher ueberschrieb jeder neue Upload
+    kommentarlos dieselbe Datei (`<user-id>.jpg`) - das alte Bild war damit
+    unwiderruflich weg. Neue Funktion `archiviereAltesProfilbild(userId)`
+    (`js/main.js`) laeuft jetzt vor jedem Ueberschreiben (in
+    `handleAvatarFileSelected()`) und vor jedem Entfernen (in
+    `removeProfileAvatar()`): kopiert die aktuelle Datei unter einer pro
+    Mitglied hochzaehlenden Nummer in denselben, weiterhin oeffentlichen
+    `avatars`-Bucket (`<user-id>-<nummer>.jpg`, z. B. `...-1.jpg`, `...-2.jpg`)
+    und legt eine Zeile in der neuen Tabelle `profilbild_verlauf` an
+    (`profile_id`, `nummer`, `bild_url`, `archiviert_am`). Schlaegt das
+    Archivieren fehl, wird abgebrochen, bevor das aktuelle Bild angetastet
+    wird - keine Aenderung ohne Archivierung. Bei einem allerersten Upload
+    (noch kein `profilbild_url` gesetzt) macht die Funktion bewusst nichts
+    und gibt sofort `null` zurueck, es gibt ja nichts zu archivieren.
+    - **Bewusst weiterhin im oeffentlichen Bucket** (nicht in einem neuen,
+      separaten): Nur die Tabelle `profilbild_verlauf` ist per RLS
+      admin-only lesbar (gleiches Admin-Check-Muster wie bei
+      `konto_anfragen`) - Mitglieder sehen den Verlauf nirgends in der UI,
+      auch keine eigene Ansicht dafuer. Die Bild-URLs selbst bleiben damit
+      technisch so oeffentlich wie das aktuelle Profilbild auch (bewusster
+      Kompromiss, siehe Punkt 62 zur generellen Storage-Oeffentlichkeit).
+    - Storage-Policies fuer `insert`/`update` auf den `avatars`-Bucket
+      erweitert: bisher exakt `name = '<user-id>.jpg'`, jetzt zusaetzlich
+      `<user-id>-<Zahl>.jpg` per Regex erlaubt (noetig fuer
+      `storage.copy()`). Die **delete**-Policy bleibt bewusst unveraendert
+      nur auf `<user-id>.jpg` beschraenkt - ein Mitglied kann sein
+      aktuelles Bild loeschen, aber nie eine bereits archivierte Datei
+      direkt entfernen. Kein Update/Delete fuer irgendwen auf
+      `profilbild_verlauf` selbst (auch nicht fuer Admins) - der Verlauf
+      ist unveraenderlich angelegt.
+    - Getestet ohne die echte Datenbank anzufassen: `supabaseClient`
+      gezielt gemockt und die echte `archiviereAltesProfilbild()` damit
+      dreimal ausgefuehrt - normaler Fall (vorhandene Nummer 2 → archiviert
+      korrekt als `-3.jpg`, korrekte Insert-Werte), Erstupload (kein
+      `profilbild_url` → bricht sofort ohne weitere Aufrufe ab) und
+      Fehlerfall (simulierter Copy-Fehler → Funktion gibt den Fehler zurueck,
+      `getPublicUrl`/Insert werden nicht mehr aufgerufen).
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
