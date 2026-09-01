@@ -596,6 +596,7 @@ async function handleLoginSubmit(event) {
         return false;
     }
     notice.hidden = true;
+    clearDraft('login-entwurf');
     closeLoginDialog();
     return false;
 }
@@ -633,6 +634,7 @@ async function handleAccountRequestSubmit(event) {
         return false;
     }
     document.getElementById('accountRequestForm').reset();
+    clearDraft('konto-anfrage-entwurf');
     notice.textContent = 'Danke! Deine Anfrage wurde gesendet.';
     notice.hidden = false;
     return false;
@@ -735,7 +737,19 @@ async function loadOwnProfileIntoForm(session) {
     if (avatarPlaceholder) {
         avatarPlaceholder.textContent = (profile?.name || session.user.email).charAt(0).toUpperCase();
     }
+    // Ueberschreibt die gerade geladenen Server-Werte mit einem lokalen
+    // Entwurf, falls vorhanden - ein Entwurf existiert nur, wenn zuvor etwas
+    // eingetippt, aber nie gespeichert wurde (z.B. Tab auf dem Handy
+    // geschlossen), ist also immer neuer als der Serverstand.
+    currentProfileDraftKey = `profil-entwurf:${session.user.id}`;
+    wireDraftInputs(currentProfileDraftKey, ['profileName', 'profileInstagram', 'profileTiktok', 'profileEmailShare']);
+    if (avatarPlaceholder) {
+        const name = document.getElementById('profileName').value;
+        avatarPlaceholder.textContent = (name || session.user.email).charAt(0).toUpperCase();
+    }
 }
+
+let currentProfileDraftKey = null;
 
 // Leert das Formular beim Abmelden wirklich (nicht nur ausblenden) - sonst
 // stuenden die Daten der vorherigen Person weiterhin im DOM, nur optisch
@@ -743,6 +757,8 @@ async function loadOwnProfileIntoForm(session) {
 // auch die (nie serverseitig gespeicherten) Passwort-Felder, falls beim
 // Abmelden gerade etwas eingetippt, aber nicht abgeschickt war.
 function clearProfileForm() {
+    if (currentProfileDraftKey) clearDraft(currentProfileDraftKey);
+    currentProfileDraftKey = null;
     document.getElementById('profileName').value = '';
     document.getElementById('profileEmail').value = '';
     document.getElementById('profileEmailShare').checked = false;
@@ -856,6 +872,7 @@ async function handleProfileSubmit(event) {
     });
     notice.textContent = error ? ('Speichern fehlgeschlagen: ' + error.message) : 'Gespeichert!';
     notice.hidden = false;
+    if (!error && currentProfileDraftKey) clearDraft(currentProfileDraftKey);
     return false;
 }
 

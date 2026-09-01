@@ -347,6 +347,12 @@ function initMitgliederFilter(mitglieder) {
     });
 
     if (searchInput) searchInput.addEventListener('input', applyFilter);
+
+    // Merkt sich den zuletzt eingegebenen Suchtext lokal (kein Server-Bezug,
+    // rein eine gemerkte Sucheinstellung) - stellt ihn wieder her und wendet
+    // ihn direkt an, damit die Liste beim Laden schon passend gefiltert ist.
+    wireDraftInputs('mitglieder-suche', ['mitgliederSearch']);
+    applyFilter();
 }
 
 // Liest aus der `public_profiles`-View (nicht direkt aus `profiles`), da die
