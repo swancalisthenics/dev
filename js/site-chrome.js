@@ -10,6 +10,52 @@
 // "gleicher Ordner"-relativ wie es einzelne Seiten bisher waren - so
 // funktioniert exakt eine Formel fuer alle Tiefen.
 
+// Generischer lokaler Formular-Entwurf: haelt eingetippte, aber noch nicht
+// abgeschickte Werte in localStorage fest, damit sie nicht verloren gehen,
+// wenn z.B. auf dem Handy der Tab geschlossen wird, bevor ein Formular
+// abgesendet wurde (analog zu TikTok/Instagram). Bewusst NIE fuer
+// Passwort-Felder verwenden - localStorage ist Klartext und fuer jedes
+// Skript auf der Seite lesbar, ein Passwort dort waere ein unnoetiges
+// Sicherheitsrisiko (z.B. bei einem kuenftigen XSS-Bug oder auf einem
+// gemeinsam genutzten Geraet).
+function wireDraftInputs(storageKey, fieldIds) {
+    const felder = fieldIds
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
+
+    let entwurf;
+    try {
+        entwurf = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    } catch {
+        entwurf = {};
+    }
+
+    felder.forEach(feld => {
+        if (!(feld.id in entwurf)) return;
+        if (feld.type === 'checkbox') {
+            feld.checked = !!entwurf[feld.id];
+        } else {
+            feld.value = entwurf[feld.id];
+        }
+    });
+
+    function entwurfSpeichern() {
+        const werte = {};
+        felder.forEach(feld => {
+            werte[feld.id] = feld.type === 'checkbox' ? feld.checked : feld.value;
+        });
+        localStorage.setItem(storageKey, JSON.stringify(werte));
+    }
+
+    felder.forEach(feld => {
+        feld.addEventListener(feld.type === 'checkbox' ? 'change' : 'input', entwurfSpeichern);
+    });
+}
+
+function clearDraft(storageKey) {
+    localStorage.removeItem(storageKey);
+}
+
 class SiteTopbar extends HTMLElement {
     connectedCallback() {
         // Beides muss hier im Custom Element selbst gesetzt werden, nicht am
@@ -127,6 +173,8 @@ class SiteAccountModals extends HTMLElement {
                 </div>
             </div>
         `;
+        wireDraftInputs('login-entwurf', ['loginEmail']);
+        wireDraftInputs('konto-anfrage-entwurf', ['requestName', 'requestEmail']);
     }
 }
 

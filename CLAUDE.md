@@ -1435,6 +1435,35 @@ new-swan-design/
     eine Karte mit mehreren Badges (z. B. "Das bist du" zusätzlich) wird
     weiterhin automatisch etwas höher, statt Inhalt abzuschneiden.
 
+61. **Lokaler Autosave-Entwurf für unfertige Formulareingaben ergänzt**
+    (`wireDraftInputs(storageKey, fieldIds)` / `clearDraft(storageKey)` in
+    `js/site-chrome.js`, ganz oben, vor den beiden Custom-Element-Klassen
+    definiert, da dieses Skript auf jeder Seite als erstes lädt) - behebt,
+    dass z. B. ein auf dem Handy eingetippter, aber nie gespeicherter Name
+    beim Schliessen des Tabs verloren ging (Vorbild TikTok/Instagram).
+    Schreibt bei jeder Eingabe (`input`, bei Checkboxen `change`) die
+    aktuellen Werte der übergebenen Feld-IDs als JSON in `localStorage`,
+    stellt einen vorhandenen Entwurf beim Aufruf sofort in die Felder
+    zurück. Aktuell verdrahtet: `profil-entwurf:<user-id>` (Mein Profil:
+    Name/Instagram/TikTok/E-Mail-teilen, nutzerspezifischer Schlüssel wegen
+    gemeinsam genutzter Geräte, gelöscht bei erfolgreichem Speichern und
+    beim Abmelden), `login-entwurf` (nur `loginEmail`, gelöscht nach
+    erfolgreichem Login), `konto-anfrage-entwurf` (Name/E-Mail, gelöscht
+    nach erfolgreichem Absenden) und `mitglieder-suche` (reine gemerkte
+    Sucheinstellung, wird nie gelöscht).
+    **Bewusste, harte Grenze: nie für Passwort-Felder verwenden**
+    (`loginPassword` sowie die drei Felder unter "Passwort ändern" auf
+    Mein Profil bleiben unangetastet) - `localStorage` ist Klartext, für
+    jedes Skript auf der Seite lesbar (z. B. bei einem künftigen XSS-Bug)
+    und bleibt auf einem gemeinsam genutzten Gerät liegen, bis es manuell
+    gelöscht wird. **Für jedes künftige Formularfeld, bei dem eine
+    versehentlich verlorene Eingabe ärgerlich wäre** (neue Modals, neue
+    Profil-Felder usw.), dieses bestehende Muster wiederverwenden -
+    einfach `wireDraftInputs('<eindeutiger-key>', ['<feld-id>', ...])`
+    nach dem Rendern der Felder aufrufen und `clearDraft('<key>')` beim
+    erfolgreichen Absenden - statt eine eigene neue Speicher-Logik zu
+    bauen. Passwort-Felder davon immer ausnehmen.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
@@ -1749,3 +1778,7 @@ oben).
   „Icon-System" oben), nicht als `<img>` mit hartkodierter Farbe einbinden.
 - Neue Farben: als CSS-Variable in `css/base.css` (`:root`) ergänzen, dort auch
   gleich den Dark-Mode-Wert mitpflegen.
+- Neue Formularfelder, bei denen eine versehentlich verlorene Eingabe ärgerlich
+  wäre: `wireDraftInputs('<key>', ['<feld-id>', ...])` (in `js/site-chrome.js`,
+  siehe Punkt 61) wiederverwenden statt eigener Speicher-Logik, `clearDraft('<key>')`
+  beim erfolgreichen Absenden aufrufen. Passwort-Felder dabei immer ausnehmen.
