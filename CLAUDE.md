@@ -1697,6 +1697,24 @@ new-swan-design/
       generell externe CDN-Requests - dasselbe gilt dort auch fuer den
       seit Langem bestehenden Supabase-CDN-Import) - kein Hinweis auf
       einen echten Fehler, nur eine Einschraenkung der lokalen Vorschau.
+    - **Nachtraeglich zwei Tracker-Optionen ergaenzt** (auf allen 9 Seiten,
+      gleiches Script-Tag): `data-exclude-hash="true"` (Anker-Sprünge
+      wie `#home` erzeugen keinen separaten Seiten-Eintrag mehr - sonst
+      hätte Umami z. B. `index.html` und `index.html#home` als zwei
+      verschiedene Seiten gezählt) und `data-do-not-track="true"`
+      (respektiert die "Do Not Track"-Browsereinstellung, sofern
+      gesetzt - kein Zähl-Ereignis fuer diesen Besuch). Ausserdem den
+      "Web-Analyse (Umami)"-Absatz in der Datenschutzerklaerung
+      praezisiert, nachdem live im Dashboard aufgefallen war, dass der
+      Standort bis auf Stadtebene angezeigt wird (vorher nur vage "grobe
+      Herkunft"): per Recherche verifiziert, wie Umami das technisch
+      macht (MaxMind-Geo-Datenbank, IP wird nur zur Umwandlung in
+      Land/Region/Stadt kurzzeitig ausgewertet, danach nicht dauerhaft
+      gespeichert) - der Text nennt das jetzt konkret, plus die beiden
+      neuen Tracker-Optionen. Empfehlung fuers eigene Testen ohne
+      Verfälschung der Statistik (nicht im Code, sondern nur als Hinweis
+      gegeben): `localStorage.setItem('umami.disabled', true)` im eigenen
+      Browser setzen, gilt nur lokal pro Gerät.
 
 68. **Nach erfolgreichem Login automatische Weiterleitung auf "Mein
     Profil".** Vorher schloss sich nach `handleLoginSubmit()` (`main.js`)
