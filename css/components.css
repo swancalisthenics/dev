@@ -767,6 +767,22 @@
     font-size: 2.2rem;
 }
 
+.person-img-placeholder[role="button"] {
+    cursor: pointer;
+}
+
+.profile-avatar-remove {
+    display: block;
+    margin: 0 auto 18px;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--aurora-red);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 /* --- PERSON-GRID (Team + Mitglieder) --- Karten-Raster mit schmalem
    Icon-Panel neben jeder Person; genutzt von team.html und mitglieder.html. */
 .people-grid {

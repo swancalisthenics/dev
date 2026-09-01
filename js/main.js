@@ -497,7 +497,7 @@ async function updateProfileToggleUI(session) {
     let displayChar = session.user.email.charAt(0).toUpperCase();
     const { data: profile } = await supabaseClient
         .from('profiles')
-        .select('name')
+        .select('name, profilbild_url')
         .eq('id', session.user.id)
         .single();
     if (profile && profile.name) {
@@ -506,7 +506,7 @@ async function updateProfileToggleUI(session) {
 
     icon.setAttribute('hidden', '');
     initialEl.hidden = false;
-    initialEl.textContent = displayChar;
+    setAvatarDisplay(initialEl, profile?.profilbild_url, displayChar);
     if (chevron) chevron.removeAttribute('hidden');
     btn.classList.add('is-logged-in');
     btn.setAttribute('aria-label', 'Konto-Menü');
@@ -725,7 +725,7 @@ async function initAuthGate(contentId, onSession, onSignedOut) {
 async function loadOwnProfileIntoForm(session) {
     const { data: profile } = await supabaseClient
         .from('profiles')
-        .select('name, email, email_oeffentlich, instagram, tiktok')
+        .select('name, email, email_oeffentlich, instagram, tiktok, profilbild_url')
         .eq('id', session.user.id)
         .single();
     document.getElementById('profileName').value = profile?.name || '';
@@ -735,15 +735,16 @@ async function loadOwnProfileIntoForm(session) {
     document.getElementById('profileTiktok').value = profile?.tiktok || '';
     const avatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
     if (avatarPlaceholder) {
-        avatarPlaceholder.textContent = (profile?.name || session.user.email).charAt(0).toUpperCase();
+        setAvatarDisplay(avatarPlaceholder, profile?.profilbild_url, (profile?.name || session.user.email).charAt(0).toUpperCase());
     }
+    document.getElementById('profileAvatarRemove').hidden = !profile?.profilbild_url;
     // Ueberschreibt die gerade geladenen Server-Werte mit einem lokalen
     // Entwurf, falls vorhanden - ein Entwurf existiert nur, wenn zuvor etwas
     // eingetippt, aber nie gespeichert wurde (z.B. Tab auf dem Handy
     // geschlossen), ist also immer neuer als der Serverstand.
     currentProfileDraftKey = `profil-entwurf:${session.user.id}`;
     wireDraftInputs(currentProfileDraftKey, ['profileName', 'profileInstagram', 'profileTiktok', 'profileEmailShare']);
-    if (avatarPlaceholder) {
+    if (avatarPlaceholder && !profile?.profilbild_url) {
         const name = document.getElementById('profileName').value;
         avatarPlaceholder.textContent = (name || session.user.email).charAt(0).toUpperCase();
     }
@@ -772,7 +773,8 @@ function clearProfileForm() {
     document.getElementById('instagramError').hidden = true;
     document.getElementById('tiktokError').hidden = true;
     const avatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
-    if (avatarPlaceholder) avatarPlaceholder.textContent = '';
+    if (avatarPlaceholder) setAvatarDisplay(avatarPlaceholder, null, '');
+    document.getElementById('profileAvatarRemove').hidden = true;
 }
 
 // mitgliederContent-Gate wird bewusst in js/mitglieder.js selbst
@@ -834,6 +836,89 @@ function hostMatchesAny(value, erlaubteHosts) {
     } catch {
         return false;
     }
+}
+
+// Schneidet das ausgewaehlte Bild zentriert auf ein Quadrat zu und
+// verkleinert es auf 200x200px JPEG (~80% Qualitaet) - siehe Spec, deckt
+// auch den groessten aktuellen Avatar-Anzeigeort (140px, Retina) komfortabel
+// ab, ohne einen eigenen Zuschneide-Dialog zu brauchen.
+async function resizeImageToJpeg(file) {
+    const bitmap = await createImageBitmap(file);
+    const seite = Math.min(bitmap.width, bitmap.height);
+    const startX = (bitmap.width - seite) / 2;
+    const startY = (bitmap.height - seite) / 2;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, startX, startY, seite, seite, 0, 0, 200, 200);
+
+    return new Promise(resolve => {
+        canvas.toBlob(resolve, 'image/jpeg', 0.8);
+    });
+}
+
+async function handleAvatarFileSelected(event) {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+
+    const errorEl = document.getElementById('avatarError');
+    errorEl.hidden = true;
+
+    if (!file.type.startsWith('image/')) {
+        errorEl.textContent = 'Bitte eine Bilddatei auswählen.';
+        errorEl.hidden = false;
+        return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+        errorEl.textContent = 'Die Datei ist zu gross (max. 10 MB).';
+        errorEl.hidden = false;
+        return;
+    }
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const blob = await resizeImageToJpeg(file);
+    const dateiname = `${user.id}.jpg`;
+
+    const { error: uploadError } = await supabaseClient.storage
+        .from('avatars')
+        .upload(dateiname, blob, { upsert: true, contentType: 'image/jpeg' });
+    if (uploadError) {
+        errorEl.textContent = 'Hochladen fehlgeschlagen: ' + uploadError.message;
+        errorEl.hidden = false;
+        return;
+    }
+
+    // Cache-Buster als Query-Parameter, damit ein neu hochgeladenes Foto
+    // sofort angezeigt wird, statt dass der Browser die alte Version unter
+    // derselben URL aus dem Cache zeigt.
+    const { data: { publicUrl } } = supabaseClient.storage.from('avatars').getPublicUrl(dateiname);
+    const url = `${publicUrl}?t=${Date.now()}`;
+
+    const { error: dbError } = await supabaseClient
+        .from('profiles')
+        .update({ profilbild_url: url })
+        .eq('id', user.id);
+    if (dbError) {
+        errorEl.textContent = 'Speichern fehlgeschlagen: ' + dbError.message;
+        errorEl.hidden = false;
+        return;
+    }
+
+    setAvatarDisplay(document.getElementById('profileAvatarPlaceholder'), url, '');
+    document.getElementById('profileAvatarRemove').hidden = false;
+}
+
+async function removeProfileAvatar() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    await supabaseClient.storage.from('avatars').remove([`${user.id}.jpg`]);
+    await supabaseClient.from('profiles').update({ profilbild_url: null }).eq('id', user.id);
+
+    const name = document.getElementById('profileName').value;
+    setAvatarDisplay(document.getElementById('profileAvatarPlaceholder'), null, (name || document.getElementById('profileEmail').value).charAt(0).toUpperCase());
+    document.getElementById('profileAvatarRemove').hidden = true;
 }
 
 async function handleProfileSubmit(event) {

@@ -56,6 +56,26 @@ function clearDraft(storageKey) {
     localStorage.removeItem(storageKey);
 }
 
+// Schaltet an allen Avatar-Anzeige-Orten (Mein Profil, Mitgliederliste,
+// Mitglied-Modal, Topbar-Profil-Button) zwischen echtem Foto und dem
+// bisherigen Buchstaben-Kreis um. Nutzt bewusst ein CSS-Hintergrundbild auf
+// dem bestehenden Kreis-Element statt eines zusaetzlichen <img>-Tags - alle
+// vier Orte haben schon ein rundes, fest bemassenes Element mit Text
+// (Anfangsbuchstabe) drin, ein Hintergrundbild deckt das exakt gleich ab,
+// ohne Markup-Aenderungen an den jeweiligen Templates.
+function setAvatarDisplay(element, url, fallbackText) {
+    if (!element) return;
+    if (url) {
+        element.style.backgroundImage = `url(${url})`;
+        element.style.backgroundSize = 'cover';
+        element.style.backgroundPosition = 'center';
+        element.textContent = '';
+    } else {
+        element.style.backgroundImage = '';
+        element.textContent = fallbackText;
+    }
+}
+
 class SiteTopbar extends HTMLElement {
     connectedCallback() {
         // Beides muss hier im Custom Element selbst gesetzt werden, nicht am

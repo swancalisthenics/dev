@@ -1464,6 +1464,48 @@ new-swan-design/
     erfolgreichen Absenden - statt eine eigene neue Speicher-Logik zu
     bauen. Passwort-Felder davon immer ausnehmen.
 
+62. **Profilbild-Upload umgesetzt** (Task 9 oben) — per
+    `superpowers:brainstorming`/`writing-plans` geplant, Spec und Plan liegen
+    in `docs/superpowers/specs/2026-09-01-profilbild-upload-design.md` bzw.
+    `docs/superpowers/plans/2026-09-01-profilbild-upload.md`. Wichtiger Fund
+    beim Planen: `profiles.profilbild_url` existierte bereits seit dem
+    allerersten `schema.sql`-Lauf (schon live in der Datenbank!) und wurde
+    schon immer von der `public_profiles`-View mit ausgegeben - nur nie von
+    der UI genutzt. Es brauchte also **keine neue Spalte**, nur den fehlenden
+    zweiten Teil: einen neuen, öffentlich lesbaren Storage-Bucket `avatars`
+    (`supabase/013-avatar-storage-bucket.sql`, **noch nicht ausgeführt**),
+    unter dem festen Pfad `<user-id>.jpg` pro Mitglied (überschreibt sich bei
+    einem neuen Upload selbst, keine verwaisten Altdateien). Schreiben
+    (Hochladen/Ersetzen/Löschen) ist per RLS auf die eigene User-ID
+    beschränkt, Lesen ist bewusst öffentlich (einfache `<img>`-URLs statt
+    signierter URLs - wer den direkten Link kennt, kann das Bild auch ohne
+    Login sehen, bewusst in Kauf genommener Kompromiss, siehe Spec).
+    Verkleinerung läuft komplett automatisch per Canvas-API
+    (`resizeImageToJpeg()` in `main.js`): zentrierter Quadrat-Zuschnitt auf
+    200×200px JPEG (~80% Qualität) - kein eigener Zuschneide-Dialog. Neuer
+    genereller Helfer `setAvatarDisplay(element, url, fallbackText)` in
+    `js/site-chrome.js` schaltet an allen vier Anzeige-Orten (Mein Profil,
+    Mitgliederliste, Mitglied-Modal, Topbar-Profil-Button) zwischen Foto
+    (CSS-Hintergrundbild auf dem bestehenden Kreis-Element) und dem
+    bisherigen Buchstaben-Kreis um - bewusst kein zusätzliches `<img>`-Tag an
+    diesen Stellen, das Hintergrundbild deckt exakt denselben Platz ab.
+    "Foto entfernen"-Link auf "Mein Profil" (`removeProfileAvatar()`) löscht
+    Datei + setzt `profilbild_url` zurück auf `null`. Client-seitige Grenzen
+    vor dem Hochladen: nur `image/*`-Dateien, max. 10 MB Originalgrösse -
+    beides mit eigener Fehlermeldung statt stillem Fehlschlag, per Browser-
+    Konsole verifiziert (Canvas-Verkleinerung liefert nachweislich ein
+    200×200-JPEG, Nicht-Bilddatei zeigt die erwartete Fehlermeldung,
+    `setAvatarDisplay()` schaltet in beide Richtungen korrekt um). Ein
+    zweiter, bereits bestehender Code-Pfad in `loadOwnProfileIntoForm()`
+    (setzt nach dem Wiederherstellen eines lokalen Namens-Entwurfs, siehe
+    Punkt 61, den Anfangsbuchstaben erneut) musste dabei zusätzlich
+    angepasst werden, sonst hätte er den Buchstaben über ein bereits
+    gesetztes Hintergrundbild geschrieben (beide gleichzeitig sichtbar) -
+    läuft jetzt nur noch, wenn kein `profilbild_url` gesetzt ist.
+    **Bitte `supabase/013-avatar-storage-bucket.sql` im Supabase-Dashboard
+    ausführen**, sonst schlägt jeder Upload-Versuch fehl (Bucket existiert
+    noch nicht).
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
@@ -1649,7 +1691,8 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
    `.profile-layout` (Flex-Row) nebeneinander statt übereinander, mobil
    bleibt es gestapelt.
 9. Profilbild-Upload: Storage-Bucket einrichten, Verkleinerung per
-   Canvas-API vor dem Upload, Anzeige als Profilbild.
+   Canvas-API vor dem Upload, Anzeige als Profilbild — **umgesetzt**, siehe
+   Punkt 62 unten.
 10. Logout-Funktion — **umgesetzt** (`openLogoutConfirm()`/`closeLogoutConfirm()`/
     `confirmLogout()` in `main.js`, Teil des Profil-Dropdowns mit
     Bestätigungsdialog, siehe Punkt 29 und 38).
