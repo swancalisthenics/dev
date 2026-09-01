@@ -845,8 +845,8 @@ new-swan-design/
     Sichtbarkeits-Ergänzung ist. Stattdessen eine neue, rein lesende View
     `public.eingeladene_ohne_profil`
     ([supabase/003-eingeladene-ohne-profil.sql](supabase/003-eingeladene-ohne-profil.sql),
-    **noch nicht im Supabase-Dashboard ausgeführt** - muss dort im
-    SQL-Editor nachgeholt werden, sonst bleibt die neue Sektion für alle
+    **inzwischen im Supabase-Dashboard ausgeführt** (siehe Punkt 43) - die
+    neue Sektion war anfangs für alle
     leer): liest `id`/`email`/`created_at` aus `auth.users`, filtert per
     `not exists` auf `profiles` bereits eingeladene-aber-nie-gespeicherte
     Accounts heraus, und liefert für Nicht-Admins durch einen zweiten
@@ -1271,7 +1271,7 @@ new-swan-design/
       `handleXSubmit()`-Muster wie die übrigen Modals in `main.js`.
     - Neue Tabelle `public.konto_anfragen`
       ([supabase/008-konto-anfragen.sql](supabase/008-konto-anfragen.sql),
-      **noch nicht ausgeführt**) mit RLS: bewusst nur eine INSERT-Policy für
+      **inzwischen im Supabase-Dashboard ausgeführt**) mit RLS: bewusst nur eine INSERT-Policy für
       `anon` und `authenticated` (`with check (true)`) - jeder darf eine
       Anfrage anlegen, aber niemand kann sie über den öffentlichen Key
       wieder lesen, ändern oder löschen (RLS ohne passende Policy für einen
@@ -1294,7 +1294,7 @@ new-swan-design/
     hätte Duplikate nie wirklich verhindert. Stattdessen ein Unique-Index
     auf `lower(email)`
     ([supabase/009-konto-anfragen-email-unique.sql](supabase/009-konto-anfragen-email-unique.sql),
-    **noch nicht ausgeführt** - Groß-/Kleinschreibung soll dieselbe Anfrage
+    **inzwischen im Supabase-Dashboard ausgeführt** - Groß-/Kleinschreibung soll dieselbe Anfrage
     trotzdem als Duplikat erkennen) direkt in der Tabelle: Der `insert()`-
     Versuch selbst schlägt bei einer bereits vorhandenen Mail mit dem
     Postgres-Fehlercode `23505` (unique_violation) fehl.
@@ -1311,7 +1311,7 @@ new-swan-design/
     Sichtbarkeit, keine Annehmen-/Ablehnen-Aktion und kein Löschen - das
     bleibt ein eigener, späterer Task.
     - **Neue Policy** ([supabase/010-konto-anfragen-admin-select.sql](supabase/010-konto-anfragen-admin-select.sql),
-      **noch nicht ausgeführt**): `konto_anfragen` hatte bisher gar keine
+      **inzwischen im Supabase-Dashboard ausgeführt**): `konto_anfragen` hatte bisher gar keine
       SELECT-Policy (Punkt 52); jetzt eine, exakt nach demselben
       Admin-Check-Muster wie die bestehende Update-Policy auf `profiles`.
     - `renderKontoAnfragen()` in `js/mitglieder.js` kopiert bewusst das
@@ -1347,7 +1347,7 @@ new-swan-design/
     `editingMitgliedId`). Erst der "Löschen"-Button *im Modal* ruft
     tatsächlich `supabaseClient.from('konto_anfragen').delete()` auf.
     - Neue Policy ([supabase/011-konto-anfragen-admin-delete.sql](supabase/011-konto-anfragen-admin-delete.sql),
-      **noch nicht ausgeführt**), gleiches Admin-Check-Muster wie die
+      **inzwischen im Supabase-Dashboard ausgeführt**), gleiches Admin-Check-Muster wie die
       SELECT-Policy aus Punkt 54.
     - Bei einem Fehler (z. B. Policy noch nicht ausgeführt) bleibt das
       Modal offen und zeigt die Fehlermeldung in `#deleteAnfrageError`,
@@ -1374,7 +1374,7 @@ new-swan-design/
     Default von `array['Mitglied']` auf `'{}'` geändert - in `schema.sql`
     direkt sowie als eigene Migration
     ([supabase/012-rollen-taxonomie.sql](supabase/012-rollen-taxonomie.sql),
-    **noch nicht ausgeführt**) für die schon laufende Datenbank.
+    **inzwischen im Supabase-Dashboard ausgeführt**) für die schon laufende Datenbank.
     - Bewusst **keine** Daten-Migration für bereits vorhandene
       "Mitglied"-Zeilen (gleiches Vorgehen wie beim Entfernen von
       "Vorstand", Punkt 49): Ob eine bestehende Person eher Aktiv- oder
@@ -1473,7 +1473,7 @@ new-swan-design/
     schon immer von der `public_profiles`-View mit ausgegeben - nur nie von
     der UI genutzt. Es brauchte also **keine neue Spalte**, nur den fehlenden
     zweiten Teil: einen neuen, öffentlich lesbaren Storage-Bucket `avatars`
-    (`supabase/013-avatar-storage-bucket.sql`, **noch nicht ausgeführt**),
+    (`supabase/013-avatar-storage-bucket.sql`, **inzwischen im Supabase-Dashboard ausgeführt**),
     unter dem festen Pfad `<user-id>.jpg` pro Mitglied (überschreibt sich bei
     einem neuen Upload selbst, keine verwaisten Altdateien). Schreiben
     (Hochladen/Ersetzen/Löschen) ist per RLS auf die eigene User-ID
@@ -1578,7 +1578,7 @@ new-swan-design/
 
 65. **Verlauf frueherer Profilbilder als reines Admin-Log ergaenzt**
     ([supabase/014-profilbild-verlauf.sql](supabase/014-profilbild-verlauf.sql),
-    **noch nicht ausgeführt**). Bisher ueberschrieb jeder neue Upload
+    **inzwischen im Supabase-Dashboard ausgeführt**). Bisher ueberschrieb jeder neue Upload
     kommentarlos dieselbe Datei (`<user-id>.jpg`) - das alte Bild war damit
     unwiderruflich weg. Neue Funktion `archiviereAltesProfilbild(userId)`
     (`js/main.js`) laeuft jetzt vor jedem Ueberschreiben (in
@@ -1697,6 +1697,22 @@ new-swan-design/
       generell externe CDN-Requests - dasselbe gilt dort auch fuer den
       seit Langem bestehenden Supabase-CDN-Import) - kein Hinweis auf
       einen echten Fehler, nur eine Einschraenkung der lokalen Vorschau.
+
+68. **Nach erfolgreichem Login automatische Weiterleitung auf "Mein
+    Profil".** Vorher schloss sich nach `handleLoginSubmit()` (`main.js`)
+    nur das Login-Modal, ohne Navigation - man blieb auf der Seite, von der
+    aus man sich eingeloggt hatte (die Login-Maske ist ja über die Topbar
+    von allen 9 Seiten aus erreichbar). Jetzt: `window.location.href =
+    (document.body.dataset.base || '') + 'pages/mein-profil.html'`,
+    ausser `document.body.dataset.page === 'mein-profil'` (dann ist man
+    schon dort, keine Weiterleitung nötig). Nutzt bewusst den bestehenden
+    `data-base`-Mechanismus (siehe Punkt 47) statt eigener Pfadlogik - eine
+    Formel für alle drei Ordnertiefen. Getestet ohne echten Login: die
+    Pfad-Berechnung selbst für alle vier Faelle durchgespielt (`home`/
+    `""` → `pages/mein-profil.html`, `pages/*`/`"../"` →
+    `../pages/mein-profil.html`, `pages/blog/*`/`"../../"` →
+    `../../pages/mein-profil.html`, sowie `mein-profil` selbst → keine
+    Weiterleitung) - alle vier korrekt, keine Konsolenfehler.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

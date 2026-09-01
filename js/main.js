@@ -598,6 +598,9 @@ async function handleLoginSubmit(event) {
     notice.hidden = true;
     clearDraft('login-entwurf');
     closeLoginDialog();
+    if (document.body.dataset.page !== 'mein-profil') {
+        window.location.href = (document.body.dataset.base || '') + 'pages/mein-profil.html';
+    }
     return false;
 }
 
