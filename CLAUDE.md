@@ -1616,6 +1616,83 @@ new-swan-design/
       Fehlerfall (simulierter Copy-Fehler → Funktion gibt den Fehler zurueck,
       `getPublicUrl`/Insert werden nicht mehr aufgerufen).
 
+66. **Datenschutzerklärung auf den echten Mitgliederbereich aktualisiert**
+    (`pages/rechtliches.html`, Punkt 11 in der Supabase-Task-Liste oben) -
+    stand seit dem Login/Profil/Supabase-Ausbau nicht mehr im Einklang mit
+    der Realität: Der alte Text behauptete noch "kein Backend, keine
+    Cookies, keine Registrierungs-/Login-Formulare, keine aktiv
+    gespeicherten personenbezogenen Daten" - alles davon stimmt seit dem
+    Mitgliederbereich nicht mehr. Bewusst **keine erfundenen Fakten**
+    ergänzt (Rechtsform, Telefonnummer, Vereinsregister-Nr. o. Ä.) - nur
+    Dinge beschrieben, die im Code tatsächlich so passieren:
+    - Neuer Abschnitt "Mitgliederbereich: Login und Profildaten": welche
+      Daten beim Login/Profil anfallen (Name, E-Mail, Passwort,
+      optional Profilbild/Instagram/TikTok, Vereinsrolle), was davon für
+      andere Mitglieder sichtbar ist (inkl. des E-Mail-Teilen-Schalters),
+      dass alte Profilbilder intern archiviert werden und nur für Admins
+      einsehbar sind (siehe Punkt 65), und dass auch unbeantwortete
+      Konto-Anfragen (Name+E-Mail) nur für den Vorstand sichtbar sind.
+      Passwort-Absatz stellt klar: nie im Klartext gespeichert oder
+      einsehbar, nur gehasht (Supabase Auth).
+    - Neuer Abschnitt "Technischer Dienstleister (Supabase)": Supabase als
+      Auftragsverarbeiter, Serverstandort Frankfurt/EU (das tatsächlich
+      konfigurierte Projekt-Datacenter), plus der Hinweis, dass
+      Profilbild-URLs technisch bedingt oeffentlich abrufbar sind (siehe
+      Punkt 62).
+    - Neuer Abschnitt "Cookies und lokaler Speicher" ersetzt die jetzt
+      falsche "keine Cookies"-Aussage: praezisiert, dass es keine
+      klassischen Cookies sind, sondern `localStorage`
+      (Supabase-Session, Theme-Wahl, Formular-Entwuerfe, siehe Punkt 61) -
+      mit explizitem Hinweis, dass Passwoerter nie darin landen.
+    - Die beiden bereits zutreffenden Alt-Absaetze (Community-/
+      Veranstaltungsfotos, Social-Media-Links als reine Verlinkung) blieben
+      inhaltlich unveraendert, nur in eigene Abschnitte mit passenderer
+      Ueberschrift verschoben (vorher beide unter der jetzt falschen
+      Ueberschrift "Cookies, Tracking und Registrierung").
+    - **Kein Ersatz für eine rechtliche Prüfung** - der Text beschreibt nur
+      akkurat, was die Website tatsächlich tut; ob er als Datenschutz-
+      erklärung nach Schweizer DSG damit ausreicht, sollte der Vorstand
+      bei Bedarf zusätzlich fachlich pruefen (lassen).
+
+67. **Web-Analyse mit Umami statt Google Analytics eingebunden** (Punkt 1
+    in "Offene Punkte für die Zukunft" oben, damit erledigt). Bewusst
+    **nicht** Google Analytics gewählt: setzt standardmässig Cookies und
+    braucht deshalb einen Cookie-Consent-Banner, den es auf der Seite
+    bisher gar nicht gibt - ausserdem die bekannte Diskussion um
+    US-Datenübermittlung (mehrfach von EU-Datenschutzbehörden bemängelt).
+    Umami verzichtet auf Cookies und individuelle Besucherprofile (rein
+    aggregierte Zahlen) und gilt deshalb allgemein als ohne Consent-Banner
+    einsetzbar - ausserdem die einzige der drei verglichenen
+    Cookie-freien Alternativen (Umami/Plausible/Fathom) mit einer
+    dauerhaft kostenlosen Stufe (Umami Cloud, 100k Events/Monat), passend
+    zum Projekt, das bewusst ohne eigenen Server auskommt (kein
+    Self-Hosting nötig).
+    - Tracking-Snippet (`<script defer src="https://cloud.umami.is/script.js"
+      data-website-id="...">`) auf allen 9 Seiten direkt nach dem
+      `site-chrome.js`-Tag im `<head>` ergänzt - bewusst als statisches
+      `<script>`-Tag in jeder Seite selbst (wie die übrigen Head-Tags:
+      Theme-Color-Metas, Dark-Mode-Inline-Skript, CSS-Links), nicht per
+      JS aus `site-chrome.js` injiziert, weil ein direktes Tag ohne
+      Umweg über eine erst noch zu ladende Datei minimal frueher greift
+      und Analytics-Snippets ueblicherweise so eingebunden werden.
+    - Die Website-ID ist an die Domain `swancalisthenics.github.io`
+      gebunden (Umami trackt pro Domain, nicht pro Pfad) - deckt damit
+      automatisch auch das spaeter geplante `/home/` mit ab, siehe
+      "Repo-/Hosting-Struktur" oben. Sobald der Code einmal in einem
+      eigenen `home`-Repo landet, muss das Snippet dort separat mit
+      eingebaut werden (überträgt sich nicht automatisch mit dem Code
+      selbst).
+    - `pages/rechtliches.html` um einen neuen Abschnitt "Web-Analyse
+      (Umami)" ergänzt (jetzt Abschnitt 6, nachfolgende Abschnitte
+      entsprechend nachnummeriert).
+    - Geprüft: Script-Tag mit korrekter Website-ID auf allen 9 Seiten
+      vorhanden (per Grep bestätigt), keine Konsolenfehler. Der eigentliche
+      Netzwerk-Request an `cloud.umami.is` liess sich im lokalen
+      Test-Server nicht beobachten (die lokale Vorschau blockt offenbar
+      generell externe CDN-Requests - dasselbe gilt dort auch fuer den
+      seit Langem bestehenden Supabase-CDN-Import) - kein Hinweis auf
+      einen echten Fehler, nur eine Einschraenkung der lokalen Vorschau.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
@@ -1637,18 +1714,34 @@ und Zugriffsmuster wie "eigenes Profil lesen/bearbeiten, andere nur
 eingeschränkt" lassen sich mit Row-Level-Security direkt in der Datenbank
 abbilden statt in eigenem Code.
 
-**Hosting-Domain wechselt noch:** Aktuell läuft die Seite auf
-`n-brand.github.io/new-swan-design` (GitHub Pages, provisorisch), final soll
-sie unter `swancalisthenics.github.io/home` laufen (Projektname dann
-vermutlich "home", vermutlich als Nachfolger des jetzigen `home`-Projekts).
-Geplantes Vorgehen: Supabase-Projekt zuerst gegen die aktuelle,
-provisorische URL konfigurieren und darauf entwickeln/testen, dann später
-auf die finale Domain umziehen. Das ist unproblematisch, da die
-"Site URL"/"Redirect URLs" in den Supabase-Auth-Einstellungen reine
-Konfigurationswerte sind, jederzeit änderbar (Supabase erlaubt auch mehrere
-gleichzeitig erlaubte Redirect-URLs für eine Übergangsphase) — das
-Supabase-Projekt selbst (Datenbank, API-Key) hängt nicht an einer
-bestimmten Domain.
+**Repo-/Hosting-Struktur, Domain wechselt noch:** Die Seite läuft aktuell
+provisorisch auf `swancalisthenics.github.io/dev/` (dieses Repo, `dev`,
+GitHub-Organisation `swancalisthenics`). Geplante Ziel-Struktur, drei Repos
+unter derselben Organisation:
+- `dev` — dieses Repo, bleibt dauerhaft die aktive Entwicklungsversion.
+  Wird beim Wechsel unten NICHT aufgegeben oder ersetzt.
+- `home` — aktuell die andere, eigenständige echte Produktions-Website
+  dieses Vereins (separates Repo/Codebase, lokal `C:\Source\home`, siehe
+  Überblick oben) - die Seite, die heute wirklich live ist. Sobald die
+  `dev`-Version stabil/fertig genug ist, wird `home` mit der dann
+  stabilen `dev`-Version "gewechselt" (ersetzt) - `home` wird dadurch zur
+  neuen Live-Adresse für dieses Redesign, unter `swancalisthenics.github.io/home`.
+- `old` — Ziel-Repo, in das der bisherige Inhalt von `home` (die jetzige
+  echte, alte Seite) beim obigen Wechsel verschoben/archiviert wird,
+  statt einfach überschrieben zu werden.
+
+Nichts davon eigenmächtig auslösen (Inhalt nach `home` oder `old` pushen,
+den Wechsel selbst anstossen o. Ä.) ohne ausdrückliche Anweisung, welches
+Ziel gemeint ist.
+
+Geplantes Vorgehen für den technischen Umzug: Supabase-Projekt zuerst
+gegen die aktuelle, provisorische `/dev/`-URL konfigurieren und darauf
+entwickeln/testen, dann später auf die finale Domain/den finalen Pfad
+umziehen. Das ist unproblematisch, da die "Site URL"/"Redirect URLs" in
+den Supabase-Auth-Einstellungen reine Konfigurationswerte sind, jederzeit
+änderbar (Supabase erlaubt auch mehrere gleichzeitig erlaubte
+Redirect-URLs für eine Übergangsphase) — das Supabase-Projekt selbst
+(Datenbank, API-Key) hängt nicht an einer bestimmten Domain.
 
 **Zugriff nur für echte Mitglieder:** Kein offenes Registrierungsformular.
 Stattdessen lädt ein Vorstandsmitglied jede Person einzeln über Supabase
@@ -1806,13 +1899,8 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
 10. Logout-Funktion — **umgesetzt** (`openLogoutConfirm()`/`closeLogoutConfirm()`/
     `confirmLogout()` in `main.js`, Teil des Profil-Dropdowns mit
     Bestätigungsdialog, siehe Punkt 29 und 38).
-11. **Datenschutzerklärung/Impressum aktualisieren** (`pages/rechtliches.html`):
-    Sobald der Mitgliederbereich live geht, verarbeitet die Seite erstmals
-    echte personenbezogene Daten (Name, E-Mail, Profilbild, Social-Links,
-    Supabase-Session-Cookies/`localStorage`) statt nur statischer Inhalte —
-    die aktuellen Datenschutz-/Cookie-Angaben decken das noch nicht ab und
-    müssen entsprechend ergänzt werden, bevor das Feature produktiv genutzt
-    wird.
+11. **Datenschutzerklärung/Impressum aktualisieren** (`pages/rechtliches.html`)
+    — **umgesetzt**, siehe Punkt 66 unten.
 12. **Erledigt:** Der testweise Link auf "Community" im Hero-Fliesstext
     (zeigte direkt auf `pages/mitglieder.html`, mit `TEMP`-Kommentar
     markiert) wurde entfernt, jetzt wo der echte Zugang über das
@@ -1877,16 +1965,9 @@ Reine Themen-Merkzettel, noch nicht bearbeitet - nichts davon eigenmächtig
 starten ohne Rücksprache (gleiche Regel wie beim Supabase-Mitgliederbereich
 oben).
 
-1. **Google Analytics einbinden.** Kollidiert aktuell direkt mit der
-   Datenschutzerklärung (`pages/rechtliches.html`), die ausdrücklich
-   behauptet: "Wir betreiben kein Backend, nutzen keine Cookies und
-   verwenden keine Webanalyse- oder Tracking-Tools (wie Google Analytics)."
-   Diese Aussage stimmt inzwischen ohnehin nicht mehr ganz (das
-   Supabase-Backend existiert bereits) - die Datenschutzerklärung muss vor
-   oder spätestens zusammen mit Google Analytics überarbeitet werden (siehe
-   auch Punkt 11 in der Supabase-Task-Liste oben, dort aus einem anderen,
-   ebenfalls noch offenen Grund). Ausserdem je nach Umsetzung
-   Cookie-Consent-Pflicht (Schweiz/EU) zu prüfen, sobald es konkret wird.
+1. ~~Google Analytics einbinden.~~ **Erledigt, aber bewusst mit Umami statt
+   Google Analytics umgesetzt** (siehe Punkt 67) - deckt denselben Bedarf
+   (grobe Besucherzahlen) ohne Cookie-Consent-Pflicht.
 2. **Supabase-Projekt pausiert nach Inaktivität, braucht dann ca. 1 Minute
    zum Aufwachen.** Der kostenlose Supabase-Tier pausiert ein Projekt nach
    ca. 7 Tagen ganz ohne Anfragen; die erste Anfrage danach weckt es wieder
