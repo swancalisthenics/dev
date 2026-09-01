@@ -1427,3 +1427,60 @@ footer {
 .footer-links a:hover {
     color: var(--aurora-red);
 }
+
+/* --- TOAST (kurze Bestaetigung, z. B. Profilbild gespeichert/entfernt) ---
+   Kein [hidden]/display:none, weil das nicht animierbar ist - Ein-/
+   Ausblenden laeuft ueber .is-visible (opacity/visibility + Slide), gleiches
+   Prinzip wie beim Instagram/TikTok-Info-Tooltip (siehe .field-info-text).
+   Mobil: schwebt von oben unterhalb der Topbar rein/raus. Ab 768px: dezenter
+   Toast unten rechts, passt zum ueblichen Desktop-Muster fuer solche
+   Meldungen. */
+.toast {
+    position: fixed;
+    top: calc(var(--nav-height) + 12px);
+    left: 16px;
+    right: 16px;
+    z-index: 1500;
+    padding: 14px 18px;
+    border-radius: var(--radius-card);
+    background: var(--modal-fill);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-left: 4px solid #16a34a;
+    box-shadow: var(--shadow-lift);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-130%);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+.toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+@media (min-width: 768px) {
+    .toast {
+        top: auto;
+        left: auto;
+        right: 24px;
+        bottom: 24px;
+        max-width: 320px;
+        transform: translateY(12px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast {
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transform: none;
+    }
+
+    .toast.is-visible {
+        transform: none;
+    }
+}

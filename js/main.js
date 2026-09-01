@@ -859,6 +859,15 @@ async function resizeImageToJpeg(file) {
     });
 }
 
+let toastTimeout;
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('is-visible');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('is-visible'), 2500);
+}
+
 async function handleAvatarFileSelected(event) {
     const file = event.target.files[0];
     event.target.value = '';
@@ -909,6 +918,7 @@ async function handleAvatarFileSelected(event) {
 
     setAvatarDisplay(document.getElementById('profileAvatarPlaceholder'), url, '');
     document.getElementById('profileAvatarRemove').hidden = false;
+    showToast('Gespeichert – für alle sichtbar.');
 }
 
 async function removeProfileAvatar() {
@@ -919,6 +929,7 @@ async function removeProfileAvatar() {
     const name = document.getElementById('profileName').value;
     setAvatarDisplay(document.getElementById('profileAvatarPlaceholder'), null, (name || document.getElementById('profileEmail').value).charAt(0).toUpperCase());
     document.getElementById('profileAvatarRemove').hidden = true;
+    showToast('Foto entfernt.');
 }
 
 async function handleProfileSubmit(event) {
@@ -955,9 +966,14 @@ async function handleProfileSubmit(event) {
         instagram: instagramInput.value,
         tiktok: tiktokInput.value
     });
-    notice.textContent = error ? ('Speichern fehlgeschlagen: ' + error.message) : 'Gespeichert!';
-    notice.hidden = false;
-    if (!error && currentProfileDraftKey) clearDraft(currentProfileDraftKey);
+    if (error) {
+        notice.textContent = 'Speichern fehlgeschlagen: ' + error.message;
+        notice.hidden = false;
+    } else {
+        notice.hidden = true;
+        showToast('Gespeichert!');
+        if (currentProfileDraftKey) clearDraft(currentProfileDraftKey);
+    }
     return false;
 }
 
@@ -986,9 +1002,12 @@ async function handlePasswordSubmit(event) {
         return false;
     }
     const { error } = await supabaseClient.auth.updateUser({ password: neu });
-    notice.textContent = error ? ('Fehler: ' + error.message) : 'Passwort geändert!';
-    notice.hidden = false;
-    if (!error) {
+    if (error) {
+        notice.textContent = 'Fehler: ' + error.message;
+        notice.hidden = false;
+    } else {
+        notice.hidden = true;
+        showToast('Passwort geändert!');
         // Nach erfolgreichem Aendern die Felder wirklich leeren, nicht nur
         // die Erfolgsmeldung zeigen - sonst stehen die zuletzt getippten
         // Passwoerter (inkl. des jetzt alten) weiter unnoetig im Formular.

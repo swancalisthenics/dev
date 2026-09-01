@@ -1554,6 +1554,28 @@ new-swan-design/
       dispatchtem Klick-Event nachweislich `#profileAvatarInput`s
       `click()`-Handler aus.
 
+64. **Neue `.toast`-Komponente aus Punkt 63 (ursprünglich nur fürs
+    Profilbild) auf "Profil speichern" und "Passwort ändern" ausgeweitet.**
+    Beide Formulare zeigten den Erfolgsfall bisher als statischen Text
+    (`#profileNotice`/`#passwordNotice`), der bis zum nächsten Absenden
+    stehen blieb statt von selbst zu verschwinden - der neue Toast blendet
+    sich nach 2,5s automatisch wieder aus und verschiebt dabei kein Layout.
+    Umbenannt: `showAvatarToast()` → generisches `showToast()`,
+    `#avatarToast` → `#toast` (nicht mehr avatar-spezifisch). In
+    `handleProfileSubmit()`/`handlePasswordSubmit()` (`main.js`) zeigt nur
+    noch der **Fehlerfall** weiterhin den Inline-Text in
+    `#profileNotice`/`#passwordNotice` (bleibt bewusst stehen, bis behoben -
+    kein Auto-Verschwinden bei einem Fehler, den man erst lesen/beheben
+    muss); der **Erfolgsfall** ruft stattdessen `showToast(...)` und setzt
+    `notice.hidden = true`, damit keine alte Fehlermeldung stehen bleibt.
+    Bewusst **nicht** umgestellt: der button-interne "Gespeichert!"/
+    "Kopiert!"-Text-Wechsel (`.btn.copied`, Rollen-Editor im Mitglied-Modal
+    und die Telefon-/E-Mail-Kopieren-Buttons) - beide sitzen in einem noch
+    offenen Modal, ein darüber schwebender Toast wäre dort kein Gewinn
+    gegenüber dem bestehenden Feedback direkt am Button. Verifiziert: alle
+    referenzierten Element-IDs vorhanden, `showToast()` per Konsole manuell
+    ausgelöst, Fehlerpfad weiterhin unverändert inline.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
