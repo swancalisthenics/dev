@@ -1629,9 +1629,14 @@ new-swan-design/
       Daten beim Login/Profil anfallen (Name, E-Mail, Passwort,
       optional Profilbild/Instagram/TikTok, Vereinsrolle), was davon für
       andere Mitglieder sichtbar ist (inkl. des E-Mail-Teilen-Schalters),
-      dass alte Profilbilder intern archiviert werden und nur für Admins
-      einsehbar sind (siehe Punkt 65), und dass auch unbeantwortete
-      Konto-Anfragen (Name+E-Mail) nur für den Vorstand sichtbar sind.
+      dass alte Profilbilder intern archiviert werden und für andere
+      Mitglieder nicht einsehbar sind (siehe Punkt 65 - bewusst **nicht**
+      "für Admins einsehbar" geschrieben, dafür gibt es keine Seite im
+      Frontend, nur die DB-seitige RLS-Beschränkung; auf Nutzer-Feedback
+      hin korrigiert), und dass auch unbeantwortete Konto-Anfragen
+      (Name+E-Mail) für den Vorstand sichtbar sind (dafür gibt es mit der
+      "Ausstehende Anfragen"-Ansicht aus Punkt 54 tatsächlich eine echte
+      Seite, anders als beim Profilbild-Verlauf).
       Passwort-Absatz stellt klar: nie im Klartext gespeichert oder
       einsehbar, nur gehasht (Supabase Auth).
     - Neuer Abschnitt "Technischer Dienstleister (Supabase)": Supabase als
