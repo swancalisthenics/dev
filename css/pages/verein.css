@@ -1,68 +1,73 @@
-.doc-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    max-width: 1000px;
+/* Verein-Seite ist ein reiner Hub: eine Liste von "Balken", die zu den
+   einzelnen Vereins-/Mitglieder-Features führen (Vereinsdokumente,
+   Mitglieder, künftig Trainings-Anmeldung) - kein eigener Inhalt mehr auf
+   dieser Seite selbst. Jeder Balken ist eine eigene .glass-card (nicht
+   eine gemeinsame Box mit Trennlinien) - dadurch greift beim Hover ganz
+   normal der bestehende .glass-card-Hebe-Effekt (siehe components.css)
+   statt eines eigenen, unschönen Hervorhebungs-Hacks innerhalb einer
+   gemeinsamen Box. */
+.hub-list {
+    max-width: 640px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.doc-card {
-    text-align: center;
-    opacity: 0.85;
+.hub-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    color: var(--text-primary);
 }
 
-.doc-icon {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 16px;
-    background-color: var(--text-muted);
-    -webkit-mask-image: url(../../assets/icons/tab-document.svg);
-    mask-image: url(../../assets/icons/tab-document.svg);
-    -webkit-mask-size: contain;
-    mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
+a.hub-row,
+.hub-row[role="button"] {
+    cursor: pointer;
 }
 
-.doc-card h3 {
-    font-size: 1.05rem;
-    margin-bottom: 8px;
-}
-
-.doc-card p {
-    color: var(--text-muted);
-    font-size: 0.88rem;
-    margin-bottom: 16px;
-}
-
-.doc-card.is-available {
-    display: block;
-    opacity: 1;
-    transition: transform 0.15s ease;
-}
-
-.doc-card.is-available:hover,
-.doc-card.is-available:focus-visible {
-    transform: translateY(-2px);
-}
-
-.doc-card.is-available .doc-icon {
+.hub-row-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
     background-color: var(--aurora-red);
 }
 
-.doc-link-hint {
-    color: var(--aurora-red);
-    font-size: 0.85rem;
-    font-weight: 600;
+.hub-row-title {
+    flex: 1;
+    font-weight: 700;
 }
 
-@media (min-width: 640px) {
-    .doc-grid { grid-template-columns: repeat(2, 1fr); }
+/* Gleiches Pfeil-SVG wie beim bestehenden .back-to-top-Button, nur um 90°
+   gedreht (zeigt dort nach oben, hier nach rechts zur verlinkten Seite). */
+.hub-row-arrow {
+    display: block;
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    transform: rotate(90deg);
+    flex-shrink: 0;
 }
 
-@media (min-width: 1024px) {
-    .doc-grid { grid-template-columns: repeat(3, 1fr); }
+.hub-row-arrow svg {
+    width: 100%;
+    height: 100%;
+}
+
+.hub-row-hint {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* Gesperrt (ausgeloggt, aber grundsaetzlich ein echtes Feature - bleibt
+   klickbar, oeffnet das Login-Modal) und "in Vorbereitung" (Feature
+   existiert noch gar nicht, unabhaengig vom Login-Status) sehen sich
+   bewusst aehnlich (gedaempftes Icon), bleiben aber unterschiedlich
+   interaktiv: .hub-row-locked hat role="button" und reagiert auf Hover,
+   .hub-row-pending nicht. */
+.hub-row-locked .hub-row-icon,
+.hub-row-pending .hub-row-icon {
+    background-color: var(--text-muted);
 }
