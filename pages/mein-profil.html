@@ -21,7 +21,6 @@
 
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/pages/mein-profil.css">
 </head>
 <body data-page="mein-profil" data-base="../">
 
@@ -141,22 +140,6 @@
                 </div>
             </form>
         </details>
-
-        <div class="glass-card profile-form-card postfach-card" id="postfach">
-            <h3>Postfach</h3>
-            <div class="postfach-layout" id="postfachLayout">
-                <div class="postfach-liste" id="postfachListe">
-                    <p class="section-lead">Keine Nachrichten.</p>
-                </div>
-                <div class="postfach-detail" id="postfachDetail">
-                    <button type="button" class="postfach-zurueck" id="postfachZurueck" onclick="schliessePostfachDetail()" aria-label="Zurück zur Liste">
-                        <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </button>
-                    <p class="postfach-detail-meta" id="postfachDetailMeta"></p>
-                    <p class="postfach-detail-text" id="postfachDetailText"></p>
-                </div>
-            </div>
-        </div>
         </div>
     </section>
 </main>
@@ -207,7 +190,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-client.js"></script>
-<script src="../js/postfach.js"></script>
 <script src="../js/main.js"></script>
 </body>
 </html>
