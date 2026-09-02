@@ -1900,6 +1900,19 @@ new-swan-design/
     - Getestet mit gemocktem `supabaseClient` (kein echter Login noetig):
       Formular-Insert, Liste inkl. XSS-Escaping, Gelesen-Status-Wechsel,
       Dropdown-Links, Datenschutz-Nummerierung - je keine Konsolenfehler.
+    - **Nachtraeglich ergaenzt - leichter Spam-/Missbrauchsschutz:**
+      Nachricht auf 1000 Zeichen begrenzt (`maxlength` im Formular +
+      `check`-Constraint in
+      [supabase/017-kontakt-nachricht-laenge.sql](supabase/017-kontakt-nachricht-laenge.sql),
+      schuetzt auch gegen einen API-Aufruf am Formular vorbei). Honeypot-
+      Feld (fuer Menschen unsichtbar, Bots fuellen es typischerweise
+      trotzdem aus - ist es befuellt, wird nichts gespeichert, aber
+      Erfolg vorgetaeuscht). 180-Sekunden-Abkuehlzeit gegen wiederholtes
+      manuelles Absenden, Zeitstempel in `localStorage` - bei zu
+      frueherem erneutem Absenden zeigt ein Toast die verbleibende
+      Wartezeit. Bewusst **keine** echte serverseitige IP-Rate-
+      Begrenzung - bräuchte eine Edge Function (gleiche Abwaegung wie
+      bei den zurueckgestellten Sicherheitsmails, siehe oben).
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
