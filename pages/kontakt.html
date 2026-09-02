@@ -38,11 +38,7 @@
 
         <div class="contact-layout">
             <div class="glass-card">
-                <form action="https://formsubmit.co/nicolas.alexander.brand@gmail.com" method="POST" id="contact-form">
-                    <input type="text" name="_honey" style="display:none">
-                    <input type="hidden" name="_next" value="https://swancalisthenics.github.io/home/">
-                    <input type="hidden" name="_subject" value="Blog Anfrage: Allgemein">
-
+                <form id="contact-form" onsubmit="return handleKontaktSubmit(event)">
                     <div class="field">
                         <label for="form-name">Dein Name</label>
                         <input type="text" id="form-name" name="name" required>
@@ -65,7 +61,7 @@
                                 <li role="option" aria-selected="false" data-value="Sponsoren: allgemein">Sponsoren</li>
                                 <li role="option" aria-selected="false" data-value="Feedback: Allgemeines Feedback">Allgemeines Feedback / Sonstiges</li>
                             </ul>
-                            <input type="hidden" name="category" value="Blog-Thema: Ernährung & Gesundheit">
+                            <input type="hidden" id="form-kategorie" name="category" value="Blog-Thema: Ernährung & Gesundheit">
                         </div>
                     </div>
                     <div class="field">
@@ -117,6 +113,9 @@
 <!-- LOGIN-/LOGOUT-MODAL (Mitgliederbereich) -->
 <site-account-modals></site-account-modals>
 
+<!-- Kurze Bestaetigung nach Nachricht senden (siehe showToast() in main.js) -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <!-- FOOTER -->
 <footer>
     <div class="footer-content">
@@ -155,5 +154,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-client.js"></script>
 <script src="../js/main.js"></script>
+<script src="../js/kontakt.js"></script>
 </body>
 </html>
