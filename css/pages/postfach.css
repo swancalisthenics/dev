@@ -1,3 +1,8 @@
+.section-lead a {
+    color: inherit;
+    text-decoration: underline;
+}
+
 .postfach-loeschhinweis {
     max-width: 720px;
     margin: 0 auto 16px;
