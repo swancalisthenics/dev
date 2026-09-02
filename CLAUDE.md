@@ -1925,17 +1925,34 @@ selbst gespeichert oder geloggt. Supabase hasht Passwörter serverseitig
 (bcrypt o.ä.) — weder der Vereins-Betreiber noch Supabase selbst können je
 das Klartext-Passwort einsehen.
 
-**Idee (noch nicht eingeplant): Sicherheits-Benachrichtigungsmails**
-("Passwort wurde geändert", "neue Anmeldung von Gerät/Ort X"). Technisch
-machbar, aber kein Supabase-Bordmittel — Supabase verschickt automatisch nur
-bestimmte Auth-Mails (Bestätigung, Passwort-Reset-Link, Magic Link), keine
-freien Sicherheits-Hinweise. Bräuchte zusätzlich: eine Edge Function plus
-einen externen Mail-Versand-Dienst (z. B. Resend, kostenloses Kontingent
-reicht locker), ausgelöst über einen Datenbank-Trigger. Die Orts-/Geräte-
-Erkennung beim Login wäre nochmal ein eigenes, deutlich aufwändigeres
-Stück (IP-Geolocation, eigene Login-Events-Tabelle) — falls gewünscht,
-eher als separates, späteres Feature planen statt zusammen mit dem
-Passwort-Ändern-Formular.
+**Idee (noch nicht eingeplant, bewusst zurückgestellt): Sicherheits-
+Benachrichtigungsmails.** Kurz angebrainstormt, dann bewusst pausiert,
+bevor eine Spec geschrieben wurde. Scope zunächst nur "Passwort wurde
+geändert" (der Handler dafür ist der "Passwort ändern"-Submit in
+`main.js`, Formular auf `pages/mein-profil.html`) — "neue Anmeldung von
+Gerät/Ort X" bleibt separat, siehe unten. Technisch machbar, aber kein
+Supabase-Bordmittel — Supabase verschickt automatisch nur bestimmte
+Auth-Mails (Bestätigung, Passwort-Reset-Link, Magic Link), keine freien
+Sicherheits-Hinweise. Bräuchte eine Edge Function, ausgelöst über einen
+Datenbank-Trigger auf `auth.users` (gibt es in diesem Projekt noch gar
+nicht, wäre komplett neue Infrastruktur).
+
+Mail-Versand-Frage schon geklärt: Ein externer Dienst wie Resend verlangt
+inzwischen zwingend eine verifizierte eigene Domain, bevor überhaupt
+irgendeine Mail verschickt werden kann (nicht nur für den Absendernamen)
+— das bräuchte DNS-Zugriff auf `swancalisthenics.ch`, der aktuell nicht
+bestätigt ist (die auf der Seite gezeigte Adresse
+`info@swancalisthenics.ch`, z. B. [pages/mitglieder.html:121](pages/mitglieder.html:121),
+ist nur Anzeige-Text im E-Mail-Modal und sagt nichts über Hosting/
+DNS-Zugriff aus). Stattdessen geplant: Versand über ein bestehendes
+Gmail-Konto des Vereins per SMTP — keine Domain-Verifizierung nötig,
+Limit bei kostenlosen Gmail-Konten liegt bei 100 Mails/Tag (rollierendes
+24h-Fenster), für dieses Volumen (realistisch 0-2 Passwort-Änderungen/
+Tag) mehr als ausreichend.
+
+Die Orts-/Geräte-Erkennung beim Login wäre nochmal ein eigenes, deutlich
+aufwändigeres Stück (IP-Geolocation, eigene Login-Events-Tabelle) —
+bleibt separates, späteres Feature, nicht Teil davon.
 
 **Profilbild-Upload:** Eigenes Foto hochladen, direkt im Browser per
 Canvas-API vor dem Upload verkleinert/komprimiert (kein kostenpflichtiges
