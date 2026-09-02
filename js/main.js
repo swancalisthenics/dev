@@ -700,8 +700,8 @@ if (typeof supabaseClient !== 'undefined') {
 // diesen Check wuerde ein nicht angemeldeter Besucher stumm eine leere/
 // fehlerhafte Ansicht sehen, weil die eigentlichen Datenabfragen per RLS
 // ohnehin nichts liefern wuerden.
-async function initAuthGate(contentId, onSession, onSignedOut) {
-    const notice = document.getElementById('notLoggedIn');
+async function initAuthGate(contentId, onSession, onSignedOut, noticeId = 'notLoggedIn') {
+    const notice = document.getElementById(noticeId);
     const content = document.getElementById(contentId);
     if (!notice || !content) return;
 
@@ -793,6 +793,13 @@ if (document.getElementById('profileLayout')) {
 // Balken ist statischer Inhalt (nur ein Link).
 if (document.getElementById('hubMitgliederRow')) {
     initAuthGate('hubMitgliederRow');
+}
+
+// Gleiches Muster fuer den Trainings-Anmeldung-Balken - eigener
+// noticeId, da verein.html jetzt zwei unabhaengige Gates auf derselben
+// Seite hat und sich kein #notLoggedIn teilen koennen.
+if (document.getElementById('hubTrainingsRow')) {
+    initAuthGate('hubTrainingsRow', null, null, 'notLoggedInTrainings');
 }
 
 function closeAuthErrorModal() {
