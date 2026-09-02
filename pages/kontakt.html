@@ -39,6 +39,7 @@
         <div class="contact-layout">
             <div class="glass-card">
                 <form id="contact-form" onsubmit="return handleKontaktSubmit(event)">
+                    <input type="text" id="form-honeypot" name="website" style="display:none" tabindex="-1" autocomplete="off">
                     <div class="field">
                         <label for="form-name">Dein Name</label>
                         <input type="text" id="form-name" name="name" required>
