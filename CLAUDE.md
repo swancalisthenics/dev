@@ -1718,23 +1718,7 @@ new-swan-design/
       gegeben): `localStorage.setItem('umami.disabled', true)` im eigenen
       Browser setzen, gilt nur lokal pro Gerät.
 
-68. **Nach erfolgreichem Login automatische Weiterleitung auf "Mein
-    Profil".** Vorher schloss sich nach `handleLoginSubmit()` (`main.js`)
-    nur das Login-Modal, ohne Navigation - man blieb auf der Seite, von der
-    aus man sich eingeloggt hatte (die Login-Maske ist ja über die Topbar
-    von allen 9 Seiten aus erreichbar). Jetzt: `window.location.href =
-    (document.body.dataset.base || '') + 'pages/mein-profil.html'`,
-    ausser `document.body.dataset.page === 'mein-profil'` (dann ist man
-    schon dort, keine Weiterleitung nötig). Nutzt bewusst den bestehenden
-    `data-base`-Mechanismus (siehe Punkt 47) statt eigener Pfadlogik - eine
-    Formel für alle drei Ordnertiefen. Getestet ohne echten Login: die
-    Pfad-Berechnung selbst für alle vier Faelle durchgespielt (`home`/
-    `""` → `pages/mein-profil.html`, `pages/*`/`"../"` →
-    `../pages/mein-profil.html`, `pages/blog/*`/`"../../"` →
-    `../../pages/mein-profil.html`, sowie `mein-profil` selbst → keine
-    Weiterleitung) - alle vier korrekt, keine Konsolenfehler.
-
-69. **Verein-Seite zu einem reinen Hub umgebaut, Vereinsdokumente auf eine
+68. **Verein-Seite zu einem reinen Hub umgebaut, Vereinsdokumente auf eine
     eigene neue Seite ausgelagert.** Per `superpowers:brainstorming`
     besprochen, erster Teil eines grösseren, noch offenen Themas (weitere
     Special-Features für eingeloggte Mitglieder, z. B. die geplante
@@ -1807,7 +1791,7 @@ new-swan-design/
       einheitliche "geht zu einer Seite"-Optik, nicht nur die vom Nutzer
       gerade sichtbare oberste Box.
 
-70. **WhatsApp-, Instagram- und TikTok-Icon-Buttons im Footer ergaenzt**
+69. **WhatsApp-, Instagram- und TikTok-Icon-Buttons im Footer ergaenzt**
     (alle 10 Seiten inkl. der neuen `vereinsdokumente.html`, in dieser
     Reihenfolge - gleiche Reihenfolge wie die bestehenden Hero-CTA-Buttons
     auf der Startseite). WhatsApp- und Instagram-Link waren schon aus der
@@ -1828,7 +1812,7 @@ new-swan-design/
     Reihenfolge), Icon-Masken/Hrefs/aria-labels auf der Startseite per
     DOM-Check verifiziert, keine Konsolenfehler.
 
-71. **Trainings-Anmeldung umgesetzt** (siehe
+70. **Trainings-Anmeldung umgesetzt** (siehe
     [docs/superpowers/specs/2026-09-02-trainings-anmeldung-design.md](docs/superpowers/specs/2026-09-02-trainings-anmeldung-design.md)
     fuer die volle Begruendung) - ersetzt die bisherige Brainstorming-Notiz.
     Bewusst **keine eigene Tabelle fuer Trainingstermine**: Trainings finden
@@ -1862,7 +1846,7 @@ new-swan-design/
       `#notLoggedIn`-Element teilen koennen. Regressionsgeprueft:
       bestehende Gates auf `mitglieder.html`/`mein-profil.html`
       weiterhin unveraendert korrekt.
-    - Verein-Hub-Balken "Trainings-Anmeldung" (Punkt 69) von
+    - Verein-Hub-Balken "Trainings-Anmeldung" (Punkt 68) von
       `.hub-row-pending`/"In Vorbereitung" auf das echte
       Zwei-Zustands-Muster umgestellt (gleiches Verhalten wie der
       Mitglieder-Balken: Schloss+Login-Modal ausgeloggt, echter Link
