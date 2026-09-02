@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f6f5fb" media="(prefers-color-scheme: light)" data-scheme="light">
+    <meta name="theme-color" content="#15141f" media="(prefers-color-scheme: dark)" data-scheme="dark">
+    <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}var lm=document.querySelector('meta[data-scheme="light"]'),dm=document.querySelector('meta[data-scheme="dark"]');if(t==='dark'){lm.media='not all';dm.media='all';}else if(t==='light'){lm.media='all';dm.media='not all';}})();</script>
+    <script src="../js/site-chrome.js"></script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="06a8c472-1245-4f03-9396-276a024c7ef4" data-exclude-hash="true" data-do-not-track="true"></script>
+
+    <title>Swan Calisthenics | Trainings-Anmeldung</title>
+    <meta name="description" content="Fuer das naechste Training zu- oder absagen.">
+    <meta name="author" content="Nicolas Brand">
+
+    <link rel="icon" type="image/png" href="../assets/favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon/favicon.svg">
+    <link rel="shortcut icon" href="../assets/favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="../assets/favicon/site.webmanifest">
+
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/pages/trainings-anmeldung.css">
+</head>
+<body data-page="verein" data-base="../">
+
+<div class="aurora-blob coral"></div>
+<div class="aurora-blob violet"></div>
+<div class="aurora-blob blue"></div>
+
+<!-- NAVIGATION -->
+<site-topbar></site-topbar>
+
+<main>
+    <section class="section">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">Startseite</a>
+            <span aria-hidden="true">&rsaquo;</span>
+            <a href="verein.html">Verein</a>
+        </nav>
+        <h2 class="section-title">Trainings-<span class="accent">Anmeldung</span></h2>
+        <p class="section-lead">Sag zu oder ab und sieh, wer sonst noch mittrainiert.</p>
+
+        <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
+            <p>Du bist nicht angemeldet.</p>
+            <p class="form-hint">Diese Seite ist nur für eingeloggte Mitglieder sichtbar.</p>
+            <button type="button" class="btn btn-primary" onclick="openLoginDialog(event)">Jetzt anmelden</button>
+        </div>
+
+        <div id="trainingsContent" hidden>
+            <h3 id="trainingsDatum" class="trainings-datum"></h3>
+
+            <div class="trainings-buttons">
+                <button type="button" class="btn btn-zusagen" id="zusagenBtn" onclick="handleTrainingsZusage()">Zusagen</button>
+                <button type="button" class="btn btn-absagen" id="absagenBtn" onclick="handleTrainingsAbsage()">Absagen</button>
+            </div>
+
+            <div class="trainings-teilnehmer-grid" id="trainingsTeilnehmerListe"></div>
+        </div>
+    </section>
+</main>
+
+<!-- LOGIN-/LOGOUT-MODAL (Mitgliederbereich) -->
+<site-account-modals></site-account-modals>
+
+<!-- Kurze Bestaetigung nach Zu-/Absage (siehe showToast() in main.js) -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-social">
+            <a href="https://chat.whatsapp.com/Lu1Yxhse5a75IWVzupbcaQ?mode=gi_t" target="_blank" rel="noopener" class="footer-social-link" aria-label="WhatsApp-Gruppe">
+                <span class="icon icon-whatsapp" aria-hidden="true"></span>
+            </a>
+            <a href="https://www.instagram.com/swancalisthenics/" target="_blank" rel="noopener" class="footer-social-link" aria-label="Instagram">
+                <span class="icon icon-instagram" aria-hidden="true"></span>
+            </a>
+            <a href="https://www.tiktok.com/@swancalisthenics" target="_blank" rel="noopener" class="footer-social-link" aria-label="TikTok">
+                <span class="icon icon-tiktok" aria-hidden="true"></span>
+            </a>
+        </div>
+        <p>&copy; 2026 Swan Calisthenics Community</p>
+        <p style="font-size: 0.8rem; opacity: 0.8;">Erstellt von Nicolas Brand</p>
+        <ul class="footer-links">
+            <li><a href="rechtliches.html">Datenschutz & Impressum</a></li>
+        </ul>
+    </div>
+</footer>
+
+<a href="#" class="back-to-top" id="backToTop" aria-label="Nach oben">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</a>
+
+<!-- TAB BAR (mobil) -->
+<nav class="tabbar" aria-label="Hauptnavigation mobil">
+    <a href="../index.html" class="tabbar-item nav-link" data-page="home"><span class="tabbar-icon" aria-hidden="true"></span><span>Home</span></a>
+    <a href="blog/blog.html" class="tabbar-item nav-link" data-page="blog"><span class="tabbar-icon" aria-hidden="true"></span><span>Blog</span></a>
+    <a href="team.html" class="tabbar-item nav-link" data-page="team"><span class="tabbar-icon" aria-hidden="true"></span><span>Team</span></a>
+    <a href="verein.html" class="tabbar-item nav-link" data-page="verein"><span class="tabbar-icon" aria-hidden="true"></span><span>Verein</span></a>
+    <a href="kontakt.html" class="tabbar-item nav-link" data-page="kontakt"><span class="tabbar-icon" aria-hidden="true"></span><span>Kontakt</span></a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="../js/main.js"></script>
+</body>
+</html>
