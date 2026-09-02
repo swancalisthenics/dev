@@ -1864,6 +1864,43 @@ new-swan-design/
       Nutzer selbst live als echtes Mitglied getestet und bestätigt
       funktionierend.
 
+71. **Kontaktformular-Postfach umgesetzt** (siehe
+    [docs/superpowers/specs/2026-09-02-kontaktformular-postfach-design.md](docs/superpowers/specs/2026-09-02-kontaktformular-postfach-design.md)
+    fuer die volle Begruendung). FormSubmit.co (leitete Kontaktformular-
+    Nachrichten an eine private Gmail-Adresse weiter, ohne Erwaehnung in
+    der Datenschutzerklaerung und mit schlechter eigener Transparenz)
+    komplett entfernt.
+    - Zwei neue Tabellen
+      ([supabase/016-kontakt-nachrichten.sql](supabase/016-kontakt-nachrichten.sql)):
+      `kontakt_nachrichten` (Inhalt, lesbar nur fuer die Rolle
+      "Präsident") und `kontakt_nachrichten_status` (Pro-Person-Gelesen-
+      Status - bewusst kein Boolean-Feld, die blosse Existenz einer Zeile
+      bedeutet "gelesen"). Ein taeglicher `pg_cron`-Job loescht Nachrichten
+      automatisch 2 Monate nach Eingang.
+    - `pages/kontakt.html`/[js/kontakt.js](js/kontakt.js): Formular
+      schickt Nachrichten jetzt per `supabaseClient.insert()` statt per
+      FormSubmit-POST.
+    - Neuer "Postfach"-Abschnitt in `pages/mein-profil.html`
+      ([js/postfach.js](js/postfach.js)): fuer jedes eingeloggte Mitglied
+      sichtbar, bleibt aber dank RLS fuer alle ausser aktuellen
+      Praesidenten automatisch leer. Mail-Programm-Optik (Liste +
+      Leseansicht, zweispaltig auf Desktop, Drill-down auf Mobil).
+      Untrusted Felder (`name`/`kategorie` aus einem unauthentifizierten
+      Formular) werden per `escapeHtml()` escaped (gleiches Muster wie in
+      `js/mitglieder.js`). `js/postfach.js` wird bewusst VOR `main.js`
+      geladen (nicht danach) - der `initAuthGate()`-Callback in `main.js`
+      kann durch Promise-Microtask-Timing schon vor einem nachfolgenden
+      Script-Tag feuern, ein `postfach.js` nach `main.js` fuehrte beim
+      Testen zu "leerePostfach is not defined".
+    - Profil-Dropdown (`js/site-chrome.js`): "Mitglieder"-Link entfernt
+      (bleibt ueber den Verein-Hub erreichbar), "Postfach"-Link
+      (`mein-profil.html#postfach`) ergaenzt.
+    - Datenschutzerklaerung (`pages/rechtliches.html`): neue Section "4.
+      Kontaktformular", bestehende Sections 4-9 auf 5-10 verschoben.
+    - Getestet mit gemocktem `supabaseClient` (kein echter Login noetig):
+      Formular-Insert, Liste inkl. XSS-Escaping, Gelesen-Status-Wechsel,
+      Dropdown-Links, Datenschutz-Nummerierung - je keine Konsolenfehler.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
