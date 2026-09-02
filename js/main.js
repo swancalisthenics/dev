@@ -618,52 +618,64 @@ function closeAccountRequestDialog() {
 
 const KONTO_ANFRAGE_COOLDOWN_MS = 180 * 1000;
 const KONTO_ANFRAGE_COOLDOWN_KEY = 'konto-anfrage-letzte';
+let kontoAnfrageWirdGesendet = false;
 
 async function handleAccountRequestSubmit(event) {
     event.preventDefault();
-    const notice = document.getElementById('accountRequestNotice');
+    // Verhindert, dass ein schneller Doppelklick zwei parallele Absende-
+    // Vorgaenge startet, die beide den Cooldown-Check bestehen wuerden,
+    // weil der Zeitstempel erst NACH dem ersten abgeschlossenen Insert
+    // gesetzt wird (gleiches Problem wie in js/kontakt.js, per Test
+    // bestaetigt).
+    if (kontoAnfrageWirdGesendet) return false;
+    kontoAnfrageWirdGesendet = true;
+    try {
+        const notice = document.getElementById('accountRequestNotice');
 
-    // Honeypot: fuer Menschen unsichtbares Feld, das Bots aber typischerweise
-    // trotzdem ausfuellen. Ist es befuellt, wird nichts gespeichert, aber so
-    // getan als waere die Anfrage gesendet worden - gleiches Muster wie beim
-    // Kontaktformular (js/kontakt.js).
-    if (document.getElementById('requestHoneypot').value) {
+        // Honeypot: fuer Menschen unsichtbares Feld, das Bots aber typischerweise
+        // trotzdem ausfuellen. Ist es befuellt, wird nichts gespeichert, aber so
+        // getan als waere die Anfrage gesendet worden - gleiches Muster wie beim
+        // Kontaktformular (js/kontakt.js).
+        if (document.getElementById('requestHoneypot').value) {
+            document.getElementById('accountRequestForm').reset();
+            clearDraft('konto-anfrage-entwurf');
+            notice.textContent = 'Danke! Deine Anfrage wurde gesendet.';
+            notice.hidden = false;
+            return false;
+        }
+
+        const letzteAnfrage = Number(localStorage.getItem(KONTO_ANFRAGE_COOLDOWN_KEY) || 0);
+        const wartezeitMs = KONTO_ANFRAGE_COOLDOWN_MS - (Date.now() - letzteAnfrage);
+        if (wartezeitMs > 0) {
+            const wartezeitSekunden = Math.ceil(wartezeitMs / 1000);
+            notice.textContent = `Bitte warte noch ${wartezeitSekunden} Sekunden, bevor du eine weitere Anfrage sendest.`;
+            notice.hidden = false;
+            return false;
+        }
+
+        const name = document.getElementById('requestName').value;
+        const email = document.getElementById('requestEmail').value;
+        const { error } = await supabaseClient.from('konto_anfragen').insert({ name, email });
+        if (error) {
+            // 23505 = Postgres unique_violation - greift auf lower(email), siehe
+            // supabase/009-konto-anfragen-email-unique.sql. Kein eigener
+            // SELECT-Vorabcheck moeglich, da konto_anfragen bewusst keine
+            // SELECT-Policy fuer anon/authenticated hat (siehe Punkt 52).
+            notice.textContent = error.code === '23505'
+                ? 'Für diese E-Mail liegt bereits eine Anfrage vor.'
+                : 'Anfrage fehlgeschlagen: ' + error.message;
+            notice.hidden = false;
+            return false;
+        }
+        localStorage.setItem(KONTO_ANFRAGE_COOLDOWN_KEY, String(Date.now()));
         document.getElementById('accountRequestForm').reset();
         clearDraft('konto-anfrage-entwurf');
         notice.textContent = 'Danke! Deine Anfrage wurde gesendet.';
         notice.hidden = false;
         return false;
+    } finally {
+        kontoAnfrageWirdGesendet = false;
     }
-
-    const letzteAnfrage = Number(localStorage.getItem(KONTO_ANFRAGE_COOLDOWN_KEY) || 0);
-    const wartezeitMs = KONTO_ANFRAGE_COOLDOWN_MS - (Date.now() - letzteAnfrage);
-    if (wartezeitMs > 0) {
-        const wartezeitSekunden = Math.ceil(wartezeitMs / 1000);
-        notice.textContent = `Bitte warte noch ${wartezeitSekunden} Sekunden, bevor du eine weitere Anfrage sendest.`;
-        notice.hidden = false;
-        return false;
-    }
-
-    const name = document.getElementById('requestName').value;
-    const email = document.getElementById('requestEmail').value;
-    const { error } = await supabaseClient.from('konto_anfragen').insert({ name, email });
-    if (error) {
-        // 23505 = Postgres unique_violation - greift auf lower(email), siehe
-        // supabase/009-konto-anfragen-email-unique.sql. Kein eigener
-        // SELECT-Vorabcheck moeglich, da konto_anfragen bewusst keine
-        // SELECT-Policy fuer anon/authenticated hat (siehe Punkt 52).
-        notice.textContent = error.code === '23505'
-            ? 'Für diese E-Mail liegt bereits eine Anfrage vor.'
-            : 'Anfrage fehlgeschlagen: ' + error.message;
-        notice.hidden = false;
-        return false;
-    }
-    localStorage.setItem(KONTO_ANFRAGE_COOLDOWN_KEY, String(Date.now()));
-    document.getElementById('accountRequestForm').reset();
-    clearDraft('konto-anfrage-entwurf');
-    notice.textContent = 'Danke! Deine Anfrage wurde gesendet.';
-    notice.hidden = false;
-    return false;
 }
 
 function openSetPasswordModal() {

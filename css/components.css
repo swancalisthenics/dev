@@ -1496,7 +1496,11 @@ footer {
         top: auto;
         left: auto;
         right: 24px;
-        bottom: 24px;
+        /* .back-to-top sitzt hier ebenfalls (right 20px, bottom 24px,
+           46px hoch) - 12px oberhalb seiner Oberkante, damit sich beide
+           nicht ueberlappen, wenn Toast und Button gleichzeitig sichtbar
+           sind. */
+        bottom: 82px;
         max-width: 320px;
         transform: translateY(12px);
     }
