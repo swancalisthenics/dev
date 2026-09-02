@@ -1,0 +1,66 @@
+.trainings-datum {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.trainings-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.btn-zusagen {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #fff;
+}
+
+.btn-absagen {
+    background: var(--aurora-red);
+    border-color: var(--aurora-red);
+    color: #fff;
+}
+
+.btn-zusagen:disabled,
+.btn-absagen:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.trainings-teilnehmer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 14px;
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.trainings-teilnehmer-grid p {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+@media (min-width: 640px) {
+    .trainings-teilnehmer-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
+
+.trainings-teilnehmer-card {
+    text-align: center;
+    padding: 18px 10px;
+}
+
+.trainings-teilnehmer-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--aurora-coral), var(--aurora-red));
+    color: #fff;
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
