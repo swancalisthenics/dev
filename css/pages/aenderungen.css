@@ -1,28 +1,23 @@
-.aenderungen-card {
-    max-width: 720px;
+.aenderungen-liste {
+    max-width: 640px;
     margin: 0 auto;
 }
 
-.aenderungen-card h3 {
-    margin: 40px 0 16px;
+.aenderungen-datum {
+    margin: 32px 0 12px;
     color: var(--text-muted);
     font-size: 1rem;
 }
 
-.aenderungen-card h3:first-child {
+.aenderungen-datum:first-child {
     margin-top: 0;
 }
 
-.aenderungen-card ul {
+.aenderung-eintrag {
+    padding: 18px 22px;
+    margin-bottom: 12px;
+}
+
+.aenderung-eintrag p {
     margin: 0;
-    padding-left: 20px;
-}
-
-.aenderungen-card li {
-    margin-bottom: 16px;
-    line-height: 1.5;
-}
-
-.aenderungen-card li:last-child {
-    margin-bottom: 0;
 }
