@@ -1,6 +1,10 @@
 .postfach-card {
     padding: 0;
     overflow: hidden;
+    /* Ueberschreibt das von .profile-form-card (components.css) geerbte
+       "text-align: center" - fuer Fliesstext wie den Nachrichteninhalt
+       unpassend, dort soll normaler linksbuendiger Textfluss gelten. */
+    text-align: left;
 }
 
 .postfach-card h3 {
@@ -116,5 +120,22 @@
     }
     .postfach-detail {
         display: block;
+    }
+
+    /* .profile-layout ist ab 768px eine Flex-Reihe (components.css) - ohne
+       diese beiden Regeln wuerde die Postfach-Karte ueber
+       ".profile-layout .profile-form-card:not(.password-details)"
+       versehentlich dieselbe 480px-Breite wie die Profil-Karte erben und
+       sich die Zeile mit den anderen beiden Karten teilen: bei drei Karten
+       nebeneinander schrumpft die Postfach-Karte per Flex-Shrink auf
+       Bruchteile ihrer 480px, viel zu schmal fuer Liste + Leseansicht
+       (320px + Rest) - der Nachrichtentext brach dadurch nach wenigen
+       Zeichen um. Eigene volle Zeile loest das sauber. */
+    .profile-layout {
+        flex-wrap: wrap;
+    }
+    .profile-layout .profile-form-card.postfach-card {
+        width: 100%;
+        max-width: none;
     }
 }
