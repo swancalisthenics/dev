@@ -26,7 +26,8 @@ new-swan-design/
 │   │                             Tab-Bar-Navigation, Theme-Toggle, Badges, FAQ-
 │   │                             Accordion, Modals, Formulare, Footer
 │   └── pages/                   Eine Datei pro Seite, nur seitenspezifische Regeln
-│       ├── home.css, kontakt.css, verein.css, rechtliches.css, blog.css
+│       ├── home.css, kontakt.css, verein.css, vereinsdokumente.css,
+│       │   rechtliches.css, blog.css
 │       (Team- und Mitglieder-Grid-Layout liegt in components.css, siehe unten)
 ├── js/
 │   ├── main.js                  Dark-Mode-Toggle, responsive <picture>-Auflösung,
@@ -45,7 +46,8 @@ new-swan-design/
 │   └── documents/                leer, Platzhalter für künftige Vereins-PDFs
 │                                 (siehe README.md darin)
 └── pages/
-    ├── team.html, kontakt.html, verein.html, rechtliches.html
+    ├── team.html, kontakt.html, verein.html, vereinsdokumente.html,
+    │   rechtliches.html
     ├── mitglieder.html, mein-profil.html   Mitgliederbereich-Seiten, noch mit
     │                                       Platzhalter-Daten (siehe unten)
     └── blog/
@@ -1731,6 +1733,79 @@ new-swan-design/
     `../pages/mein-profil.html`, `pages/blog/*`/`"../../"` →
     `../../pages/mein-profil.html`, sowie `mein-profil` selbst → keine
     Weiterleitung) - alle vier korrekt, keine Konsolenfehler.
+
+69. **Verein-Seite zu einem reinen Hub umgebaut, Vereinsdokumente auf eine
+    eigene neue Seite ausgelagert.** Per `superpowers:brainstorming`
+    besprochen, erster Teil eines grösseren, noch offenen Themas (weitere
+    Special-Features für eingeloggte Mitglieder, z. B. die geplante
+    Trainings-Anmeldung als eigenes, separates Thema). Erster Entwurf
+    (Karten-Grid unterhalb der bestehenden Dokumente, wie bei den anderen
+    Karten-Grids im Projekt) wurde nach Rücksprache verworfen - der Nutzer
+    stellte sich stattdessen eine Liste von "Balken" vor, die jeweils zu
+    einer eigenen Seite führen (inkl. Screenshot einer "Ähnliche
+    Suchanfragen"-Liste als Vorbild fürs Zeilen-Layout), und dass
+    Vereinsdokumente selbst zu einer eigenen Unterseite wird statt
+    weiterhin Teil der Verein-Seite zu sein.
+    - **Neue Seite [pages/vereinsdokumente.html](pages/vereinsdokumente.html)**
+      übernimmt die bisherigen 5 Dokumenten-Karten unveraendert (gleiches
+      `.doc-grid`/`.doc-card`-Markup, eigene neue
+      [css/pages/vereinsdokumente.css](css/pages/vereinsdokumente.css) mit
+      den dafuer verschobenen Styles). Bleibt bewusst **oeffentlich**, kein
+      Auth-Gate (auf Nachfrage bestaetigt). Traegt `data-page="verein"`
+      (nicht "vereinsdokumente") - haelt den "Verein"-Navigationspunkt in
+      Topbar/Tabbar aktiv, gleiches Muster wie `pages/blog/post.html`
+      gegenueber `blog.html`. Eigene Breadcrumb "Startseite › Verein".
+    - **`pages/verein.html` zeigt jetzt nur noch eine `.hub-list`**
+      (`css/pages/verein.css`, komplett neu geschrieben): drei `.hub-row`-
+      Zeilen (Icon + Titel + rechtsbuendiger Status/Pfeil) in einer
+      gemeinsamen Glass-Card, per Trennlinie (`border-bottom`) abgesetzt -
+      "Vereinsdokumente" (echter Link → neue Seite), "Mitglieder" (siehe
+      unten), "Trainings-Anmeldung" (`.hub-row-pending`, immer
+      "In Vorbereitung"-Badge, unabhaengig vom Login-Status - das Feature
+      existiert schlicht noch nicht). Icons ueber das bestehende
+      `.icon`/`.icon-{name}`-Mask-System (`icon-book-open`, `icon-users`,
+      `icon-calendar` - alle drei Assets waren bereits im Projekt vorhanden,
+      keine neuen SVGs noetig).
+    - **"Mitglieder"-Balken ist der einzige mit echtem Auth-Gate:** zwei
+      Elemente, per `initAuthGate('hubMitgliederRow')` (`main.js`, kein
+      Callback noetig) umgeschaltet - eingeloggt ein echter Link (→
+      `mitglieder.html`, Pfeil), ausgeloggt `.hub-row-locked` mit
+      `role="button"`/`tabindex="0"` (bleibt bewusst klickbar/fokussierbar,
+      oeffnet `openLoginDialog()` statt zu navigieren) und einem
+      "🔒 Login nötig"-Hinweis statt des Pfeils. Auf explizite Rueckfrage
+      hin bewusst **nicht** komplett ausgeblendet, wenn ausgeloggt (siehe
+      Alternativ-Option, die verworfen wurde).
+    - Getestet: beide Seiten geladen, keine Konsolenfehler. Ausgeloggter
+      Zustand des Hubs visuell bestaetigt (Screenshot: gedaempftes
+      Mitglieder-Icon + Schloss-Hinweis, Trainings-Anmeldung-Badge,
+      Vereinsdokumente-Zeile normal aktiv). Eingeloggter Zustand simuliert:
+      Mitglieder-Zeile wechselt korrekt auf aktives rotes Icon + Pfeil +
+      `href="mitglieder.html"`. `vereinsdokumente.html` per Screenshot
+      bestaetigt: Breadcrumb korrekt, "Verein"-Navigationspunkt aktiv
+      markiert, alle 5 Dokumenten-Karten unveraendert. Keine verwaisten
+      Referenzen auf die verworfenen Klassen/IDs des ersten Entwurfs mehr
+      im Code (per Grep bestaetigt).
+    - **Sofortiges Nutzer-Feedback nach dem ersten Screenshot:** Die drei
+      Balken lagen anfangs alle in einer gemeinsamen `.glass-card`, per
+      `border-bottom` als Trennlinien voneinander abgesetzt - wirkte beim
+      Hovern unschön (der Hover-Hintergrund war ein reines Rechteck ohne
+      Bezug zu den abgerundeten Ecken der äusseren Box). Auf Wunsch
+      korrigiert: jeder Balken ist jetzt eine eigene `.glass-card` mit
+      Abstand dazwischen (`.hub-list` nur noch als Flex-Spalte mit `gap`,
+      keine Trennlinien mehr) - dadurch greift automatisch der ohnehin
+      schon projektweit übliche `.glass-card:hover`-Hebeeffekt
+      (`translateY(-4px)` + `--shadow-lift`), kein eigener Hover-Hack mehr
+      nötig. Verifiziert: `getComputedStyle()` waehrend eines echten
+      Hovers bestaetigt Transform und Box-Shadow korrekt gesetzt.
+    - **Pfeil-Icon der Balken auf Wunsch an den bestehenden `.back-to-top`-
+      Button angeglichen:** war zuerst ein simples Unicode-Zeichen ("→"),
+      jetzt dieselbe Inline-SVG (`M12 19V5M5 12l7-7 7 7`) wie beim
+      Nach-oben-Button, nur um 90° gedreht (`transform: rotate(90deg)` auf
+      `.hub-row-arrow`) statt der eigenen Ausrichtung nach oben. Betrifft
+      beide Stellen, an denen der Pfeil vorkommt (Vereinsdokumente-Balken
+      und der eingeloggte Zustand des Mitglieder-Balkens) - fuer eine
+      einheitliche "geht zu einer Seite"-Optik, nicht nur die vom Nutzer
+      gerade sichtbare oberste Box.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 

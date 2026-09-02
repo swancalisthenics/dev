@@ -787,6 +787,14 @@ if (document.getElementById('profileLayout')) {
     initAuthGate('profileLayout', loadOwnProfileIntoForm, clearProfileForm);
 }
 
+// Nur der "Mitglieder"-Balken im Verein-Hub ist gated, nicht die ganze
+// Seite - Vereinsdokumente-Balken und der "In Vorbereitung"-Platzhalter für
+// Trainings-Anmeldung bleiben davon unberuehrt. Kein Callback noetig, der
+// Balken ist statischer Inhalt (nur ein Link).
+if (document.getElementById('hubMitgliederRow')) {
+    initAuthGate('hubMitgliederRow');
+}
+
 function closeAuthErrorModal() {
     const modal = document.getElementById('auth-error-modal');
     if (modal) modal.classList.remove('active');

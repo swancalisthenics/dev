@@ -9,7 +9,7 @@
     <script src="../js/site-chrome.js"></script>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="06a8c472-1245-4f03-9396-276a024c7ef4" data-exclude-hash="true" data-do-not-track="true"></script>
 
-    <title>Swan Calisthenics | Verein</title>
+    <title>Swan Calisthenics | Vereinsdokumente</title>
     <meta name="author" content="Nicolas Brand">
 
     <link rel="icon" type="image/png" href="../assets/favicon/favicon-96x96.png" sizes="96x96">
@@ -20,7 +20,7 @@
 
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/pages/verein.css">
+    <link rel="stylesheet" href="../css/pages/vereinsdokumente.css">
 </head>
 <body data-page="verein" data-base="../">
 
@@ -33,30 +33,43 @@
 
 <main>
     <section class="section">
-        <h2 class="section-title">Unser <span class="accent">Verein</span></h2>
-        <p class="section-lead">Alles rund um den Verein auf einen Blick.</p>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">Startseite</a>
+            <span aria-hidden="true">&rsaquo;</span>
+            <a href="verein.html">Verein</a>
+        </nav>
+        <h2 class="section-title">Vereins<span class="accent">dokumente</span></h2>
+        <p class="section-lead">Aus der Community wird bald ein eingetragener Verein. Sobald die folgenden Dokumente vorliegen, findest du sie hier direkt zum Öffnen als PDF.</p>
 
-        <div class="hub-list">
-            <a class="glass-card hub-row" href="vereinsdokumente.html">
-                <span class="icon icon-book-open hub-row-icon" aria-hidden="true"></span>
-                <span class="hub-row-title">Vereinsdokumente</span>
-                <span class="hub-row-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="doc-grid">
+            <a class="glass-card doc-card is-available" href="../assets/documents/vereinsstatuten.pdf" target="_blank" rel="noopener">
+                <span class="doc-icon" aria-hidden="true"></span>
+                <h3>Vereinsstatuten</h3>
+                <p>Grundlegende Regeln und Organisation des Vereins.</p>
+                <span class="doc-link-hint">PDF öffnen ↗</span>
             </a>
-
-            <div class="glass-card hub-row hub-row-locked" id="notLoggedIn" role="button" tabindex="0" aria-label="Mitglieder - Login nötig" onclick="openLoginDialog(event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLoginDialog(event);}" hidden>
-                <span class="icon icon-users hub-row-icon" aria-hidden="true"></span>
-                <span class="hub-row-title">Mitglieder</span>
-                <span class="hub-row-hint">🔒 Login nötig</span>
+            <div class="glass-card doc-card">
+                <span class="doc-icon" aria-hidden="true"></span>
+                <h3>Beitrittserklärung</h3>
+                <p>Formular für die Mitgliedschaft im Verein.</p>
+                <span class="badge badge-pending">In Vorbereitung</span>
             </div>
-            <a class="glass-card hub-row" id="hubMitgliederRow" href="mitglieder.html" hidden>
-                <span class="icon icon-users hub-row-icon" aria-hidden="true"></span>
-                <span class="hub-row-title">Mitglieder</span>
-                <span class="hub-row-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            </a>
-
-            <div class="glass-card hub-row hub-row-pending">
-                <span class="icon icon-calendar hub-row-icon" aria-hidden="true"></span>
-                <span class="hub-row-title">Trainings-Anmeldung</span>
+            <div class="glass-card doc-card">
+                <span class="doc-icon" aria-hidden="true"></span>
+                <h3>Beitragsordnung</h3>
+                <p>Regelung der Mitgliederbeiträge.</p>
+                <span class="badge badge-pending">In Vorbereitung</span>
+            </div>
+            <div class="glass-card doc-card">
+                <span class="doc-icon" aria-hidden="true"></span>
+                <h3>Spesenreglement</h3>
+                <p>Regelung von Spesen und Auslagen.</p>
+                <span class="badge badge-pending">In Vorbereitung</span>
+            </div>
+            <div class="glass-card doc-card">
+                <span class="doc-icon" aria-hidden="true"></span>
+                <h3>Haus- und Platzordnung</h3>
+                <p>Verhaltensregeln am Street Workout Park.</p>
                 <span class="badge badge-pending">In Vorbereitung</span>
             </div>
         </div>
