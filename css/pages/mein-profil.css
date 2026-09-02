@@ -1,0 +1,120 @@
+.postfach-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.postfach-card h3 {
+    padding: 24px 24px 0;
+}
+
+.postfach-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.postfach-liste {
+    display: flex;
+    flex-direction: column;
+}
+
+.postfach-liste .section-lead {
+    padding: 14px 24px;
+}
+
+.postfach-nachricht {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 24px;
+    border: none;
+    border-top: 1px solid var(--glass-border);
+    background: none;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    width: 100%;
+    cursor: pointer;
+}
+
+.postfach-nachricht:hover {
+    background: var(--glass-fill-strong);
+}
+
+.postfach-nachricht-kopf {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.postfach-nachricht.ist-ungelesen .postfach-nachricht-kopf span:first-child {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.postfach-nachricht.ist-ungelesen .postfach-nachricht-kopf span:first-child::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--aurora-red);
+    margin-right: 8px;
+}
+
+.postfach-detail {
+    padding: 24px;
+    border-top: 1px solid var(--glass-border);
+    display: none;
+}
+
+.postfach-zurueck {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 4px;
+    margin-bottom: 12px;
+}
+
+.postfach-zurueck svg {
+    width: 24px;
+    height: 24px;
+}
+
+.postfach-detail-meta {
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.postfach-detail-text {
+    white-space: pre-wrap;
+}
+
+@media (max-width: 767px) {
+    .postfach-zurueck {
+        display: inline-flex;
+    }
+    .postfach-layout.zeigt-detail .postfach-liste {
+        display: none;
+    }
+    .postfach-layout.zeigt-detail .postfach-detail {
+        display: block;
+    }
+}
+
+@media (min-width: 768px) {
+    .postfach-layout {
+        grid-template-columns: 320px 1fr;
+    }
+    .postfach-liste {
+        border-right: 1px solid var(--glass-border);
+        max-height: 480px;
+        overflow-y: auto;
+    }
+    .postfach-detail {
+        display: block;
+    }
+}
