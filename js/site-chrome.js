@@ -173,7 +173,7 @@ class SiteAccountModals extends HTMLElement {
                         </div>
                         <div class="field">
                             <label for="requestEmail">E-Mail</label>
-                            <input type="email" id="requestEmail" name="email" required autocomplete="email">
+                            <input type="email" id="requestEmail" name="email" maxlength="254" required autocomplete="email">
                         </div>
                         <p id="accountRequestNotice" class="form-hint" hidden></p>
                         <div class="modal-actions">

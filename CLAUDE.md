@@ -1919,6 +1919,38 @@ new-swan-design/
       war der einzige weitere oeffentliche, unauthentifizierte
       Formular-Endpunkt im Projekt (`konto_anfragen`, ueber den
       Login-Button von jeder Seite aus erreichbar).
+    - **Beim vollstaendigen Durchgehen aller offenen Punkte gefundene und
+      behobene Bugs:**
+      - Toast ueberlappte auf Desktop den "Nach oben"-Button (beide fast
+        exakt in derselben Ecke, `right`/`bottom` ~20-24px) - per
+        Bounding-Box-Check bestaetigt, Toast liegt jetzt 82px statt 24px
+        ueber dem unteren Rand.
+      - Ein schneller Doppelklick auf "Senden" konnte die 180s-Abkuehlzeit
+        umgehen: der `localStorage`-Zeitstempel wird erst NACH dem ersten
+        abgeschlossenen Insert gesetzt, zwei parallele Klicks bestanden
+        beide den Cooldown-Check. Per Test bestaetigt (zwei parallele
+        Aufrufe = zwei Inserts) und behoben durch ein einfaches
+        Re-Entrancy-Flag (`kontaktWirdGesendet`/`kontoAnfrageWirdGesendet`)
+        um den gesamten Handler.
+      - Die Postfach-Karte erbte ueber
+        `.profile-layout .profile-form-card:not(.password-details)`
+        (components.css, eigentlich nur fuer die Profil-Karte gedacht)
+        versehentlich dieselbe feste 480px-Breite und wurde dadurch neben
+        den anderen beiden Karten per Flex-Shrink auf ~430px gequetscht -
+        die Leseansicht lief dabei ueber den Kartenrand hinaus, Text brach
+        nach 5-8 Zeichen ab. Fix in `css/pages/mein-profil.css`: eigene
+        volle Zeile ab 768px (`flex-wrap` + `width:100%` gezielt nur fuer
+        `.postfach-card`, keine Aenderung an den geteilten Regeln fuer die
+        anderen Karten). Dabei gleich mit behoben: Nachrichtentext war
+        ebenfalls ueber `.profile-form-card` versehentlich zentriert statt
+        linksbuendig.
+      - Laengenbegrenzung war inkonsistent: nur `kontakt_nachrichten.
+        nachricht` und `konto_anfragen.name` waren begrenzt (017/018).
+        `kontakt_nachrichten.name`/`.kategorie`/`.email` sowie
+        `konto_anfragen.email` hatten noch gar keine Grenze - per
+        [supabase/019-laengenbegrenzungen-vervollstaendigen.sql](supabase/019-laengenbegrenzungen-vervollstaendigen.sql)
+        nachgezogen (100 Zeichen Name/Kategorie, 254 fuer E-Mail nach
+        RFC 5321), inkl. `maxlength` in den jeweiligen Formularfeldern.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
