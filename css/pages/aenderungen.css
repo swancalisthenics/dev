@@ -14,8 +14,18 @@
 }
 
 .aenderung-eintrag {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
     padding: 18px 22px;
     margin-bottom: 12px;
+}
+
+.aenderung-nummer {
+    flex: none;
+    min-width: 20px;
+    color: var(--aurora-red);
+    font-weight: 700;
 }
 
 .aenderung-eintrag p {
