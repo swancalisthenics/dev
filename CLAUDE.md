@@ -1951,6 +1951,9 @@ new-swan-design/
         [supabase/019-laengenbegrenzungen-vervollstaendigen.sql](supabase/019-laengenbegrenzungen-vervollstaendigen.sql)
         nachgezogen (100 Zeichen Name/Kategorie, 254 fuer E-Mail nach
         RFC 5321), inkl. `maxlength` in den jeweiligen Formularfeldern.
+    - Nach Ausfuehren aller Migrationen (016-019) zusaetzlich vom Nutzer
+      selbst live als echte/r Praesident/in getestet und bestaetigt
+      funktionierend (Nachricht ankommen sehen, als gelesen markieren).
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
