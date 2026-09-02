@@ -57,6 +57,8 @@
 .icon-book-open { -webkit-mask-image: url(../assets/icons/book-open.svg); mask-image: url(../assets/icons/book-open.svg); }
 .icon-tiktok { -webkit-mask-image: url(../assets/icons/tiktok.svg); mask-image: url(../assets/icons/tiktok.svg); }
 .icon-images { -webkit-mask-image: url(../assets/icons/images-regular.svg); mask-image: url(../assets/icons/images-regular.svg); }
+.icon-star { -webkit-mask-image: url(../assets/icons/star.svg); mask-image: url(../assets/icons/star.svg); }
+.icon-list { -webkit-mask-image: url(../assets/icons/bars-solid-full.svg); mask-image: url(../assets/icons/bars-solid-full.svg); }
 .icon-eye { -webkit-mask-image: url(../assets/icons/eye.svg); mask-image: url(../assets/icons/eye.svg); }
 .icon-eye-slash { -webkit-mask-image: url(../assets/icons/eye-slash.svg); mask-image: url(../assets/icons/eye-slash.svg); }
 .icon-circle-question { -webkit-mask-image: url(../assets/icons/circle-question.svg); mask-image: url(../assets/icons/circle-question.svg); }

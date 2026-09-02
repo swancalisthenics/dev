@@ -843,6 +843,14 @@ if (document.getElementById('hubTrainingsRow')) {
     initAuthGate('hubTrainingsRow', null, null, 'notLoggedInTrainings');
 }
 
+if (document.getElementById('hubNeuigkeitenRow')) {
+    initAuthGate('hubNeuigkeitenRow', null, null, 'notLoggedInNeuigkeiten');
+}
+
+if (document.getElementById('hubAenderungenRow')) {
+    initAuthGate('hubAenderungenRow', null, null, 'notLoggedInAenderungen');
+}
+
 function closeAuthErrorModal() {
     const modal = document.getElementById('auth-error-modal');
     if (modal) modal.classList.remove('active');

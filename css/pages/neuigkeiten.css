@@ -1,0 +1,23 @@
+.neuigkeiten-liste {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.neuigkeiten-datum {
+    margin: 32px 0 12px;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.neuigkeiten-datum:first-child {
+    margin-top: 0;
+}
+
+.neuigkeit-card {
+    padding: 18px 22px;
+    margin-bottom: 12px;
+}
+
+.neuigkeit-card p {
+    margin: 0;
+}

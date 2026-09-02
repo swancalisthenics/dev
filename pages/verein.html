@@ -64,6 +64,28 @@
                 <span class="hub-row-title">Trainings-Anmeldung</span>
                 <span class="hub-row-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             </a>
+
+            <div class="glass-card hub-row hub-row-locked" id="notLoggedInNeuigkeiten" role="button" tabindex="0" aria-label="Neuigkeiten - Login nötig" onclick="openLoginDialog(event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLoginDialog(event);}" hidden>
+                <span class="icon icon-star hub-row-icon" aria-hidden="true"></span>
+                <span class="hub-row-title">Neuigkeiten</span>
+                <span class="hub-row-hint">🔒 Login nötig</span>
+            </div>
+            <a class="glass-card hub-row" id="hubNeuigkeitenRow" href="neuigkeiten.html" hidden>
+                <span class="icon icon-star hub-row-icon" aria-hidden="true"></span>
+                <span class="hub-row-title">Neuigkeiten</span>
+                <span class="hub-row-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </a>
+
+            <div class="glass-card hub-row hub-row-locked" id="notLoggedInAenderungen" role="button" tabindex="0" aria-label="Änderungen - Login nötig" onclick="openLoginDialog(event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLoginDialog(event);}" hidden>
+                <span class="icon icon-list hub-row-icon" aria-hidden="true"></span>
+                <span class="hub-row-title">Änderungen</span>
+                <span class="hub-row-hint">🔒 Login nötig</span>
+            </div>
+            <a class="glass-card hub-row" id="hubAenderungenRow" href="aenderungen.html" hidden>
+                <span class="icon icon-list hub-row-icon" aria-hidden="true"></span>
+                <span class="hub-row-title">Änderungen</span>
+                <span class="hub-row-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </a>
         </div>
     </section>
 </main>
