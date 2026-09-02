@@ -1955,6 +1955,34 @@ new-swan-design/
       selbst live als echte/r Praesident/in getestet und bestaetigt
       funktionierend (Nachricht ankommen sehen, als gelesen markieren).
 
+72. **"Neuigkeiten" und "Änderungen" als zwei neue, mitgliedergeschuetzte
+    Seiten ergaenzt**, beide ueber je eine eigene Zeile ganz unten im
+    Verein-Hub erreichbar (gleiches Zwei-Zustands-Muster wie die
+    bestehenden Zeilen) - `icon-star` bzw. `icon-list`
+    ([assets/icons/star.svg](assets/icons/star.svg) neu angelegt,
+    `bars-solid-full.svg` war schon vorhanden, aber noch ohne CSS-Klasse).
+    Bewusst als **zwei getrennte Seiten mit unterschiedlichem
+    Kurationsgrad**, nicht eine gemeinsame:
+    - `pages/neuigkeiten.html`: kuratierte Auswahl echter Nutzer-Features
+      (z. B. Trainings-Anmeldung, Verein-Hub, Postfach), nach Datum
+      gruppiert, etwas ausführlicher formuliert.
+    - `pages/aenderungen.html`: **vollständige** Liste aller 71 Punkte
+      aus diesem Abschnitt, aber jeweils nur ein oberflächlicher
+      Kurz-Satz (z. B. "Design überarbeitet"), ebenfalls nach Datum
+      gruppiert. Bewusst **keine** komplett wieder zurückgenommenen
+      Features gelistet (kam bei den aktuellen 71 Punkten nicht vor -
+      der einzige bekannte Fall, der Login-Redirect, wurde beim
+      Zurücknehmen bereits ganz aus dieser Liste gelöscht statt nur
+      markiert).
+    - Beide Seiten sind bewusst **hardcodiert** (keine automatische
+      Generierung aus dieser Liste hier) - Datumszuordnung der
+      historischen Punkte stammt aus einem Abgleich mit `git log`.
+    - Reihenfolge im Verein-Hub bewusst **fest**: beide Zeilen bleiben
+      auch bei künftig neu dazukommenden Hub-Zeilen (z. B. aus den
+      Gamification-Ideen) immer die untersten zwei, "Änderungen" davon
+      immer die alleruntersteste - deshalb ganz am Ende der Hub-Liste
+      im Markup ergänzt, nicht dazwischen.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,

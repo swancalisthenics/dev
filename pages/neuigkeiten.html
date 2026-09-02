@@ -9,8 +9,8 @@
     <script src="../js/site-chrome.js"></script>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="06a8c472-1245-4f03-9396-276a024c7ef4" data-exclude-hash="true" data-do-not-track="true"></script>
 
-    <title>Swan Calisthenics | Trainings-Anmeldung</title>
-    <meta name="description" content="Fuer das naechste Training zu- oder absagen.">
+    <title>Swan Calisthenics | Neuigkeiten</title>
+    <meta name="description" content="Was sich auf der Website getan hat.">
     <meta name="author" content="Nicolas Brand">
 
     <link rel="icon" type="image/png" href="../assets/favicon/favicon-96x96.png" sizes="96x96">
@@ -21,7 +21,7 @@
 
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/pages/trainings-anmeldung.css">
+    <link rel="stylesheet" href="../css/pages/neuigkeiten.css">
 </head>
 <body data-page="verein" data-base="../">
 
@@ -39,8 +39,8 @@
             <span aria-hidden="true">&rsaquo;</span>
             <a href="verein.html">Verein</a>
         </nav>
-        <h2 class="section-title">Trainings-<span class="accent">Anmeldung</span></h2>
-        <p class="section-lead">Sag zu oder ab und sieh, wer sonst noch mittrainiert.</p>
+        <h2 class="section-title">Neuig<span class="accent">keiten</span></h2>
+        <p class="section-lead">Die wichtigsten Neuerungen auf der Website, neueste zuerst.</p>
 
         <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
             <p>Du bist nicht angemeldet.</p>
@@ -48,25 +48,54 @@
             <button type="button" class="btn btn-primary" onclick="openLoginDialog(event)">Jetzt anmelden</button>
         </div>
 
-        <div id="trainingsContent" hidden>
-            <h3 id="trainingsDatum" class="trainings-datum"></h3>
-
-            <div class="trainings-buttons">
-                <button type="button" class="btn btn-zusagen" id="zusagenBtn" onclick="handleTrainingsZusage()">Zusagen</button>
-                <button type="button" class="btn btn-absagen" id="absagenBtn" onclick="handleTrainingsAbsage()">Absagen</button>
+        <div id="neuigkeitenContent" class="neuigkeiten-liste" hidden>
+            <h3 class="neuigkeiten-datum">2. September 2026</h3>
+            <div class="glass-card neuigkeit-card">
+                <p>Der Verein-Bereich ist jetzt eine Übersicht mit Links zu Vereinsdokumenten, Mitgliedern und Trainings-Anmeldung.</p>
+            </div>
+            <div class="glass-card neuigkeit-card">
+                <p>WhatsApp, Instagram und TikTok sind jetzt auch im Footer jeder Seite verlinkt.</p>
+            </div>
+            <div class="glass-card neuigkeit-card">
+                <p>Trainings-Anmeldung ist da: Für das nächste Training zu- oder absagen und sehen, wer schon zugesagt hat.</p>
+            </div>
+            <div class="glass-card neuigkeit-card">
+                <p>Nachrichten über das Kontaktformular landen jetzt in einem eigenen Postfach im Profil.</p>
             </div>
 
-            <h4 class="trainings-teilnehmer-heading">Wer schon zugesagt hat</h4>
-            <div class="trainings-teilnehmer-grid" id="trainingsTeilnehmerListe"></div>
+            <h3 class="neuigkeiten-datum">1. September 2026</h3>
+            <div class="glass-card neuigkeit-card">
+                <p>Ein eigenes Profilbild lässt sich jetzt hochladen.</p>
+            </div>
+
+            <h3 class="neuigkeiten-datum">31. August 2026</h3>
+            <div class="glass-card neuigkeit-card">
+                <p>Wer noch kein Konto hat, kann jetzt direkt über die Website Zugang beantragen.</p>
+            </div>
+            <div class="glass-card neuigkeit-card">
+                <p>Die Mitgliedsrollen wurden überarbeitet (Aktivmitglied, Passivmitglied, Gönner).</p>
+            </div>
+
+            <h3 class="neuigkeiten-datum">26. August 2026</h3>
+            <div class="glass-card neuigkeit-card">
+                <p>Der Mitgliederbereich ist live: Login, eigenes Profil und Mitgliederliste funktionieren jetzt wirklich.</p>
+            </div>
+
+            <h3 class="neuigkeiten-datum">25. August 2026</h3>
+            <div class="glass-card neuigkeit-card">
+                <p>Ein Countdown auf der Startseite zeigt, wie viel Zeit bis zum nächsten Training bleibt.</p>
+            </div>
+
+            <h3 class="neuigkeiten-datum">24. August 2026</h3>
+            <div class="glass-card neuigkeit-card">
+                <p>Der Foto-Slider zeigt jetzt echte Trainingsfotos zum Durchblättern und Vergrössern.</p>
+            </div>
         </div>
     </section>
 </main>
 
 <!-- LOGIN-/LOGOUT-MODAL (Mitgliederbereich) -->
 <site-account-modals></site-account-modals>
-
-<!-- Kurze Bestaetigung nach Zu-/Absage (siehe showToast() in main.js) -->
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- FOOTER -->
 <footer>
@@ -106,6 +135,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-client.js"></script>
 <script src="../js/main.js"></script>
-<script src="../js/trainings-anmeldung.js"></script>
+<script>
+if (document.getElementById('neuigkeitenContent')) {
+    initAuthGate('neuigkeitenContent');
+}
+</script>
 </body>
 </html>
