@@ -78,6 +78,32 @@ async function renderTeilnehmerListe(zugesagtRows) {
     });
 }
 
+async function setzeTrainingsStatus(status) {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { error } = await supabaseClient
+        .from('training_anmeldungen')
+        .upsert({
+            profile_id: user.id,
+            training_datum: aktuellesTrainingDatum,
+            status,
+            geantwortet_am: new Date().toISOString()
+        }, { onConflict: 'profile_id' });
+    if (error) return;
+
+    eigeneAnmeldung = { status };
+    aktualisiereButtonZustand();
+    showToast('Änderung gespeichert.');
+    await ladeTrainingsAnmeldungen();
+}
+
+async function handleTrainingsZusage() {
+    await setzeTrainingsStatus('zugesagt');
+}
+
+async function handleTrainingsAbsage() {
+    await setzeTrainingsStatus('abgesagt');
+}
+
 if (document.getElementById('trainingsContent')) {
     initAuthGate('trainingsContent', ladeTrainingsAnmeldungen);
 }
