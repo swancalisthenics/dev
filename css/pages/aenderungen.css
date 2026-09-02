@@ -4,7 +4,7 @@
 }
 
 .aenderungen-card h3 {
-    margin: 28px 0 8px;
+    margin: 40px 0 16px;
     color: var(--text-muted);
     font-size: 1rem;
 }
@@ -19,5 +19,10 @@
 }
 
 .aenderungen-card li {
-    margin-bottom: 4px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.aenderungen-card li:last-child {
+    margin-bottom: 0;
 }
