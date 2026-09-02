@@ -787,13 +787,6 @@ if (document.getElementById('profileLayout')) {
     initAuthGate('profileLayout', loadOwnProfileIntoForm, clearProfileForm);
 }
 
-// Trainings-Anmeldung: eigenes Gate, keine Callbacks noetig - die
-// Render-Logik (js/trainings-anmeldung.js) haengt sich selbst per
-// onSession dran, sobald sie existiert. Vorerst nur das Ein-/Ausblenden.
-if (document.getElementById('trainingsContent')) {
-    initAuthGate('trainingsContent');
-}
-
 // Nur der "Mitglieder"-Balken im Verein-Hub ist gated, nicht die ganze
 // Seite - Vereinsdokumente-Balken und der "In Vorbereitung"-Platzhalter für
 // Trainings-Anmeldung bleiben davon unberuehrt. Kein Callback noetig, der
