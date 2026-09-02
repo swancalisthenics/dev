@@ -1828,6 +1828,58 @@ new-swan-design/
     Reihenfolge), Icon-Masken/Hrefs/aria-labels auf der Startseite per
     DOM-Check verifiziert, keine Konsolenfehler.
 
+71. **Trainings-Anmeldung umgesetzt** (siehe
+    [docs/superpowers/specs/2026-09-02-trainings-anmeldung-design.md](docs/superpowers/specs/2026-09-02-trainings-anmeldung-design.md)
+    fuer die volle Begruendung) - ersetzt die bisherige Brainstorming-Notiz.
+    Bewusst **keine eigene Tabelle fuer Trainingstermine**: Trainings finden
+    fest jeden Sonntag 18-20 Uhr statt, das naechste Datum wird ueber die
+    aus main.js herausgeloeste, jetzt global nutzbare
+    `getNextTrainingWindow()` berechnet (vorher nur innerhalb des
+    Countdown-Blocks auf der Startseite verfuegbar) - kein woechentlicher
+    manueller Pflegeaufwand.
+    - Neue Tabelle `training_anmeldungen`
+      ([supabase/015-training-anmeldungen.sql](supabase/015-training-anmeldungen.sql),
+      **noch nicht ausgefuehrt**) - bewusst `unique(profile_id)` statt
+      `unique(profile_id, training_datum)`: jedes Mitglied hat dauerhaft
+      genau eine Zeile (aktuellster Status + Datum werden bei jeder
+      Zu-/Absage einfach ueberschrieben), kein Zeilen-Wachstum ueber die
+      Zeit. Der woechentliche Reset passiert trotzdem automatisch, weil
+      Abfragen immer nach dem aktuell berechneten Datum filtern - eine
+      veraltete eigene Zeile (altes Datum) zaehlt fuer die neue Woche
+      einfach nicht mehr mit.
+    - Neue Seite `pages/trainings-anmeldung.html`
+      ([js/trainings-anmeldung.js](js/trainings-anmeldung.js)),
+      komplett mitgliedergeschuetzt wie `pages/mitglieder.html`. Zwei
+      Buttons "Zusagen" (gruen, `#16a34a`)/"Absagen" (rot,
+      `var(--aurora-red)`), der jeweils nicht zutreffende gedimmt/
+      deaktiviert statt ausgeblendet. Kein Grund-/Kommentarfeld bei
+      beiden. Toast ("Änderung gespeichert.") nach jeder Aktion ueber die
+      bestehende `showToast()`.
+    - `initAuthGate()` (`main.js`) um einen optionalen vierten Parameter
+      `noticeId` (Default `'notLoggedIn'`) erweitert - noetig, weil der
+      Verein-Hub jetzt zwei unabhaengige Gates auf derselben Seite hat
+      (Mitglieder-Balken + Trainings-Balken), die nicht dasselbe
+      `#notLoggedIn`-Element teilen koennen. Regressionsgeprueft:
+      bestehende Gates auf `mitglieder.html`/`mein-profil.html`
+      weiterhin unveraendert korrekt.
+    - Verein-Hub-Balken "Trainings-Anmeldung" (Punkt 69) von
+      `.hub-row-pending`/"In Vorbereitung" auf das echte
+      Zwei-Zustands-Muster umgestellt (gleiches Verhalten wie der
+      Mitglieder-Balken: Schloss+Login-Modal ausgeloggt, echter Link
+      eingeloggt).
+    - Getestet ohne die echte Datenbank anzufassen: `supabaseClient`
+      gezielt mit einem zustandsbehafteten Mock ausgestattet (merkt sich
+      die zuletzt upsertete eigene Zeile) und den echten Ablauf
+      Laden→Zusagen→Absagen→Zusagen durchgespielt - Button-Zustand und
+      Teilnehmerliste stimmten nach jedem Schritt. Dabei einen Fehler im
+      eigenen ersten Testversuch gefunden und korrigiert (nicht im
+      Produktivcode): `aktuellesTrainingDatum` muss vor dem ersten
+      Zu-/Absagen-Klick einmal ueber `ladeTrainingsAnmeldungen()`
+      initialisiert sein, genau wie es der echte Auth-Gate-Ablauf ohnehin
+      immer automatisch tut.
+
+## Mitgliederbereich mit Supabase — in Arbeit
+
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
 inzwischen mit einem echten Supabase-Projekt begonnen (Status der
 einzelnen Schritte siehe Task-Liste unten). Nichts eigenmächtig starten
@@ -2055,38 +2107,12 @@ daneben links davon — umgesetzt, siehe Punkt 18 unten.
     einblenden. Getestet: Ohne Session bleibt der Inhalt korrekt
     ausgeblendet auf beiden Seiten.
 
-## ⚠️ Geplant (Entwurf, noch nicht umgesetzt): Trainings-Anmeldung
+## Weitere Ideen für den Login, noch unausgearbeitet
 
-**Diese ganze Sektion ist eine reine Notiz aus einem Brainstorming und soll
-später wieder gelöscht werden** — entweder sobald die Idee wirklich umgesetzt
-wird (dann gehört die Doku zur echten Implementierung, nicht hierher) oder
-falls sie verworfen wird. Nichts davon eigenmächtig starten ohne Rücksprache.
-
-**Grundidee:** Mitglieder sollen sich für ein bevorstehendes Training
-freiwillig anmelden können ("Ich komme") und sehen, welche anderen
-Mitglieder sich schon angemeldet haben — knüpft an die bestehende
-"Zeiten"-Sektion auf `index.html` an, die die Trainingszeiten bereits
-öffentlich zeigt. Baut auf dem geplanten Supabase-Mitgliederbereich weiter
-oben auf (braucht Login, `profiles`-Tabelle).
-
-**Grobe Bausteine:**
-- Neue Tabelle `trainings` (Datum/Uhrzeit, optional Ort) — vom Vorstand
-  gepflegt, ähnlich wie `rolle` bei `profiles` kein Feld fürs Mitglied selbst.
-- Neue Tabelle `training_anmeldungen` (verweist auf `trainings` und
-  `profiles`, je eine Zeile pro Anmeldung) — ein Mitglied darf nur die
-  eigene Zeile anlegen/löschen ("Ich komme" an/aus), aber alle Zeilen zu
-  einem Training lesen (wer kommt sonst noch).
-- UI: "Nächstes Training: [Datum]" mit "Ich komme"-Button, darunter eine
-  Liste/Reihe der angemeldeten Mitglieder (gleiche kleine Avatar-Bausteine
-  wie auf `pages/mitglieder.html`).
-- Wer angemeldet ist, ist nur für eingeloggte Mitglieder sichtbar — die
-  Trainingszeit selbst bleibt öffentlich wie bisher, nur die Anmeldeliste
-  ist neu und mitgliederbeschränkt.
-
-**Weitere Ideen für den Login, noch unausgearbeitet** (nur gesammelt, keine
-davon geplant):
-- Vereinsdokumente (`pages/verein.html`) erst nach Login freischalten statt
-  öffentlich als Platzhalter.
+Nur gesammelt, keine davon geplant - nichts davon eigenmächtig starten ohne
+Rücksprache:
+- Vereinsdokumente (`pages/vereinsdokumente.html`) erst nach Login
+  freischalten statt öffentlich als Platzhalter.
 - Internes Ankündigungsbrett für Mitglieder (z. B. Vorstand postet
   Terminänderungen).
 - Mitglieder laden selbst Fotos für den Community-Slider hoch, statt dass
