@@ -1876,7 +1876,9 @@ new-swan-design/
       Produktivcode): `aktuellesTrainingDatum` muss vor dem ersten
       Zu-/Absagen-Klick einmal ueber `ladeTrainingsAnmeldungen()`
       initialisiert sein, genau wie es der echte Auth-Gate-Ablauf ohnehin
-      immer automatisch tut.
+      immer automatisch tut. Nach Ausführen der Migration zusätzlich vom
+      Nutzer selbst live als echtes Mitglied getestet und bestätigt
+      funktionierend.
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
