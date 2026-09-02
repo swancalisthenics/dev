@@ -616,11 +616,36 @@ function closeAccountRequestDialog() {
     updateBodyScrollLock();
 }
 
+const KONTO_ANFRAGE_COOLDOWN_MS = 180 * 1000;
+const KONTO_ANFRAGE_COOLDOWN_KEY = 'konto-anfrage-letzte';
+
 async function handleAccountRequestSubmit(event) {
     event.preventDefault();
+    const notice = document.getElementById('accountRequestNotice');
+
+    // Honeypot: fuer Menschen unsichtbares Feld, das Bots aber typischerweise
+    // trotzdem ausfuellen. Ist es befuellt, wird nichts gespeichert, aber so
+    // getan als waere die Anfrage gesendet worden - gleiches Muster wie beim
+    // Kontaktformular (js/kontakt.js).
+    if (document.getElementById('requestHoneypot').value) {
+        document.getElementById('accountRequestForm').reset();
+        clearDraft('konto-anfrage-entwurf');
+        notice.textContent = 'Danke! Deine Anfrage wurde gesendet.';
+        notice.hidden = false;
+        return false;
+    }
+
+    const letzteAnfrage = Number(localStorage.getItem(KONTO_ANFRAGE_COOLDOWN_KEY) || 0);
+    const wartezeitMs = KONTO_ANFRAGE_COOLDOWN_MS - (Date.now() - letzteAnfrage);
+    if (wartezeitMs > 0) {
+        const wartezeitSekunden = Math.ceil(wartezeitMs / 1000);
+        notice.textContent = `Bitte warte noch ${wartezeitSekunden} Sekunden, bevor du eine weitere Anfrage sendest.`;
+        notice.hidden = false;
+        return false;
+    }
+
     const name = document.getElementById('requestName').value;
     const email = document.getElementById('requestEmail').value;
-    const notice = document.getElementById('accountRequestNotice');
     const { error } = await supabaseClient.from('konto_anfragen').insert({ name, email });
     if (error) {
         // 23505 = Postgres unique_violation - greift auf lower(email), siehe
@@ -633,6 +658,7 @@ async function handleAccountRequestSubmit(event) {
         notice.hidden = false;
         return false;
     }
+    localStorage.setItem(KONTO_ANFRAGE_COOLDOWN_KEY, String(Date.now()));
     document.getElementById('accountRequestForm').reset();
     clearDraft('konto-anfrage-entwurf');
     notice.textContent = 'Danke! Deine Anfrage wurde gesendet.';

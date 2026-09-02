@@ -166,9 +166,10 @@ class SiteAccountModals extends HTMLElement {
                     <h3>Zugang anfragen</h3>
                     <p class="form-hint">Deine Anfrage wird innerhalb der nächsten 72 Stunden bearbeitet. Wenn du berechtigt bist, einen Zugang zu erhalten, bekommst du eine Nachricht per E-Mail.</p>
                     <form id="accountRequestForm" onsubmit="return handleAccountRequestSubmit(event)">
+                        <input type="text" id="requestHoneypot" name="website" style="display:none" tabindex="-1" autocomplete="off">
                         <div class="field">
                             <label for="requestName">Name</label>
-                            <input type="text" id="requestName" name="name" required autocomplete="name">
+                            <input type="text" id="requestName" name="name" maxlength="100" required autocomplete="name">
                         </div>
                         <div class="field">
                             <label for="requestEmail">E-Mail</label>
