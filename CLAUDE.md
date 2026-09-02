@@ -1912,7 +1912,13 @@ new-swan-design/
       frueherem erneutem Absenden zeigt ein Toast die verbleibende
       Wartezeit. Bewusst **keine** echte serverseitige IP-Rate-
       Begrenzung - bräuchte eine Edge Function (gleiche Abwaegung wie
-      bei den zurueckgestellten Sicherheitsmails, siehe oben).
+      bei den zurueckgestellten Sicherheitsmails, siehe oben). Gleiches
+      Muster (Honeypot, 180s-Cooldown, Laengenbegrenzung) auch fuer die
+      "Zugang anfragen"-Maske ergaenzt
+      ([supabase/018-konto-anfragen-name-laenge.sql](supabase/018-konto-anfragen-name-laenge.sql)) -
+      war der einzige weitere oeffentliche, unauthentifizierte
+      Formular-Endpunkt im Projekt (`konto_anfragen`, ueber den
+      Login-Button von jeder Seite aus erreichbar).
 
 ## Mitgliederbereich mit Supabase — in Arbeit
 
