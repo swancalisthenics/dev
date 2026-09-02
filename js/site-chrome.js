@@ -120,7 +120,7 @@ class SiteTopbar extends HTMLElement {
                         </button>
                         <div class="profile-dropdown" id="profileDropdown">
                             <a href="${base}pages/mein-profil.html">Mein Profil</a>
-                            <a href="${base}pages/mein-profil.html#postfach">Postfach</a>
+                            <a href="${base}pages/postfach.html">Postfach</a>
                             <button type="button" onclick="openLogoutConfirm(event)">Abmelden</button>
                         </div>
                     </div>

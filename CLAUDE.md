@@ -1983,6 +1983,29 @@ new-swan-design/
       immer die alleruntersteste - deshalb ganz am Ende der Hub-Liste
       im Markup ergänzt, nicht dazwischen.
 
+73. **Postfach aus "Mein Profil" auf eine eigene Seite verschoben**
+    (`pages/postfach.html`), **löst damit auch die in Punkt 71
+    beschriebene Script-Reihenfolge-Sondersituation wieder auf:** Da
+    `js/postfach.js` seinen `initAuthGate()`-Aufruf jetzt selbst am Ende
+    der eigenen Datei registriert (statt dass `main.js` einen Callback
+    dorthin haelt), laedt `postfach.js` auf dieser Seite wieder in der
+    normalen Reihenfolge NACH `main.js` - exakt das Muster von
+    `js/trainings-anmeldung.js`/`js/mitglieder.js`. `pages/mein-profil.html`
+    verliert dadurch den `#postfach`-Abschnitt sowie die eigens dafuer
+    angelegte (jetzt leere) `css/pages/mein-profil.css` wieder komplett;
+    das Postfach-Layout-CSS zog nach `css/pages/postfach.css` um,
+    diesmal ohne die Kaempfe gegen `.profile-form-card`-Vererbung
+    (Breite/Text-Ausrichtung) aus Punkt 71 - die Seite braucht das
+    nicht mehr, sie ist ja jetzt keine dritte Karte neben zwei anderen
+    mehr. Profil-Dropdown-Link (`js/site-chrome.js`) zeigt jetzt direkt
+    auf `postfach.html` statt auf den alten `mein-profil.html#postfach`-
+    Anker. Oben auf der neuen Seite steht jetzt zusätzlich ein fest
+    sichtbarer Hinweis ("Nachrichten werden 2 Monate nach Eingang
+    automatisch gelöscht.") - macht die ohnehin schon bestehende
+    automatische Löschung (siehe `kontakt-nachrichten-aufraeumen`-
+    Cronjob, Punkt 71) für die Präsidentin/den Präsidenten direkt beim
+    Öffnen sichtbar, nicht nur in der Datenschutzerklärung.
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,

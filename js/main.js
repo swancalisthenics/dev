@@ -819,13 +819,7 @@ function clearProfileForm() {
 // initialisiert, nicht hier - braucht resetAdminUI() als onSignedOut-
 // Callback, das erst dort (nach main.js geladen) definiert ist.
 if (document.getElementById('profileLayout')) {
-    initAuthGate('profileLayout', (session) => {
-        loadOwnProfileIntoForm(session);
-        ladePostfach();
-    }, () => {
-        clearProfileForm();
-        leerePostfach();
-    });
+    initAuthGate('profileLayout', loadOwnProfileIntoForm, clearProfileForm);
 }
 
 // Nur der "Mitglieder"-Balken im Verein-Hub ist gated, nicht die ganze

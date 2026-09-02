@@ -83,3 +83,7 @@ function leerePostfach() {
     document.getElementById('postfachListe').innerHTML = '';
     document.getElementById('postfachLayout')?.classList.remove('zeigt-detail');
 }
+
+if (document.getElementById('postfachContent')) {
+    initAuthGate('postfachContent', ladePostfach, leerePostfach);
+}
