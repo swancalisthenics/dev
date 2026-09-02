@@ -2104,6 +2104,28 @@ Rücksprache:
 - Mitglieder laden selbst Fotos für den Community-Slider hoch, statt dass
   das nur manuell gepflegt wird.
 
+## Weitere Ideen für Gamification, noch unausgearbeitet
+
+Nur gesammelt, keine davon geplant - nichts davon eigenmächtig starten ohne
+Rücksprache:
+- Skilltree pro Person: jedes Mitglied hat einen eigenen, individuellen
+  Skilltree. Andere Mitglieder sollen diesen ebenfalls einsehen können, z. B.
+  über das Profil der jeweiligen Person.
+- Persönliche Rekorde (z. B. maximale Liegestütze am Stück). Ebenfalls über
+  das Profil auch bei anderen Mitgliedern einsehbar.
+- Achievement-Badges bzw. allgemein Trophäen - eventuell sogar mit einem
+  Liga-System (Stufen), z. B. beginnend bei "Swan Noob", dann "Swan Pro" usw.
+- Punkte sammeln. Im eigenen Profil eine eigene Unterseite mit Punktestand,
+  aktueller Liga und den Tasks/Aufgaben, die Punkte geben.
+- Täglicher Anmelde-Bonus: fürs Einloggen an einem Tag gibt es zusätzliche
+  Punkte.
+- "Swan-Quiz": eigene Seite, verlinkt unter "Verein" - öffentlich zugänglich,
+  aber nur für angemeldete Mitglieder gibt es dafür Punkte. Fragen werden
+  zufällig aus einem grösseren Fragenpool gezogen.
+- Bestenlisten: ebenfalls unter "Verein", verknüpft mit den Account-Profilen
+  der Mitglieder - eine Seite mit mehreren Bestenlisten (Liga, Punkte,
+  persönliche Rekorde).
+
 ## Offene Punkte für die Zukunft
 
 Reine Themen-Merkzettel, noch nicht bearbeitet - nichts davon eigenmächtig
