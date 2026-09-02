@@ -1807,7 +1807,26 @@ new-swan-design/
       einheitliche "geht zu einer Seite"-Optik, nicht nur die vom Nutzer
       gerade sichtbare oberste Box.
 
-## Mitgliederbereich mit Supabase — in Arbeit
+70. **WhatsApp-, Instagram- und TikTok-Icon-Buttons im Footer ergaenzt**
+    (alle 10 Seiten inkl. der neuen `vereinsdokumente.html`, in dieser
+    Reihenfolge - gleiche Reihenfolge wie die bestehenden Hero-CTA-Buttons
+    auf der Startseite). WhatsApp- und Instagram-Link waren schon aus der
+    Startseite bekannt (Hero-CTA + Social-Banner), TikTok
+    (`https://www.tiktok.com/@swancalisthenics`) mangels eigener Doku-Stelle
+    zunaechst per Websuche gesucht (nicht auffindbar - TikTok-Profile sind
+    fuer normale Suchmaschinen kaum erfasst), dann vom Nutzer direkt
+    gegeben (Tracking-Query-Parameter aus dem geteilten Link entfernt,
+    nur der saubere Profil-Link gespeichert). Neue
+    `.footer-social`/`.footer-social-link`-Klassen (`components.css`,
+    dort wo auch die uebrigen Footer-Stile liegen) - 36px-Glaskreise im
+    selben Look wie `.theme-toggle`/`.profile-toggle`, aber kompakter fuer
+    den Footer-Kontext. Icons ueber das bestehende `.icon-whatsapp`/
+    `.icon-instagram`/`.icon-tiktok`-System (alle drei Assets waren schon
+    vorhanden - WhatsApp/Instagram bereits genutzt, TikTok bisher nur fuer
+    die Profil-Links der Mitglieder, noch nirgends oeffentlich verlinkt).
+    Getestet: alle 10 Footer per Grep bestaetigt (je 3 Links, korrekte
+    Reihenfolge), Icon-Masken/Hrefs/aria-labels auf der Startseite per
+    DOM-Check verifiziert, keine Konsolenfehler.
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
 inzwischen mit einem echten Supabase-Projekt begonnen (Status der
