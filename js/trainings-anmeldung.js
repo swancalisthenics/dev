@@ -5,6 +5,17 @@
 let aktuellesTrainingDatum = null; // 'YYYY-MM-DD' des naechsten Sonntags
 let eigeneAnmeldung = null; // null oder { status: 'zugesagt' | 'abgesagt' }
 
+// profiles.name wird unten roh in innerHTML eingesetzt (Teilnehmerliste) -
+// jedes Mitglied kann seinen eigenen Namen frei per API setzen (die
+// Formular-Prüfung in main.js ist nur clientseitig), ohne Escaping waere das
+// gespeichertes XSS gegen jeden, der die Trainings-Anmeldung oeffnet.
+// Gleiches Muster wie escapeHtml() in js/mitglieder.js (dort nicht
+// wiederverwendbar, da beide Dateien nur auf unterschiedlichen Seiten
+// geladen werden).
+function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 function formatiereTrainingDatum(datum) {
     return datum.toLocaleDateString('de-CH', {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -67,8 +78,8 @@ async function renderTeilnehmerListe(zugesagtRows) {
 
     grid.innerHTML = (profile || []).map((p, i) => `
         <div class="glass-card trainings-teilnehmer-card" data-index="${i}">
-            <div class="trainings-teilnehmer-avatar" aria-hidden="true">${p.name.charAt(0).toUpperCase()}</div>
-            <h3>${p.name}</h3>
+            <div class="trainings-teilnehmer-avatar" aria-hidden="true">${escapeHtml(p.name.charAt(0).toUpperCase())}</div>
+            <h3>${escapeHtml(p.name)}</h3>
             ${p.id === user.id ? '<span class="badge badge-pending">Das bist du</span>' : ''}
         </div>
     `).join('');
