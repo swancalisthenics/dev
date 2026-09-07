@@ -87,15 +87,29 @@ function renderEingeladeneOhneProfil() {
 }
 
 // Roh in innerHTML eingesetzter Text muss escaped werden, sonst waere ein
-// <script>-Name in einer Konto-Anfrage gespeichertes XSS gegen jeden Admin,
-// der diese Seite oeffnet - anders als z.B. profiles.name (nur von der
-// eingeloggten Person selbst ueber ihr eigenes Profil setzbar) kommt
-// name/email hier von einem voellig unauthentifizierten Formular, kann
-// also von jedem im Internet frei befuellt werden.
+// <script>-Name gespeichertes XSS gegen jeden, der diese Seite oeffnet. Gilt
+// nicht nur fuer konto_anfragen (unauthentifiziertes Formular) - auch
+// profiles.name/instagram/tiktok/email sind vom jeweiligen Mitglied selbst
+// frei per direktem API-Aufruf setzbar, die Validierung in main.js laeuft
+// nur clientseitig vor dem Speichern-Klick und laesst sich umgehen. Escaped
+// per manuellem Zeichen-Replace statt textContent/innerHTML-Trick, weil
+// letzterer Anfuehrungszeichen NICHT escaped (harmlos in Text-Inhalten,
+// aber unsicher fuer Attribut-Werte wie href/onclick weiter unten).
 function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// instagram/tiktok werden in main.js beim Speichern auf http(s)-Links zu
+// genau diesen Hosts geprueft, aber nur clientseitig (keine DB-Constraint,
+// siehe supabase/schema.sql) - ein direkter API-Aufruf koennte sonst z.B.
+// eine "javascript:"-URL als href einschleusen, die escapeHtml() allein
+// nicht verhindert (aendert nur Zeichen, nicht das URL-Schema).
+function istSichereHttpUrl(value) {
+    try {
+        return ['http:', 'https:'].includes(new URL(value).protocol);
+    } catch {
+        return false;
+    }
 }
 
 // Zeigt Konto-Anfragen ueber "Zugang anfragen" im Login-Modal (siehe
@@ -180,7 +194,7 @@ function renderMitgliederGrid(mitglieder) {
     grid.innerHTML = mitglieder.map((m, i) => `
         <div class="glass-card mitglieder-card" role="button" tabindex="0" data-index="${i}">
             <div class="mitglieder-avatar" aria-hidden="true">${m.initial}</div>
-            <h3>${m.name}</h3>
+            <h3>${escapeHtml(m.name)}</h3>
             <div class="mitglieder-badges">
                 ${m.rollen.map(r => `<span class="badge badge-category">${r}</span>`).join('')}
                 ${m.isSelf ? '<span class="badge badge-pending">Das bist du</span>' : ''}
@@ -219,10 +233,16 @@ function openMitgliedModal(m) {
     document.getElementById('mitgliedModalSelfLink').hidden = !m.isSelf;
 
     document.getElementById('mitgliedModalLinks').innerHTML = `
-        ${m.instagram ? `<a href="${m.instagram}" target="_blank" rel="noopener" title="Instagram"><span class="icon icon-instagram" aria-hidden="true"></span></a>` : ''}
-        ${m.tiktok ? `<a href="${m.tiktok}" target="_blank" rel="noopener" title="TikTok"><span class="icon icon-tiktok" aria-hidden="true"></span></a>` : ''}
-        ${m.email ? `<a href="#" title="E-Mail" onclick="openEmailDialog(event, '${m.email}')"><span class="icon icon-envelope" aria-hidden="true"></span></a>` : ''}
+        ${m.instagram && istSichereHttpUrl(m.instagram) ? `<a href="${escapeHtml(m.instagram)}" target="_blank" rel="noopener" title="Instagram"><span class="icon icon-instagram" aria-hidden="true"></span></a>` : ''}
+        ${m.tiktok && istSichereHttpUrl(m.tiktok) ? `<a href="${escapeHtml(m.tiktok)}" target="_blank" rel="noopener" title="TikTok"><span class="icon icon-tiktok" aria-hidden="true"></span></a>` : ''}
+        ${m.email ? `<a href="#" title="E-Mail" id="mitgliedModalEmailLink"><span class="icon icon-envelope" aria-hidden="true"></span></a>` : ''}
     `;
+    // Statt m.email in ein onclick-Attribut zu interpolieren (Escaping fuer
+    // HTML-Attribut UND den darin verschachtelten JS-String-Literal-Kontext
+    // waere fehleranfaellig) wird der Wert hier als echte JS-Variable per
+    // Closure uebergeben - kein String-Zusammenbau, daher nichts zu escapen.
+    const emailLink = document.getElementById('mitgliedModalEmailLink');
+    if (emailLink) emailLink.addEventListener('click', (e) => openEmailDialog(e, m.email));
 
     const rollenEditor = document.getElementById('mitgliedRollenEditor');
     const zeigeAdminUI = currentUserIsAdmin && !viewAsNormalMember;
