@@ -2285,6 +2285,71 @@ Rücksprache:
   der Mitglieder - eine Seite mit mehreren Bestenlisten (Liga, Punkte,
   persönliche Rekorde).
 
+## Weitere Ideen für Features & Drittanbieter-Dienste, noch unausgearbeitet
+
+Nur gesammelt, keine davon geplant - nichts davon eigenmächtig starten ohne
+Rücksprache. Ausgangspunkt: Frage, was man mit Supabase/Umami als Basis noch
+an coolen Features/Diensten ergänzen könnte.
+
+**Feature-Ideen (bauen auf bestehenden Daten/Tabellen auf):**
+- Anwesenheitsstatistik: `training_anmeldungen` (Punkt 70) liesse sich
+  auswerten, z. B. als "Trainings-Streak" im eigenen Profil oder als
+  Trainer-Übersicht, wer wie oft zugesagt/teilgenommen hat.
+- Übungs-/Skill-Bibliothek: Progressionen mit Videos, optional mit einem
+  "geschafft"-Haken pro Mitglied.
+- Automatische Erinnerung an die Trainings-Anmeldung (z. B. Freitagabend
+  eine Mail an alle, die noch nicht geantwortet haben).
+- Schnuppertraining-Anmeldung: öffentliches Formular für Nicht-Mitglieder.
+
+**Drittanbieter-Dienste, die man einbinden könnte:**
+- Sentry (Error-Tracking): fängt JS-Fehler in Produktion ab, bevor
+  Mitglieder sie melden müssen - sinnvoll, weil es kein Testframework gibt.
+  Kostenloses Tier reicht voraussichtlich.
+- Resend/Postmark (Transaktions-Mails), z. B. für die automatische
+  Trainings-Erinnerung oben. Resend scheidet dafür vermutlich aus demselben
+  Grund aus wie schon bei den zurückgestellten Sicherheits-Mails weiter oben
+  (verlangt eine verifizierte eigene Domain, DNS-Zugriff aktuell nicht
+  bestätigt) - Postmark ungeprüft, hat vermutlich dieselbe Hürde.
+- Open-Meteo (Wetter-API): kostenlos, kein API-Key nötig - könnte auf der
+  Trainings-Seite das Wetter fürs nächste Training zeigen, falls outdoor
+  trainiert wird.
+- Cloudinary/Bunny (Media-Hosting/-Optimierung) - siehe konkreter Anlassfall
+  unten.
+- Stripe (Zahlungen), z. B. für Mitgliedsbeiträge online - deutlich
+  grösserer Schritt (Geld, rechtliche Pflichten), eigenes Thema statt
+  Nebenbei-Feature.
+
+**Konkreter Anlassfall Bild-Komprimierung, noch offen welche Richtung:**
+Nach jedem Training entstehen laut Nutzer unfassbar viele und grosse
+Kamerafotos - manchmal über 50 GB pro Training -, die aktuell von Hand
+komprimiert und per WhatsApp verschickt werden - passt auch zur
+bestehenden, ebenfalls unausgearbeiteten Idee weiter oben ("Mitglieder laden
+selbst Fotos für den Community-Slider hoch"). Bei dieser Grössenordnung ist
+die eigentliche Herausforderung nicht die Wahl eines Hosting-Diensts,
+sondern eine drastische Verkleinerung/Vorauswahl direkt am Aufnahmeort - 50
+GB roh dauerhaft irgendwo zu speichern/auszuliefern würde jeden kostenlosen
+oder günstigen Tarif bei Weitem sprengen. Bunny.net wäre für die
+Auslieferung der bereits verkleinerten Bilder trotzdem ein guter Kandidat,
+hat aber einen Architektur-Konflikt: Die Seite ist statisch (kein eigenes
+Backend), Bunny Storage braucht für Uploads aber einen privaten
+API-Key/Passwort, der sich nicht sicher im Browser-JS verstecken lässt -
+bräuchte eine Zwischenstation (z. B. eine Supabase Edge Function). Zwei
+Alternativen ohne dieses Problem:
+- Cloudinary: unterstützt "unsigned upload presets" - Bilder direkt aus dem
+  Browser hochladen, ohne ein Secret preiszugeben, komprimiert/optimiert
+  automatisch beim Ausliefern.
+- Bei Supabase Storage bleiben (wo auch die Profilbilder liegen, Punkt 62) +
+  Komprimierung direkt im Browser vor dem Upload per Canvas-API, gleiches
+  Muster wie beim bestehenden Profilbild-Upload - kein neuer Dienst nötig,
+  aber weniger flexibel als eine echte Bild-CDN.
+
+Noch nicht geklärt: Sollen die Fotos danach auf der Seite landen (z. B. eine
+Trainings-Galerie), oder geht es nur darum, das manuelle Komprimieren vorm
+WhatsApp-Versand loszuwerden? Ausserdem noch offen bei > 50 GB pro Training:
+Nur eine automatisierte, drastische Verkleinerung wird kaum reichen, es
+müsste vermutlich auch eine Auswahl/Kuration stattfinden (wer wählt aus,
+und wann) - reine Kompression allein löst dieses Datenvolumen nicht.
+
 ## Offene Punkte für die Zukunft
 
 Reine Themen-Merkzettel, noch nicht bearbeitet - nichts davon eigenmächtig
