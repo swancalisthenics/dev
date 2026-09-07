@@ -3,13 +3,20 @@
 -- das Projekt angelegt wurde (siehe CLAUDE.md, Abschnitt "Geplant:
 -- Mitgliederbereich mit Supabase", Schritt 1).
 --
--- Zeigt den kompletten, aktuellen Soll-Zustand (fuer ein neues Projekt von
--- Grund auf). Das echte "homepage"-Projekt existiert aber schon laenger und
--- wurde stattdessen schrittweise per einzelnen Migrations-Dateien
+-- Zeigt den kompletten, aktuellen Soll-Zustand von `profiles` selbst sowie
+-- allem, was direkt daran haengt (Rollen-Policies/-Funktionen, oeffentliche
+-- Sicht, Profilbild-Storage) - fuer ein neues Projekt von Grund auf. Das
+-- echte "homepage"-Projekt existiert aber schon laenger und wurde
+-- stattdessen schrittweise per einzelnen Migrations-Dateien
 -- (supabase/002-*.sql, 003-*.sql, ...) auf diesen Stand gebracht - bei
 -- einem bereits laufenden Projekt nicht dieses Skript nochmal ausfuehren
 -- (Fehler wegen bereits existierender Tabelle), sondern nur die noch nicht
 -- ausgefuehrten Migrations-Dateien.
+--
+-- Deckt NICHT die spaeter dazugekommenen, eigenstaendigen Feature-Tabellen
+-- ab (konto_anfragen, kontakt_nachrichten[_status], training_anmeldungen,
+-- profilbild_verlauf) - die leben bewusst nur in ihren eigenen numerierten
+-- Migrations-Dateien (008, 014-016), nie hier zusammengefuehrt.
 --
 -- Setzt voraus, dass Mitglieder ueber Supabase Auth eingeladen wurden
 -- (auth.users existiert bereits als eingebaute Tabelle) - hier wird nur
@@ -61,36 +68,49 @@ create policy "Mitglieder duerfen nur ihr eigenes Profil anlegen"
     to authenticated
     with check (auth.uid() = id);
 
--- ... und nur sein eigenes Profil bearbeiten ...
-create policy "Mitglieder duerfen ihr eigenes Profil bearbeiten"
-    on public.profiles for update
-    to authenticated
-    using (auth.uid() = id)
-    with check (auth.uid() = id);
-
--- ... Admins duerfen zusaetzlich auch fremde Profile bearbeiten (fuer die
--- Rollen-Vergabe im Mitglied-Modal, siehe pages/mitglieder.html). Der
--- eigentliche Schutz gegen Selbst-Befoerderung laeuft ueber den Trigger
--- weiter unten, nicht ueber diese Policy allein - ohne den Trigger koennte
--- sich sonst jedes Mitglied ueber die Policy oben weiterhin selbst zum
--- Admin machen.
-create policy "Admins duerfen alle Profile bearbeiten"
-    on public.profiles for update
-    to authenticated
-    using (
-        exists (
-            select 1 from public.profiles p
-            where p.id = auth.uid() and 'Admin' = any(p.rollen)
-        )
-    )
-    with check (
-        exists (
-            select 1 from public.profiles p
-            where p.id = auth.uid() and 'Admin' = any(p.rollen)
-        )
+-- ... und sein eigenes Profil bearbeiten, Admins zusaetzlich auch fremde
+-- Profile (fuer die Rollen-Vergabe im Mitglied-Modal, siehe
+-- pages/mitglieder.html). Der eigentliche Schutz gegen Selbst-Befoerderung
+-- zum Admin laeuft ueber den Trigger weiter unten, nicht ueber diese Policy
+-- allein.
+--
+-- Eine einzige Policy mit OR statt zwei getrennter permissiver UPDATE-
+-- Policies (die urspruengliche, inzwischen ueberholte erste Fassung): mit
+-- zwei getrennten Policies baute Postgres den tatsaechlichen Scan-Filter
+-- nicht als sauberes "(auth.uid() = id) OR admin_check", sondern ergaenzte
+-- zusaetzlich, ausserhalb jedes OR, nochmal "auth.uid() = id" als eigene
+-- zwingende Bedingung - ein UPDATE auf eine fremde Zeile durch einen Admin
+-- war dadurch nie moeglich, obwohl jede Policy fuer sich allein gelesen
+-- korrekt aussah (siehe CLAUDE.md Punkt 46; supabase/005-*.sql und
+-- 006-*.sql dokumentieren die beiden Zwischenschritte hierher). is_admin()
+-- liegt in einer SECURITY DEFINER-Funktion statt einer Inline-Subquery,
+-- weil eine Subquery, die per RLS-Policy auf dieselbe Tabelle zugreift, die
+-- sie selbst schuetzt, ebenfalls zu genau diesem unerwarteten Verhalten
+-- beitragen kann. Bewusst "language plpgsql" statt "sql" - eine
+-- SECURITY DEFINER-Funktion in einfachem SQL kann Postgres beim Planen
+-- "inline" ersetzen, wodurch der SECURITY-DEFINER-Schutz wieder verloren
+-- ginge.
+create or replace function public.is_admin()
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    return exists (
+        select 1 from public.profiles
+        where id = auth.uid() and 'Admin' = any(rollen)
     );
+end;
+$$;
 
--- Schliesst die Selbst-Befoerderungs-Luecke fuer beide Policies oben und
+create policy "Mitglieder und Admins duerfen Profile bearbeiten"
+    on public.profiles for update
+    to authenticated
+    using (auth.uid() = id or public.is_admin())
+    with check (auth.uid() = id or public.is_admin());
+
+-- Schliesst die Selbst-Befoerderungs-Luecke fuer die Policy oben und
 -- setzt zusaetzlich eine bewusste Grenze: Admins duerfen ueber die
 -- Mitglieder-Seite alle Rollen ausser "Admin" selbst vergeben/entziehen -
 -- fuer NIEMANDEN, auch nicht fuer sich selbst oder andere Admins. Wer neu
@@ -140,6 +160,40 @@ create trigger protect_rollen_column_trigger
     for each row
     execute function public.protect_rollen_column();
 
+-- Rollen-Aenderungen fuer FREMDE Profile laufen im Frontend nicht ueber ein
+-- direktes .update() auf profiles (js/mitglieder.js), sondern ueber diese
+-- RPC-Funktion - ein direktes .update() unterlag trotz der oben
+-- zusammengelegten Policy weiterhin einer nie vollstaendig geklaerten
+-- Postgres-RLS-Eigenheit bei selbstbezueglichen Admin-Checks, reproduzierbar
+-- auch mit is_admin() statt Inline-Subquery (siehe CLAUDE.md Punkt 46,
+-- supabase/007-*.sql). Diese Funktion umgeht das Problem, statt es zu
+-- loesen: sie prueft die Berechtigung selbst per einfachem If-Exists-Check
+-- (keine RLS-Auswertung mehr fuer diesen Schreibzugriff noetig) und fuehrt
+-- das UPDATE danach direkt aus - der Trigger oben (schuetzt den
+-- Admin-Status selbst) feuert dabei unveraendert mit, unabhaengig vom
+-- Aufrufweg.
+create or replace function public.admin_set_rollen(target_id uuid, neue_rollen text[])
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    if not exists (
+        select 1 from public.profiles
+        where id = auth.uid() and 'Admin' = any(rollen)
+    ) then
+        raise exception 'Nur Admins duerfen Rollen anderer Mitglieder aendern.';
+    end if;
+
+    update public.profiles
+    set rollen = neue_rollen
+    where id = target_id;
+end;
+$$;
+
+grant execute on function public.admin_set_rollen(uuid, text[]) to authenticated;
+
 -- Oeffentliche Sicht fuer die Mitgliederliste (pages/mitglieder.html):
 -- E-Mail ist standardmaessig privat (email_oeffentlich = false) - die View
 -- gibt die E-Mail-Spalte nur aus, wenn das einzelne Mitglied das per Toggle
@@ -182,16 +236,43 @@ create view public.eingeladene_ohne_profil as
 
 grant select on public.eingeladene_ohne_profil to authenticated;
 
--- Profilbilder: eigener Storage-Bucket, Policies analog zur Tabelle oben.
--- Erst noetig, sobald der Foto-Upload (Schritt 9) umgesetzt wird - Bucket
--- "profilbilder" im Dashboard unter Storage anlegen, dann:
---
--- create policy "Profilbilder sind fuer eingeloggte Mitglieder lesbar"
---     on storage.objects for select
---     to authenticated
---     using (bucket_id = 'profilbilder');
---
--- create policy "Mitglieder duerfen nur ihr eigenes Profilbild hochladen"
---     on storage.objects for insert
---     to authenticated
---     with check (bucket_id = 'profilbilder' and (storage.foldername(name))[1] = auth.uid()::text);
+-- Profilbilder: eigener Storage-Bucket "avatars" (nicht "profilbilder" wie
+-- in einer frueheren Planungsversion dieser Datei) - siehe
+-- supabase/013-avatar-storage-bucket.sql (Grundsetup) und
+-- supabase/014-profilbild-verlauf.sql (erweitert insert/update unten um
+-- archivierte Dateien). Bewusst oeffentlich lesbar (kein RLS-Check beim
+-- Lesen): einfache, direkte <img src="...">-URLs statt signierter URLs -
+-- wer den direkten Link kennt, kann das Bild auch ohne Login sehen, bewusst
+-- in Kauf genommener Kompromiss (siehe
+-- docs/superpowers/specs/2026-09-01-profilbild-upload-design.md). Jede
+-- Datei heisst exakt "<user-id>.jpg" (fester Pfad, kein Unterordner) - ein
+-- Mitglied darf nur die Datei mit der eigenen User-ID als Namen anlegen/
+-- ersetzen/loeschen, nie eine fremde.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do nothing;
+
+create policy "Profilbilder sind oeffentlich lesbar"
+    on storage.objects for select
+    to public
+    using (bucket_id = 'avatars');
+
+-- Erlaubt zusaetzlich zu "<user-id>.jpg" auch "<user-id>-<Zahl>.jpg" (fuer
+-- den Profilbild-Verlauf, siehe supabase/014-profilbild-verlauf.sql) - die
+-- Delete-Policy bleibt bewusst nur auf "<user-id>.jpg" beschraenkt, ein
+-- Mitglied kann sein aktuelles Bild loeschen, aber nie eine bereits
+-- archivierte Datei.
+create policy "Mitglieder duerfen nur ihr eigenes Profilbild hochladen"
+    on storage.objects for insert
+    to authenticated
+    with check (bucket_id = 'avatars' and name ~ ('^' || auth.uid()::text || '(-[0-9]+)?\.jpg$'));
+
+create policy "Mitglieder duerfen nur ihr eigenes Profilbild ersetzen"
+    on storage.objects for update
+    to authenticated
+    using (bucket_id = 'avatars' and name ~ ('^' || auth.uid()::text || '(-[0-9]+)?\.jpg$'));
+
+create policy "Mitglieder duerfen nur ihr eigenes Profilbild loeschen"
+    on storage.objects for delete
+    to authenticated
+    using (bucket_id = 'avatars' and name = auth.uid()::text || '.jpg');
