@@ -1030,9 +1030,9 @@ new-swan-design/
         profiles p WHERE p.id = auth.uid() AND 'Admin' = ANY (p.rollen))`
         als `qual`).
       - *"Falsche/veraltete Browser-Session"* (es gibt zwei Nicolas-Accounts:
-        "Nicolas Brand" / `info@swancalisthenics.ch`, Rollen
-        `Admin`+`Präsident`; und "Test User (Nicolas)" /
-        `test@example.com`, nur `Mitglied`) - per "Mein Profil" auf der
+        "Nicolas Brand" (private Adresse), Rollen
+        `Admin`+`Präsident`; und "Test User (Nicolas)" (zweite private
+        Adresse), nur `Mitglied`) - per "Mein Profil" auf der
         Seite bestätigt: die aktive Session war tatsächlich "Nicolas Brand",
         also der echte Admin-Account, nicht der Test-Account.
       - *"Fehlalarm durch die neue `count`-Prüfung selbst"* - widerlegt per
