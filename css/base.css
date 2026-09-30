@@ -14,7 +14,7 @@
     --glass-border: rgba(255, 255, 255, 0.65);
     --glass-blur: blur(20px);
     --text-primary: #1b1b23;
-    --text-muted: #5b5b68;
+    --text-muted: #44444f;
     --shadow-soft: 0 8px 30px rgba(27, 27, 35, 0.08);
     --shadow-lift: 0 16px 40px rgba(27, 27, 35, 0.16);
     --radius-card: 20px;
@@ -31,7 +31,7 @@
     :root:not([data-theme="light"]) {
         --bg-base: #15141f;
         --text-primary: #f2f1f7;
-        --text-muted: #a8a6b8;
+        --text-muted: #c6c4d4;
         --glass-fill: rgba(255, 255, 255, 0.08);
         --glass-fill-strong: rgba(255, 255, 255, 0.14);
         --modal-fill: rgba(30, 29, 43, 0.95);
@@ -48,7 +48,7 @@
 :root[data-theme="dark"] {
     --bg-base: #15141f;
     --text-primary: #f2f1f7;
-    --text-muted: #a8a6b8;
+    --text-muted: #c6c4d4;
     --glass-fill: rgba(255, 255, 255, 0.08);
     --glass-fill-strong: rgba(255, 255, 255, 0.14);
     --modal-fill: rgba(30, 29, 43, 0.95);

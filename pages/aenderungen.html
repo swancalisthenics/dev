@@ -42,13 +42,13 @@
         <h2 class="section-title"><span class="accent">Änderungen</span></h2>
         <p class="section-lead">Vollständiges Protokoll aller Änderungen an der Website, neueste zuerst.</p>
 
-        <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
-            <p>Du bist nicht angemeldet.</p>
-            <p class="form-hint">Diese Seite ist nur für eingeloggte Mitglieder sichtbar.</p>
-            <button type="button" class="btn btn-primary" onclick="openLoginDialog(event)">Jetzt anmelden</button>
-        </div>
+        <div class="aenderungen-liste" id="aenderungenContent">
+            <h3 class="aenderungen-datum">30. September 2026</h3>
+            <div class="glass-card aenderung-eintrag"><span class="aenderung-nummer">1</span><p>Neuigkeiten und Änderungen für alle sichtbar</p></div>
+            <div class="glass-card aenderung-eintrag"><span class="aenderung-nummer">2</span><p>Texte auf Startseite und Team-Seite überarbeitet</p></div>
+            <div class="glass-card aenderung-eintrag"><span class="aenderung-nummer">3</span><p>Graue Schrift besser lesbar gemacht</p></div>
+            <div class="glass-card aenderung-eintrag"><span class="aenderung-nummer">4</span><p>E-Mail-Button im Footer ergänzt</p></div>
 
-        <div class="aenderungen-liste" id="aenderungenContent" hidden>
             <h3 class="aenderungen-datum">2. September 2026</h3>
             <div class="glass-card aenderung-eintrag"><span class="aenderung-nummer">1</span><p>Verein-Bereich als Übersicht mit Links neu gestaltet</p></div>
             <div class="glass-card aenderung-eintrag"><span class="aenderung-nummer">2</span><p>WhatsApp, Instagram und TikTok im Footer verlinkt</p></div>
@@ -151,8 +151,11 @@
             <a href="https://www.tiktok.com/@swancalisthenics" target="_blank" rel="noopener" class="footer-social-link" aria-label="TikTok">
                 <span class="icon icon-tiktok" aria-hidden="true"></span>
             </a>
+            <a href="mailto:info@swancalisthenics.ch" class="footer-social-link" aria-label="E-Mail an info@swancalisthenics.ch">
+                <span class="icon icon-envelope" aria-hidden="true"></span>
+            </a>
         </div>
-        <p>&copy; 2026 Swan Calisthenics Community</p>
+        <p>&copy; 2026 Swan Calisthenics</p>
         <p style="font-size: 0.8rem; opacity: 0.8;">Erstellt von Nicolas Brand</p>
         <ul class="footer-links">
             <li><a href="rechtliches.html">Datenschutz & Impressum</a></li>
@@ -176,10 +179,5 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-client.js"></script>
 <script src="../js/main.js"></script>
-<script>
-if (document.getElementById('aenderungenContent')) {
-    initAuthGate('aenderungenContent');
-}
-</script>
 </body>
 </html>

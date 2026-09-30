@@ -10,7 +10,9 @@ function renderBlogGrid() {
     const grid = document.getElementById('blogGrid');
     if (!grid) return;
 
-    grid.innerHTML = BLOG_POSTS.map(post => `
+    const sichtbarePosts = SICHTBARE_POST_IDS.map(id => findPostById(id)).filter(Boolean);
+
+    grid.innerHTML = sichtbarePosts.map(post => `
         <article class="blog-card glass-card" data-category="${post.filterCategory}">
             <a href="post.html?id=${post.id}" class="blog-card-media">
                 <picture>

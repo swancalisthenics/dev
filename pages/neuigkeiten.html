@@ -42,13 +42,7 @@
         <h2 class="section-title"><span class="accent">Neuigkeiten</span></h2>
         <p class="section-lead">Die wichtigsten Neuerungen auf der Website, neueste zuerst.</p>
 
-        <div class="glass-card not-logged-in" id="notLoggedIn" hidden>
-            <p>Du bist nicht angemeldet.</p>
-            <p class="form-hint">Diese Seite ist nur für eingeloggte Mitglieder sichtbar.</p>
-            <button type="button" class="btn btn-primary" onclick="openLoginDialog(event)">Jetzt anmelden</button>
-        </div>
-
-        <div id="neuigkeitenContent" class="neuigkeiten-liste" hidden>
+        <div id="neuigkeitenContent" class="neuigkeiten-liste">
             <h3 class="neuigkeiten-datum">2. September 2026</h3>
             <div class="glass-card neuigkeit-card">
                 <p>Der Verein-Bereich ist jetzt eine Übersicht mit Links zu Vereinsdokumenten, Mitgliedern und Trainings-Anmeldung.</p>
@@ -110,8 +104,11 @@
             <a href="https://www.tiktok.com/@swancalisthenics" target="_blank" rel="noopener" class="footer-social-link" aria-label="TikTok">
                 <span class="icon icon-tiktok" aria-hidden="true"></span>
             </a>
+            <a href="mailto:info@swancalisthenics.ch" class="footer-social-link" aria-label="E-Mail an info@swancalisthenics.ch">
+                <span class="icon icon-envelope" aria-hidden="true"></span>
+            </a>
         </div>
-        <p>&copy; 2026 Swan Calisthenics Community</p>
+        <p>&copy; 2026 Swan Calisthenics</p>
         <p style="font-size: 0.8rem; opacity: 0.8;">Erstellt von Nicolas Brand</p>
         <ul class="footer-links">
             <li><a href="rechtliches.html">Datenschutz & Impressum</a></li>
@@ -135,10 +132,5 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-client.js"></script>
 <script src="../js/main.js"></script>
-<script>
-if (document.getElementById('neuigkeitenContent')) {
-    initAuthGate('neuigkeitenContent');
-}
-</script>
 </body>
 </html>

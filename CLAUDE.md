@@ -2006,6 +2006,101 @@ new-swan-design/
     Cronjob, Punkt 71) für die Präsidentin/den Präsidenten direkt beim
     Öffnen sichtbar, nicht nur in der Datenschutzerklärung.
 
+74. **Erster Teil des Vereins-Feedbacks (PDF-Liste "Webseite", 30.09.2026)
+    umgesetzt** - alles, was ohne weitere Infos machbar war. Die noch
+    offenen Punkte daraus stehen gesammelt im Abschnitt "Offene Punkte aus
+    dem Vereins-Feedback" weiter unten.
+    - **Blog aus der Navigation genommen** (Topbar-Template in
+      `js/site-chrome.js` und Tab-Bar auf allen Seiten) - bewusst nur
+      ausgeblendet, nicht gelöscht: `pages/blog/*.html`, `js/blog.js` und
+      `js/blog-data.js` bleiben unverändert und per direktem Link
+      erreichbar. Die Tab-Bar hat damit 4 statt 5 Einträge
+      (Home/Team/Verein/Kontakt); `.tabbar-item` hat `flex: 1`, verteilt
+      sich also ohne CSS-Änderung neu. Die CSS-Regel für das Blog-Tab-Icon
+      in `components.css` bleibt für ein späteres Wiedereinblenden stehen.
+    - **Startseite:** Hero-Button "Nächstes Training" heisst jetzt
+      "Nächstes Community Workout" und ist `btn-secondary` wie die übrigen
+      Hero-Buttons (Platz für den geplanten primären "Jetzt Mitglied
+      werden"-Button, siehe offene Punkte). Button-Texte "WhatsApp-Gruppe"
+      → "WhatsApp" (Hero + Social-Banner; Fliesstexte in den FAQ bewusst
+      unverändert). "Das sind wir" → "Wer *wir* sind" (Akzent weiterhin auf
+      "wir"). Geschichte: "mehr als nur ein Team" → "mehr als nur ein
+      Verein". Satz "Wisch durch unsere letzten Community Workouts."
+      entfernt. "topaktuell" → "laufend". Standort-Titel "Street Workout
+      Park Horgen" → "Street Workout Park" (Adresszeile "8810 Horgen" und
+      Google-Maps-Link unverändert). Social-Banner: "Sessions" entfernt
+      (jetzt "über spontane Events und Location-Wechsel"). Countdown-Label
+      "Nächstes Training:" → "Nächstes Community Workout:".
+    - **Graue Schrift besser lesbar:** `--text-muted` in `css/base.css`
+      kontrastreicher - hell `#5b5b68` → `#44444f`, dunkel `#a8a6b8` →
+      `#c6c4d4` (beide Dark-Mode-Blöcke).
+    - **Team:** Einleitung "Lerne das Team kennen!". Neue
+      Reihenfolge Alessandro, Louie, Giada, Nicolas (Louie oben rechts,
+      Nicolas unten rechts). Neue Instagram-Links: Ale
+      `alecalisthenic.s`, Louie `louie__swan` (Tracking-Parameter `?stkn=`
+      aus den geteilten Links entfernt).
+    - **Kontakt:** Ansprechperson-Karte (Alessandro) mailt jetzt an
+      `info@swancalisthenics.ch`. Betreff-Auswahl ohne "Newsletter" und die
+      beiden "Blog"-Einträge; Standardwert jetzt "Allgemeines Feedback /
+      Sonstiges" (`data-value` "Feedback: Allgemeines Feedback", bestehender
+      Wert, keine DB-Änderung nötig).
+    - **Blog wieder in der Navigation** (kurz nach dem Ausblenden auf Wunsch
+      zurückgeholt, an der ursprünglichen Position nach "Home"). Die
+      Übersicht zeigt nur noch die 3 bestbewerteten Posts: neue Konstante
+      `SICHTBARE_POST_IDS = [3, 1, 7]` in `js/blog-data.js`, von
+      `renderBlogGrid()` (`js/blog.js`) in genau dieser Reihenfolge
+      gerendert. Die übrigen 11 Posts bleiben im Array und per
+      `post.html?id=...` erreichbar (nötig, weil sichtbare Posts auf sie
+      verlinken). Filterleiste in `pages/blog/blog.html` per `hidden`
+      ausgeblendet (alle 3 sichtbaren Posts sind `uebungen`, der
+      Ernährung-Filter wäre leer); Einleitung jetzt nur "Tipps rund ums
+      Training.". Ranking-Grundlage: Bewertung aller 14 Posts nach Bildern,
+      Text und Info-Wichtigkeit (Post 3: 14/15, Post 1: 13/15, Post 7: 12/15).
+    - **Blog-Texte bereinigt (alle 14 Posts):** Markdown-Reste (`**...**`,
+      `*...*`), die als rohe Sternchen angezeigt wurden, zu `<strong>`/`<em>`
+      umgewandelt; alle "ß" auf Schweizer "ss" umgestellt (plus Tippfehler
+      "Barfuszschuhe"); Datum einheitlich "8. Juli 2026" statt teils
+      "08. Juli 2026". Doppelte Erklärungen über mehrere Posts hinweg
+      (Mikrorisse, Protein, Wasser, Klimmzug-Progression, Community) auf
+      einen Satz gekürzt und durch Querverweise auf den jeweils
+      zuständigen Post ersetzt (`post.html?id=...`); dafür neue Regel
+      `.post-content a:not(.btn)` in `css/pages/blog.css` (Rot +
+      Unterstreichung). Unbelegtes "Es ist wissenschaftlich bewiesen" in
+      Post 14 entfernt.
+    - **Galerie-Bilder in Post 3 (Skills Training) nicht mehr stark
+      beschnitten:** `.post-image-gallery img` hatte eine feste Höhe von
+      220px bei voller Breite - bei den beiden Hochformat-Fotos
+      (`handstand2.jpeg` 684×955, `chin-up.jpeg` 726×982) fiel so oben und
+      unten der Grossteil weg, mobil besonders stark. Jetzt
+      `aspect-ratio: 3 / 4` + `height: auto` (weiterhin `object-fit:
+      cover`, damit beide Bilder nebeneinander gleich hoch bleiben): gemessen
+      96 % bzw. 99 % des Bildes sichtbar, mobil wie am PC. Die Galerie kommt
+      nur in Post 3 vor.
+    - **"Neuigkeiten" und "Änderungen" sind jetzt öffentlich** (vorher
+      mitgliedergeschützt, siehe Punkt 72): Die beiden Verein-Hub-Balken
+      sind immer normale Links (kein `hub-row-locked`-Zwilling und kein
+      `initAuthGate()` mehr in `main.js`), auf `pages/neuigkeiten.html`/
+      `pages/aenderungen.html` sind `#notLoggedIn` und das Inline-Gate-Skript
+      entfernt, der Inhalt ist nicht mehr `hidden`. "Mitglieder" und
+      "Trainings-Anmeldung" bleiben unverändert hinter dem Login.
+    - **Footer-Copyright** auf allen 14 Seiten: "© 2026 Swan Calisthenics
+      Community" → "© 2026 Swan Calisthenics".
+    - **Impressum/Datenschutz (`pages/rechtliches.html`) auf "Verein und
+      Community" umgestellt** - Swan Calisthenics ist inzwischen beides:
+      Anbieter "Swan Calisthenics – Verein & Community", Alessandro als
+      "Gründer" statt "Communitygründer", verantwortliche Stelle "der oben
+      genannte Verein" (vorher grammatikalisch falsch "der ... genannte
+      Community"), Foto-Abschnitt "Vereins- und Communityaktivitäten" /
+      "berechtigtes Interesse des Vereins". Impressum-Mail von Alessandros
+      privater Adresse auf `info@swancalisthenics.ch` umgestellt (die
+      Datenschutz-Abschnitte verweisen auf "die oben genannte E-Mail-Adresse",
+      gelten also automatisch mit). Auf der Team-Seite bleibt Alessandros
+      private Mail in seiner eigenen Karte bewusst stehen.
+    - **Footer auf allen 14 Seiten:** vierter Button mit Mail-Icon,
+      `mailto:info@swancalisthenics.ch` (bewusst `mailto:` statt
+      `openEmailDialog()` - das E-Mail-Modal existiert nur auf einzelnen
+      Seiten, nicht auf allen).
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
@@ -2349,6 +2444,47 @@ WhatsApp-Versand loszuwerden? Ausserdem noch offen bei > 50 GB pro Training:
 Nur eine automatisierte, drastische Verkleinerung wird kaum reichen, es
 müsste vermutlich auch eine Auswahl/Kuration stattfinden (wer wählt aus,
 und wann) - reine Kompression allein löst dieses Datenvolumen nicht.
+
+## Offene Punkte aus dem Vereins-Feedback (PDF "Webseite", 30.09.2026)
+
+Der umsetzbare Teil ist erledigt (siehe Punkt 74). Diese Punkte warten auf
+Infos oder eine Entscheidung vom Verein - nichts davon eigenmächtig
+umsetzen, ohne dass die fehlende Info vorliegt:
+
+1. **Button "Jetzt Mitglied werden" (Link zu Forms)** - gross und ganz
+   oben auf der Startseite (Hero, als `btn-primary`) und nochmals auf der
+   Verein-Seite. **Fehlt:** der Link zum Anmeldeformular.
+2. **TikTok-Links von Ale und Louie aktualisieren** - die Instagram-Links
+   sind erledigt, TikTok steht noch auf `@alecalisthenic.s` bzw.
+   `@louie_trainiert`. **Fehlt:** die aktuellen TikTok-Links.
+3. **Aktuelle Gruppenbilder hochladen, evtl. als Galerie** (Startseite,
+   Community-Slider). **Fehlt:** die Bilder; offen, ob eine eigene Galerie
+   gewünscht ist oder der bestehende Slider reicht (siehe auch die
+   Bild-Komprimierungs-Notiz unter "Weitere Ideen für Features" oben).
+4. **"Für jedes Level": Bilder von Nicolas durch Community-Fotos
+   ersetzen** (`assets/images/level.1.jpg`, `level.2.png`, `level.3.png`).
+   **Fehlt:** die Fotos.
+5. **Merch auf der Kontaktseite einfügen.** **Offen:** was genau - Link zu
+   einem Shop, Bilder der Artikel, eigener Betreff im Kontaktformular?
+6. **Verein: "Die ganzen Dokumente brauchen wir alle nicht".** **Offen:**
+   nur den Balken "Vereinsdokumente" im Verein-Hub entfernen, oder auch die
+   Seite `pages/vereinsdokumente.html` (+ `css/pages/vereinsdokumente.css`)
+   komplett löschen?
+7. **Blog auf wenige Posts beschränken:** "Wie läuft ein Community Workout
+   ab", "Street Workout vs. Gym", "Skills für Anfänger". **Zwischenstand:**
+   Die Übersicht zeigt vorerst die 3 bestbewerteten Posts 3, 1 und 7 (Punkt
+   74). Noch offen: ein echter Post "Street Workout vs. Gym" (Post 7
+   vergleicht Home-Workout mit dem Park, nicht mit dem Gym) und kleine
+   Korrekturen an Post 3 ("Sonntagnachmittag" passt nicht zu 18-20 Uhr,
+   Tippfehler "des Posten", Alt-Texte von core.jpeg/warm-up.jpeg,
+   Kategorie). Ursprünglicher Abgleich mit
+   `js/blog-data.js`: "Community Workout" (id 3) passt zum ersten Thema;
+   "Street Workout vs. Gym" gibt es noch nicht ("Home-Workout vs.
+   Calisthenics-Park", id 7, ist nur ähnlich); "Skills für Anfänger" am
+   ehesten "Die 5 wichtigsten Basics" (id 1) oder "Von Null an die Stange"
+   (id 6). **Offen:** welche Posts genau bleiben, ob fehlende neu
+   geschrieben werden, ob die übrigen gelöscht oder nur ausgeblendet
+   werden, und wann der Blog wieder in die Navigation kommt.
 
 ## Offene Punkte für die Zukunft
 

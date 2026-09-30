@@ -35,9 +35,11 @@
 <main>
     <section class="section">
         <h2 class="section-title">Unser <span class="accent">Blog</span></h2>
-        <p class="section-lead">Tipps zu Übungen, Kraftaufbau, Ernährung und Gesundheit – von der Community, für die Community.</p>
+        <p class="section-lead">Tipps rund ums Training.</p>
 
-        <div class="filter-bar">
+        <!-- Vorerst ausgeblendet: alle sichtbaren Posts (SICHTBARE_POST_IDS in js/blog-data.js) sind "uebungen",
+             der Ernährung-Filter wäre leer. Wieder einblenden, sobald Posts aus mehreren Kategorien sichtbar sind. -->
+        <div class="filter-bar" hidden>
             <button class="filter-btn active" data-filter="all">Alle</button>
             <button class="filter-btn" data-filter="uebungen">Übungen & Kraftaufbau</button>
             <button class="filter-btn" data-filter="ernaehrung">Ernährung & Gesundheit</button>
@@ -63,8 +65,11 @@
             <a href="https://www.tiktok.com/@swancalisthenics" target="_blank" rel="noopener" class="footer-social-link" aria-label="TikTok">
                 <span class="icon icon-tiktok" aria-hidden="true"></span>
             </a>
+            <a href="mailto:info@swancalisthenics.ch" class="footer-social-link" aria-label="E-Mail an info@swancalisthenics.ch">
+                <span class="icon icon-envelope" aria-hidden="true"></span>
+            </a>
         </div>
-        <p>&copy; 2026 Swan Calisthenics Community</p>
+        <p>&copy; 2026 Swan Calisthenics</p>
         <p style="font-size: 0.8rem; opacity: 0.8;">Erstellt von Nicolas Brand</p>
         <ul class="footer-links">
             <li><a href="../rechtliches.html">Datenschutz & Impressum</a></li>
