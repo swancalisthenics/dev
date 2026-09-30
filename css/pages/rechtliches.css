@@ -30,7 +30,7 @@
 }
 
 .legal-card a:not(.btn) {
-    color: var(--aurora-red);
+    color: var(--accent-text);
     text-decoration: underline;
 }
 

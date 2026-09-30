@@ -354,7 +354,7 @@
     align-items: center;
     height: var(--tabbar-height);
     padding-bottom: env(safe-area-inset-bottom, 0);
-    background: var(--glass-fill-strong);
+    background: var(--tabbar-fill);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border-top: 1px solid var(--glass-border);
@@ -372,13 +372,13 @@
     gap: 4px;
     font-size: 0.68rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: var(--text-primary);
     flex: 1;
     padding: 8px 0;
 }
 
 .tabbar-item.active {
-    color: var(--aurora-red);
+    color: var(--accent-text);
     background: rgba(230, 57, 70, 0.12);
     border-radius: 16px;
 }
@@ -591,7 +591,7 @@
     display: inline-block;
     margin-bottom: 20px;
     font-weight: 700;
-    color: var(--aurora-red);
+    color: var(--accent-text);
 }
 
 .post-section-top .back-link {
@@ -603,7 +603,7 @@
     margin-top: 8px;
     font-weight: 700;
     font-size: 0.85rem;
-    color: var(--aurora-red);
+    color: var(--accent-text);
 }
 
 /* Ohne das gewinnt obiges `display: inline-block` gegen die native
@@ -624,12 +624,12 @@
 }
 
 .breadcrumb a {
-    color: var(--text-muted);
+    color: var(--text-primary);
     font-weight: 600;
 }
 
 .breadcrumb a:hover {
-    color: var(--aurora-red);
+    color: var(--accent-text);
 }
 
 .breadcrumb span {
@@ -818,7 +818,7 @@
     background: none;
     border: none;
     padding: 0;
-    color: var(--aurora-red);
+    color: var(--accent-text);
     font-size: 0.85rem;
     text-decoration: underline;
     cursor: pointer;
@@ -1077,7 +1077,7 @@
    erkennbar - Akzentfarbe + Unterstreichung nach demselben Rot-Muster wie
    alle anderen Links im Projekt (siehe Design-System in CLAUDE.md). */
 .form-hint a {
-    color: var(--aurora-red);
+    color: var(--accent-text);
     text-decoration: underline;
 }
 
@@ -1106,7 +1106,7 @@
 
 .form-error {
     font-size: 0.85rem;
-    color: var(--aurora-red);
+    color: var(--accent-text);
     margin-bottom: 10px;
     text-align: left;
 }
@@ -1427,7 +1427,7 @@ footer {
 }
 
 .footer-links a:hover {
-    color: var(--aurora-red);
+    color: var(--accent-text);
 }
 
 .footer-social {

@@ -53,7 +53,10 @@ updateThemeToggleState();
 // Responsive <picture>-Auflösung für dynamisch per innerHTML eingefügte Bilder
 // (native Browser-Auswahl ist dabei unzuverlässig) - Ansatz aus home/lib/main.js übernommen.
 function resolvePictureSources(root) {
-    const isMobile = window.innerWidth <= 767;
+    // matchMedia statt window.innerWidth: innerWidth direkt nach DOM-Änderungen
+    // (z. B. updateThemeToggleState() kurz davor) erzwingt einen synchronen
+    // Layout-Durchlauf ("erzwungener dynamischer Umbruch" in PageSpeed).
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
     (root || document).querySelectorAll('picture').forEach(picture => {
         const source = picture.querySelector('source');
         const img = picture.querySelector('img');

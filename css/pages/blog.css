@@ -63,7 +63,7 @@
 
 .blog-card-link {
     font-weight: 700;
-    color: var(--aurora-red);
+    color: var(--accent-text);
     margin-top: 4px;
 }
 
@@ -166,7 +166,7 @@
 /* Querverweise zwischen Posts - gleiches Rot-Muster wie .legal-card a/.form-hint a
    (der globale Reset a { color: inherit } liesse sie sonst im Fliesstext verschwinden). */
 .post-content a:not(.btn) {
-    color: var(--aurora-red);
+    color: var(--accent-text);
     text-decoration: underline;
 }
 

@@ -2162,6 +2162,46 @@ new-swan-design/
       **Nicht lösbar:** "Effiziente Verweildauer im Cache" - GitHub Pages
       setzt fest `Cache-Control: max-age=600` (10 Minuten), das lässt sich
       dort nicht ändern (ginge nur mit einem CDN wie Cloudflare davor).
+    - **Zweite PageSpeed-Runde (LCP 3,5 s, Kontrast, Render-Blocking):**
+      - **WebP** für alle Bilder der Startseite, erzeugt per Canvas im
+        Browser (kein CLI-Tool vorhanden): Hero-Logo als
+        `logo-192.webp`/`logo-384.webp` per `srcset` 1x/2x (7/17 KB statt
+        99 KB PNG, mit `width`/`height` und `fetchpriority="high"`, da
+        mobil vermutlich das LCP-Element), Topbar-Logo `logo-96.webp`
+        (3 KB, vorher dieselbe 99-KB-Datei), `level.1–3.webp`,
+        `standort.webp`, Slider-Vorschau `community/*_klein.webp`. Die
+        ersetzten JPGs (`*_klein.jpg`, `level.2/3.jpg`, `standort.jpg`)
+        sind gelöscht; `level.1.jpg` bleibt (Blog-Post 6), `logo.png`
+        bleibt (JSON-LD). Neue Bilder künftig ebenfalls als WebP.
+      - **Alle Skripte `defer`** (inkl. `site-chrome.js` im Head und dem
+        Supabase-CDN-Skript), Reihenfolge unverändert - funktioniert, weil
+        es keine eingebetteten Inline-Skripte nach `main.js` mehr gibt.
+        **Wichtig für neue Seiten:** Seitenlogik nie als Inline-`<script>`
+        nach den `defer`-Skripten schreiben (liefe vor ihnen), sondern als
+        eigene Datei mit `defer`. Geprüft: Topbar, Login-Modal,
+        Theme-Toggle, FAQ, Countdown, Kontakt-Auswahlfeld, Blog.
+      - **Erzwungener Umbruch** in `resolvePictureSources()` (`main.js`):
+        `window.innerWidth` → `matchMedia('(max-width: 767px)')`.
+      - **Kontrast (WCAG 4.5:1), geprüft mit axe-core auf allen 10
+        öffentlichen Seiten, mobil, hell und dunkel - jetzt fehlerfrei:**
+        neuer Token `--accent-text` (hell `#b3202c`, dunkel `#ff9aa0`) für
+        rote *kleine* Schrift - `--aurora-red` erreicht als Textfarbe nur
+        ~3-4:1 und bleibt für Icons, Buttons, grosse Überschriften und
+        Rahmen. Umgestellt: Tab-Leiste aktiv, Links (`.form-hint a`,
+        `.legal-card a`, `.post-content a`, `.blog-card-link`,
+        `.back-link`, `.self-profile-link`), Fehlertexte, Breadcrumb-Hover,
+        Footer-Link-Hover, Änderungen-Nummern, Einladungs-Überschrift,
+        Dokument-Hinweis. Neuer Token `--tabbar-fill`: Tab-Leiste im Dark
+        Mode dunkel getönt (`rgba(21, 20, 31, 0.82)`) statt weisslichem
+        Glas - dort schienen die Aurora-Blobs so hell durch, dass selbst
+        weisse Schrift unter 4.5:1 fiel. Tab-Beschriftungen und Breadcrumb-
+        Links in `--text-primary` statt `--text-muted`. Badges:
+        `--badge-category-text` hell `#a8323a`, `--badge-pending-text` hell
+        `#5f2c06`, `--badge-pending-bg` dunkel `rgba(48, 28, 12, 0.78)`.
+        **Neue rote Textelemente immer mit `--accent-text`**, nicht
+        `--aurora-red`.
+    - **Hinweis unter dem Countdown:** "WhatsApp-Gruppe" und "Instagram"
+      sind jetzt Links (`.times-note a`, unterstrichen, `--accent-text`).
     - **Nicht im Code, vom Verein selbst zu erledigen:** Google Search
       Console für `swancalisthenics.ch` (Bestätigung per TXT-Eintrag bei
       Infomaniak, danach Sitemap einreichen), Google-Unternehmensprofil

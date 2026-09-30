@@ -97,7 +97,7 @@ class SiteTopbar extends HTMLElement {
         this.innerHTML = `
             <div class="topbar-inner">
                 <a href="${base}index.html" class="brand">
-                    <img src="${base}assets/images/logo.png" alt="Swan Calisthenics Logo">
+                    <img src="${base}assets/images/logo-96.webp" width="35" height="48" alt="Swan Calisthenics Logo">
                     <span>Swan Calisthenics</span>
                 </a>
                 <div class="topbar-right">

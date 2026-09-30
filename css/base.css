@@ -2,14 +2,20 @@
     --bg-base: #f6f5fb;
     --aurora-coral: #ff6b6b;
     --aurora-red: #e63946;
+    /* Rot für kleine Schrift: --aurora-red erreicht als Textfarbe nur ~3:1 Kontrast (Minimum 4.5:1). */
+    --accent-text: #b3202c;
     --aurora-violet: #8b7cf6;
     --aurora-blue: #2563eb;
     --badge-pending-bg: rgba(244, 162, 97, 0.2);
-    --badge-pending-text: #7a3b0a;
+    --badge-pending-text: #5f2c06;
     --badge-category-bg: rgba(255, 107, 107, 0.16);
-    --badge-category-text: #c23e3e;
+    --badge-category-text: #a8323a;
     --glass-fill: rgba(255, 255, 255, 0.55);
     --glass-fill-strong: rgba(255, 255, 255, 0.78);
+    /* Tab-Leiste: eigener Token, im Dark Mode dunkel getoent - mit dem weisslichen
+       --glass-fill-strong schienen die Aurora-Blobs so hell durch, dass selbst
+       weisse Beschriftung unter 4.5:1 Kontrast fiel. */
+    --tabbar-fill: rgba(255, 255, 255, 0.78);
     --modal-fill: rgba(255, 255, 255, 0.78);
     --glass-border: rgba(255, 255, 255, 0.65);
     --glass-blur: blur(20px);
@@ -31,14 +37,16 @@
     :root:not([data-theme="light"]) {
         --bg-base: #15141f;
         --text-primary: #f2f1f7;
+        --accent-text: #ff9aa0;
         --text-muted: #c6c4d4;
         --glass-fill: rgba(255, 255, 255, 0.08);
         --glass-fill-strong: rgba(255, 255, 255, 0.14);
+        --tabbar-fill: rgba(21, 20, 31, 0.82);
         --modal-fill: rgba(30, 29, 43, 0.95);
         --glass-border: rgba(255, 255, 255, 0.16);
         --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.35);
         --shadow-lift: 0 16px 40px rgba(0, 0, 0, 0.5);
-        --badge-pending-bg: rgba(244, 162, 97, 0.18);
+        --badge-pending-bg: rgba(48, 28, 12, 0.78);
         --badge-pending-text: #ffb877;
         --badge-category-bg: rgba(255, 107, 107, 0.18);
         --badge-category-text: #ffb3b3;
@@ -48,14 +56,16 @@
 :root[data-theme="dark"] {
     --bg-base: #15141f;
     --text-primary: #f2f1f7;
+    --accent-text: #ff9aa0;
     --text-muted: #c6c4d4;
     --glass-fill: rgba(255, 255, 255, 0.08);
     --glass-fill-strong: rgba(255, 255, 255, 0.14);
+    --tabbar-fill: rgba(21, 20, 31, 0.82);
     --modal-fill: rgba(30, 29, 43, 0.95);
     --glass-border: rgba(255, 255, 255, 0.16);
     --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.35);
     --shadow-lift: 0 16px 40px rgba(0, 0, 0, 0.5);
-    --badge-pending-bg: rgba(244, 162, 97, 0.18);
+    --badge-pending-bg: rgba(48, 28, 12, 0.78);
     --badge-pending-text: #ffb877;
     --badge-category-bg: rgba(255, 107, 107, 0.18);
     --badge-category-text: #ffb3b3;

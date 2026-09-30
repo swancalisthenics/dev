@@ -195,7 +195,7 @@
 .eingeladene-heading {
     font-family: 'Libre Baskerville', serif;
     font-weight: 700;
-    color: var(--aurora-red);
+    color: var(--accent-text);
     font-size: 1.1rem;
     margin-bottom: 14px;
 }

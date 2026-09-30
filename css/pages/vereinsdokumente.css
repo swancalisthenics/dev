@@ -54,7 +54,7 @@
 }
 
 .doc-link-hint {
-    color: var(--aurora-red);
+    color: var(--accent-text);
     font-size: 0.85rem;
     font-weight: 600;
 }

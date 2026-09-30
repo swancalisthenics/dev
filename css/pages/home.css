@@ -283,6 +283,14 @@
     color: var(--text-primary);
 }
 
+/* WhatsApp-/Instagram-Links im Hinweis unter dem Countdown - gleiches Link-Muster
+   wie .form-hint a (der globale Reset a { color: inherit } liesse sie sonst im Text verschwinden). */
+.times-note a {
+    color: var(--accent-text);
+    font-weight: 700;
+    text-decoration: underline;
+}
+
 /* --- LEVEL GUIDE --- */
 .level-grid {
     display: grid;

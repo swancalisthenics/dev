@@ -24,7 +24,7 @@
 .aenderung-nummer {
     flex: none;
     min-width: 20px;
-    color: var(--aurora-red);
+    color: var(--accent-text);
     font-weight: 700;
 }
 
