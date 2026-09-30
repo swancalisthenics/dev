@@ -1682,13 +1682,15 @@ new-swan-design/
       JS aus `site-chrome.js` injiziert, weil ein direktes Tag ohne
       Umweg über eine erst noch zu ladende Datei minimal frueher greift
       und Analytics-Snippets ueblicherweise so eingebunden werden.
-    - Die Website-ID ist an die Domain `swancalisthenics.github.io`
-      gebunden (Umami trackt pro Domain, nicht pro Pfad) - deckt damit
-      automatisch auch das spaeter geplante `/home/` mit ab, siehe
-      "Repo-/Hosting-Struktur" oben. Sobald der Code einmal in einem
-      eigenen `home`-Repo landet, muss das Snippet dort separat mit
-      eingebaut werden (überträgt sich nicht automatisch mit dem Code
-      selbst).
+    - **Korrigiert (30.09.2026):** Die Website-ID ist *nicht* hart an eine
+      Domain gebunden - das Snippet hat kein `data-domains`, Umami zählt
+      jeden Aufruf mit dieser ID, egal unter welcher Adresse, und zeigt den
+      Hostnamen in der Auswertung an. Das Feld "Domain" in den
+      Umami-Website-Einstellungen ist im Wesentlichen eine Beschriftung
+      (dort jetzt `swancalisthenics.ch`). `dev` und `home` teilen sich
+      dieselbe Website-ID/Statistik, auseinanderhalten lassen sie sich
+      über die Hostname-Auswertung (`swancalisthenics.ch` vs.
+      `swancalisthenics.github.io`).
     - `pages/rechtliches.html` um einen neuen Abschnitt "Web-Analyse
       (Umami)" ergänzt (jetzt Abschnitt 6, nachfolgende Abschnitte
       entsprechend nachnummeriert).
@@ -2122,21 +2124,36 @@ und Zugriffsmuster wie "eigenes Profil lesen/bearbeiten, andere nur
 eingeschränkt" lassen sich mit Row-Level-Security direkt in der Datenbank
 abbilden statt in eigenem Code.
 
-**Repo-/Hosting-Struktur, Domain wechselt noch:** Die Seite läuft aktuell
-provisorisch auf `swancalisthenics.github.io/dev/` (dieses Repo, `dev`,
-GitHub-Organisation `swancalisthenics`). Geplante Ziel-Struktur, drei Repos
-unter derselben Organisation:
-- `dev` — dieses Repo, bleibt dauerhaft die aktive Entwicklungsversion.
-  Wird beim Wechsel unten NICHT aufgegeben oder ersetzt.
-- `home` — aktuell die andere, eigenständige echte Produktions-Website
-  dieses Vereins (separates Repo/Codebase, lokal `C:\Source\home`, siehe
-  Überblick oben) - die Seite, die heute wirklich live ist. Sobald die
-  `dev`-Version stabil/fertig genug ist, wird `home` mit der dann
-  stabilen `dev`-Version "gewechselt" (ersetzt) - `home` wird dadurch zur
-  neuen Live-Adresse für dieses Redesign, unter `swancalisthenics.github.io/home`.
-- `old` — Ziel-Repo, in das der bisherige Inhalt von `home` (die jetzige
-  echte, alte Seite) beim obigen Wechsel verschoben/archiviert wird,
-  statt einfach überschrieben zu werden.
+**Repo-/Hosting-Struktur (Stand 30.09.2026):** Drei Repos unter der
+GitHub-Organisation `swancalisthenics`, alle per GitHub Pages
+veröffentlicht. Der Wechsel dev → home hat am 23.09.2026 stattgefunden
+("Redesign aus dev übernehmen" in `home`, alte Seite nach `old`):
+
+| Repo | Adresse | Lokal | Rolle |
+|---|---|---|---|
+| `dev` (dieses Repo) | `swancalisthenics.github.io/dev/` | `C:\Source\Git\new-swan-design` | Aktive Entwicklungsversion, bleibt dauerhaft bestehen |
+| `home` | **`https://swancalisthenics.ch/`** (eigene Domain) | `C:\Source\Git\swancalisthenics-home` | Live-Website, übernimmt jeweils den stabilen Stand aus `dev` |
+| `old` | `swancalisthenics.github.io/old/` (Pages nicht aktiv, 404) | `C:\Source\Git\swancalisthenics-old` | Archiv der ursprünglichen Seite vor dem Redesign |
+
+**Eigene Domain `swancalisthenics.ch` (seit 30.09.2026):** Domain und
+Postfach `info@swancalisthenics.ch` liegen bei Infomaniak (Nameserver
+`ns11/ns12.infomaniak.ch`). DNS-Zone dort: 4× A (`185.199.108–111.153`),
+4× AAAA (`2606:50c0:8000–8003::153`), CNAME `www` →
+`swancalisthenics.github.io`, MX `mta-gw.infomaniak.ch` (Mail - nie
+anfassen). Im Repo `home` liegt dazu die von GitHub angelegte Datei
+`CNAME` (Inhalt `swancalisthenics.ch`) - beim Übernehmen von Code aus
+`dev` nach `home` **nicht löschen oder überschreiben**, sonst fällt die
+Domain weg. Die alte Adresse `swancalisthenics.github.io/home/...` leitet
+per 301 inkl. Pfad auf die Domain um (alte QR-Codes funktionieren
+weiter, solange die Domain bei GitHub eingetragen und bei Infomaniak
+bezahlt bleibt). Supabase (Soll-Einstellung unter Authentication → URL
+Configuration): Site URL `https://swancalisthenics.ch/`,
+Redirect URLs zusätzlich `https://swancalisthenics.ch/**` und
+`https://www.swancalisthenics.ch/**` (der alte Eintrag
+`https://swancalisthenics.github.io/**` bleibt für `dev` bestehen).
+Offen/optional: `dev.swancalisthenics.ch` als Subdomain für `dev`
+(CNAME `dev` → `swancalisthenics.github.io` + Custom Domain im Repo
+`dev` + Redirect URL in Supabase).
 
 Nichts davon eigenmächtig auslösen (Inhalt nach `home` oder `old` pushen,
 den Wechsel selbst anstossen o. Ä.) ohne ausdrückliche Anweisung, welches
