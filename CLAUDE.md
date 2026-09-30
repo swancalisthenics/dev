@@ -2103,6 +2103,54 @@ new-swan-design/
       `openEmailDialog()` - das E-Mail-Modal existiert nur auf einzelnen
       Seiten, nicht auf allen).
 
+75. **Technische SEO-Grundlagen (30.09.2026, nach dem Umzug auf
+    `swancalisthenics.ch`):**
+    - **Canonical statt `noindex` für `dev`:** `dev` ist eine fast
+      identische Kopie der Live-Seite (Duplicate Content). Bewusst **kein**
+      `noindex` in `dev`, weil der Code später 1:1 nach `home` wandert und
+      die Live-Seite sonst aus Google fliegen würde. Stattdessen zeigt auf
+      jeder öffentlichen Seite `<link rel="canonical">` fest auf
+      `https://swancalisthenics.ch/...` - auf `dev` heisst das "Original
+      ist die Live-Seite", auf `home` zeigt es auf sich selbst. Neue Seiten
+      bekommen dasselbe Muster (absolute URL auf `swancalisthenics.ch`).
+    - `pages/blog/post.html` hat bewusst **kein** statisches Canonical (ein
+      Template für alle Posts - ein statisches Canonical würde alle Posts
+      zusammenlegen); `renderBlogPost()` in `js/blog.js` hängt es pro Post
+      an (`post.html?id=<id>`).
+    - **Open Graph / Twitter-Card** auf allen öffentlichen Seiten (Titel,
+      Beschreibung, `og:image` = Gruppenfoto vom 30.8.2026 als absolute
+      URL) - für schöne Link-Vorschauen in WhatsApp/Instagram.
+    - **`meta description` ergänzt** für Kontakt, Verein, Rechtliches und
+      Vereinsdokumente (hatten keine), jeweils mit "Horgen" für die lokale
+      Suche.
+    - **Eine `<h1>` pro Seite:** Der Seitentitel (`.section-title`) war
+      überall ausser der Startseite ein `<h2>` - jetzt `<h1>` (jeweils nur
+      der erste `.section-title` einer Seite). Optisch identisch, da
+      `.section-title` Grösse/Gewicht/Abstände selbst setzt (per
+      `getComputedStyle` gegen ein unverändertes `<h2 class="section-title">`
+      verglichen). Ausnahme `pages/rechtliches.html`: behält seine zwei
+      `<h1>` (Impressum + Datenschutzerklärung), der Seitentitel bleibt `<h2>`.
+    - **`noindex`** für die Mitgliederseiten `mein-profil`, `mitglieder`,
+      `postfach`, `trainings-anmeldung` (für Besucher ohne Login leer).
+    - **Strukturierte Daten** (`application/ld+json`, schema.org
+      `SportsClub`) in `index.html`: Name, Beschreibung, Logo, Mail, Ort
+      Horgen/8810, Trainingszeit Sonntag 18-20 Uhr, Instagram/TikTok.
+      Bewusst **ohne** Strassenadresse (die Impressum-Adresse ist privat,
+      trainiert wird im öffentlichen Park).
+    - **`robots.txt` + `sitemap.xml`** im Repo-Root (nur öffentliche Seiten
+      + die 3 sichtbaren Blog-Posts, absolute URLs auf
+      `swancalisthenics.ch`). Greifen erst in `home` (dort Root der
+      Domain); in `dev` liegen sie unter `/dev/` und werden von
+      Suchmaschinen ignoriert - also gefahrlos. Beim Sichtbarmachen weiterer
+      Blog-Posts (`SICHTBARE_POST_IDS`) auch die Sitemap ergänzen.
+    - Im Repo `old` haben alle Seiten zusätzlich `noindex` (Archiv, GitHub
+      Pages dort ohnehin aus - schützt, falls es je eingeschaltet wird).
+    - **Nicht im Code, vom Verein selbst zu erledigen:** Google Search
+      Console für `swancalisthenics.ch` (Bestätigung per TXT-Eintrag bei
+      Infomaniak, danach Sitemap einreichen), Google-Unternehmensprofil
+      (Maps), Links auf die Seite sammeln (Instagram-/TikTok-Bio,
+      Vereinsliste der Gemeinde Horgen, lokale Presse).
+
 ## Mitgliederbereich mit Supabase — in Arbeit
 
 Ursprünglich eine reine Konzeptphase aus einem Brainstorming-Gespräch,
