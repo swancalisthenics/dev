@@ -2145,6 +2145,23 @@ new-swan-design/
       Blog-Posts (`SICHTBARE_POST_IDS`) auch die Sitemap ergänzen.
     - Im Repo `old` haben alle Seiten zusätzlich `noindex` (Archiv, GitHub
       Pages dort ohnehin aus - schützt, falls es je eingeschaltet wird).
+    - **Ladezeit (PageSpeed-Hinweise "Bildübermittlung", "Blockieren des
+      Renderings", "Netzwerkabhängigkeitsbaum"):** Bilder der Startseite
+      auf höchstens die doppelte Anzeigegrösse gebracht, zusammen von rund
+      2,1 MB auf rund 0,8 MB:
+      `standort.png` (1462×1120, 423 KB) → `standort.jpg` (900×689, 60 KB);
+      `level.2.png`/`level.3.png` → `.jpg` (126/173 KB → 18/24 KB, keine
+      Transparenz, Grösse unverändert 400px); `logo.png` bleibt PNG wegen
+      Transparenz, aber 424×588 → 277×384 (200 → 99 KB, angezeigt max.
+      192px); die 9 Slider-Vorschaubilder `community/*_klein.jpg` von
+      900px auf 640px Breite (je ~120 → ~60 KB, angezeigt max. ~300×200;
+      die `_gross`-Versionen für die Lightbox bleiben unverändert). Die zwei
+      Hauptschriften (Libre Baskerville regular + 700) werden auf allen 14
+      Seiten per `<link rel="preload" as="font" crossorigin>` vor dem CSS
+      geladen, statt erst nach dem Parsen von `base.css` entdeckt zu werden.
+      **Nicht lösbar:** "Effiziente Verweildauer im Cache" - GitHub Pages
+      setzt fest `Cache-Control: max-age=600` (10 Minuten), das lässt sich
+      dort nicht ändern (ginge nur mit einem CDN wie Cloudflare davor).
     - **Nicht im Code, vom Verein selbst zu erledigen:** Google Search
       Console für `swancalisthenics.ch` (Bestätigung per TXT-Eintrag bei
       Infomaniak, danach Sitemap einreichen), Google-Unternehmensprofil
@@ -2527,7 +2544,7 @@ umsetzen, ohne dass die fehlende Info vorliegt:
    gewünscht ist oder der bestehende Slider reicht (siehe auch die
    Bild-Komprimierungs-Notiz unter "Weitere Ideen für Features" oben).
 4. **"Für jedes Level": Bilder von Nicolas durch Community-Fotos
-   ersetzen** (`assets/images/level.1.jpg`, `level.2.png`, `level.3.png`).
+   ersetzen** (`assets/images/level.1.jpg`, `level.2.jpg`, `level.3.jpg`).
    **Fehlt:** die Fotos.
 5. **Merch auf der Kontaktseite einfügen.** **Offen:** was genau - Link zu
    einem Shop, Bilder der Artikel, eigener Betreff im Kontaktformular?
