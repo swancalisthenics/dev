@@ -2647,6 +2647,13 @@ umsetzen, ohne dass die fehlende Info vorliegt:
    Google-Formular dafür Felder für die erziehungsberechtigte Person plus
    Einwilligungs-Checkbox (unter 18) vorsehen. Bei Textänderungen das
    Markdown anpassen, als Word/PDF neu erzeugen und die PDF ersetzen.
+9. **Trainingszeit Winterzeit (seit 5.10.2026):** Sonntag 17:00–19:00
+   statt 18:00–20:00. Geändert in `index.html` (Zeiten-Karte, JSON-LD
+   `description`/`opens`/`closes`), `js/main.js`
+   (`getNextTrainingWindow()`, `setHours(17, ...)`) und
+   `js/trainings-anmeldung.js` (Datumszeile). **Offen:** im Frühling an
+   denselben Stellen auf die Sommerzeit zurückstellen; der Zusatz
+   "(Winterzeit)" steht bei der Karte, im JSON-LD und in der Anmeldung.
 
 ## Offene Punkte für die Zukunft
 

@@ -27,7 +27,7 @@ async function ladeTrainingsAnmeldungen() {
     aktuellesTrainingDatum = start.toISOString().slice(0, 10);
 
     document.getElementById('trainingsDatum').textContent =
-        `Nächstes Training: ${formatiereTrainingDatum(start)}, 18:00–20:00 Uhr`;
+        `Nächstes Training: ${formatiereTrainingDatum(start)}, 17:00–19:00 Uhr (Winterzeit)`;
 
     const { data: { user } } = await supabaseClient.auth.getUser();
 

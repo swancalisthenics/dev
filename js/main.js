@@ -1211,7 +1211,7 @@ function copyEmailAddress() {
     copyToClipboard(currentEmailAddress, document.querySelector('#email-modal .btn-secondary'));
 }
 
-// Naechstes Training = kommender Sonntag 18:00-20:00 (lokale Zeit des
+// Naechstes Training = kommender Sonntag 17:00-19:00 (Winterzeit, lokale Zeit des
 // Browsers). Ist das heutige Fenster schon vorbei, springt es eine Woche
 // weiter - damit bleibt "start"/"end" immer das naechste bevorstehende
 // oder gerade laufende Training, nie ein vergangenes. Global (nicht nur
@@ -1219,7 +1219,7 @@ function copyEmailAddress() {
 // das gleiche Datum braucht.
 function getNextTrainingWindow(now) {
     const start = new Date(now);
-    start.setHours(18, 0, 0, 0);
+    start.setHours(17, 0, 0, 0);
     start.setDate(start.getDate() + ((7 - start.getDay()) % 7));
     const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
     if (now >= end) {
