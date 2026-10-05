@@ -2584,8 +2584,10 @@ umsetzen, ohne dass die fehlende Info vorliegt:
    gewünscht ist oder der bestehende Slider reicht (siehe auch die
    Bild-Komprimierungs-Notiz unter "Weitere Ideen für Features" oben).
 4. **"Für jedes Level": Bilder von Nicolas durch Community-Fotos
-   ersetzen** (`assets/images/level.1.jpg`, `level.2.jpg`, `level.3.jpg`).
-   **Fehlt:** die Fotos.
+   ersetzen** (`assets/images/level.1.webp`, `level.2.webp`, `level.3.webp`).
+   **Teilweise erledigt (Okt. 2026):** Advanced (`level.2.webp`, Front Lever)
+   und Elite (`level.3.webp`, Planche) zeigen neue Fotos, als WebP 800×440
+   zugeschnitten. **Fehlt:** nur noch ein Foto für Starter (`level.1.webp`).
 5. **Merch auf der Kontaktseite einfügen.** **Offen:** was genau - Link zu
    einem Shop, Bilder der Artikel, eigener Betreff im Kontaktformular?
 6. **Verein: "Die ganzen Dokumente brauchen wir alle nicht".** **Offen:**
@@ -2607,6 +2609,30 @@ umsetzen, ohne dass die fehlende Info vorliegt:
    (id 6). **Offen:** welche Posts genau bleiben, ob fehlende neu
    geschrieben werden, ob die übrigen gelöscht oder nur ausgeblendet
    werden, und wann der Blog wieder in die Navigation kommt.
+
+8. **Datenschutzerklärung für Vereinsmitglieder** (Daten beim Beitritt,
+   Aufbewahrungsdauer). Die erste Fassung des Vorstands
+   (`Datenschutzerklärung_Swan_Calisthenics.pdf`, ein Absatz) war
+   unvollständig - u. a. fehlte die Aufbewahrungsdauer ganz, es gab keine
+   Kontaktadresse, und "keine Weitergabe an Dritte" stimmt nicht, sobald
+   Forms-/Cloud-Dienste oder Supabase beteiligt sind. Überarbeiteter Entwurf
+   mit Platzhaltern: [docs/datenschutz-mitglieder-entwurf.md](docs/datenschutz-mitglieder-entwurf.md)
+   (Inhalte abgeglichen mit `assets/documents/vereinsstatuten.pdf`: Sitz
+   Horgen, Austritt aufs Ende des Vereinsjahres, Rechnungsrevisoren).
+   Tools geklärt: Beitritt über Google Forms → Google Sheets, danach
+   Übernahme in eine Excel-Mitgliederliste, die lokal sowie in Google Drive
+   und Microsoft OneDrive liegt.
+   **Erledigt (Okt. 2026):** Fassung "Stand: Oktober 2026" fertig (OneDrive
+   EU/Schweiz/USA, Löschung 3 Monate nach Austritt, Buchhaltung 10 Jahre,
+   abgelehnte Anträge 3 Monate, Minderjährige mit Einwilligung der
+   Erziehungsberechtigten). Als
+   `assets/documents/datenschutz-mitglieder.pdf` abgelegt und auf
+   `pages/vereinsdokumente.html` als eigene Karte verlinkt.
+   **Offen:** Link auch neben dem geplanten "Jetzt Mitglied
+   werden"-Button (siehe Nr. 1), sobald der Forms-Link da ist. Im
+   Google-Formular dafür Felder für die erziehungsberechtigte Person plus
+   Einwilligungs-Checkbox (unter 18) vorsehen. Bei Textänderungen das
+   Markdown anpassen, als Word/PDF neu erzeugen und die PDF ersetzen.
 
 ## Offene Punkte für die Zukunft
 
