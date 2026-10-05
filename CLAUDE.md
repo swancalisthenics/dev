@@ -163,7 +163,20 @@ new-swan-design/
    7 Fotos (2560×1706) — bewusst **nicht** auf 1920px hochskaliert (hätte
    nur unscharf vergrössert, keine echte Detailschärfe gebracht), die
    Resize-Funktion behält die Originalbreite, wenn sie unter dem Zielwert
-   liegt. Jedes `<img
+   liegt.
+   **Nachträglich eingefügt (5.10.2026):** Gruppenbilder vom 6.9., 13.9.,
+   20.9., 27.9. und 4.10.2026. Normalgrösse ist `_gross.jpg` 1920×1280
+   und `_klein.webp` 640×427 (WebP 0.8, im Browser per Canvas erzeugt).
+   Abweichungen:
+   - `Gruppenbild_13.9.2026`, `Gruppenbild_20.9.2026`,
+     `Gruppenbild_4.10.2026`: Original nur 1600×1066, darum `_gross.jpg`
+     unverändert in 1600×1066 (nicht hochskaliert), `_klein.webp` 640×426.
+   - `Gruppenbild_6.9.2026`: anderes Seitenverhältnis (Original 2130×1382),
+     `_gross.jpg` 1920×1246, `_klein.webp` 640×415. In der Slide fällt das
+     nicht auf, weil `object-fit: cover` auf 200px Höhe zuschneidet.
+   - `Gruppenbild_27.9.2026`: Original 2560×1706 (1,1 MB) auf Normalgrösse
+     1920×1280 verkleinert (404 KB).
+   Jedes `<img
    class="slide-img">` trägt `src` (kleine Vorschau) und `data-large` (für
    die Lightbox) getrennt, damit die Vorschau immer klein bleibt und nur
    beim Aufklappen die grosse Version nachgeladen wird — anders als
@@ -2580,7 +2593,8 @@ umsetzen, ohne dass die fehlende Info vorliegt:
    sind erledigt, TikTok steht noch auf `@alecalisthenic.s` bzw.
    `@louie_trainiert`. **Fehlt:** die aktuellen TikTok-Links.
 3. **Aktuelle Gruppenbilder hochladen, evtl. als Galerie** (Startseite,
-   Community-Slider). **Fehlt:** die Bilder; offen, ob eine eigene Galerie
+   Community-Slider). **Teilweise erledigt (5.10.2026):** Bilder bis
+   4.10.2026 im Slider (Details unter Punkt 4 oben); offen, ob eine eigene Galerie
    gewünscht ist oder der bestehende Slider reicht (siehe auch die
    Bild-Komprimierungs-Notiz unter "Weitere Ideen für Features" oben).
 4. **"Für jedes Level": Bilder von Nicolas durch Community-Fotos
