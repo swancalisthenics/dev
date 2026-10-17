@@ -1,21 +1,23 @@
 {
   "name": "Swan Calisthenics",
   "short_name": "SwCali",
+  "start_url": "../../index.html",
+  "scope": "../../",
   "icons": [
     {
-      "src": "/assets/favicon/web-app-manifest-192x192.png",
+      "src": "web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
-      "src": "/assets/favicon/web-app-manifest-512x512.png",
+      "src": "web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
-  "theme_color": "#8b7cf6",
+  "theme_color": "#f6f5fb",
   "background_color": "#f6f5fb",
   "display": "standalone"
 }

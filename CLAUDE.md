@@ -2053,7 +2053,11 @@ new-swan-design/
       Reihenfolge Alessandro, Louie, Giada, Nicolas (Louie oben rechts,
       Nicolas unten rechts). Neue Instagram-Links: Ale
       `alecalisthenic.s`, Louie `louie__swan` (Tracking-Parameter `?stkn=`
-      aus den geteilten Links entfernt).
+      aus den geteilten Links entfernt). **Giada (Okt. 2026):** auf
+      Wunsch keine Kontaktlinks mehr (TikTok und E-Mail entfernt) - ihr
+      `person-links-panel` bleibt wie bei Nicolas leer
+      (`aria-hidden="true"`), nur in der aktuellen Version, die
+      Git-Historie bleibt bewusst unangetastet.
     - **Kontakt:** Ansprechperson-Karte (Alessandro) mailt jetzt an
       `info@swancalisthenics.ch`. Betreff-Auswahl ohne "Newsletter" und die
       beiden "Blog"-Einträge; Standardwert jetzt "Allgemeines Feedback /
@@ -2642,6 +2646,10 @@ umsetzen, ohne dass die fehlende Info vorliegt:
    Erziehungsberechtigten). Als
    `assets/documents/datenschutz-mitglieder.pdf` abgelegt und auf
    `pages/vereinsdokumente.html` als eigene Karte verlinkt.
+   Zusätzlich abgelegt: `assets/documents/einverstaendniserklaerung-erziehungsberechtigte.pdf`
+   (leeres 1-Seiten-Formular "Einverständniserklärung der
+   Erziehungsberechtigten" für minderjährige Mitglieder), ebenfalls mit
+   eigener Karte auf `pages/vereinsdokumente.html`.
    **Offen:** Link auch neben dem geplanten "Jetzt Mitglied
    werden"-Button (siehe Nr. 1), sobald der Forms-Link da ist. Im
    Google-Formular dafür Felder für die erziehungsberechtigte Person plus
@@ -2698,6 +2706,16 @@ oben).
    Nachrichten zwischen Mitgliedern, oder eher ein Ankündigungsbrett vom
    Vorstand an alle - siehe die verwandte, ebenfalls noch unausgearbeitete
    Idee weiter oben unter "Weitere Ideen für den Login").
+
+## Git-Workflow: Committen ja, Pushen nie selbst
+
+- Claude committet, **pusht aber nie selbst**. Nach dem Commit immer den
+  fertigen Push-Befehl fürs PowerShell-Terminal angeben, z. B.
+  `git -C C:Source${r} push` - gepusht wird ausschliesslich vom Nutzer.
+- Commit-Autor muss die anonyme GitHub-Adresse sein
+  (`227780975+n-brand@users.noreply.github.com`, im Repo lokal per
+  `git config user.email` gesetzt). Mit der privaten Adresse lehnt GitHub
+  den Push ab (GH007, E-Mail-Datenschutz) - den Schutz nicht ausschalten.
 
 ## Code-Stil
 

@@ -27,6 +27,9 @@
     <link rel="shortcut icon" href="assets/favicon/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-title" content="SwCali">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="assets/favicon/site.webmanifest">
 
     <link rel="preload" href="assets/fonts/libre-baskerville-v24-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -83,6 +86,12 @@
 
 <!-- NAVIGATION -->
 <site-topbar></site-topbar>
+
+<div class="join-banner" id="joinBanner" role="region" aria-label="Mitglied werden" hidden>
+    <p class="join-banner-text"><strong>Werde Teil von Swan Calisthenics!</strong> Melde dich jetzt als Mitglied an.</p>
+    <a class="btn btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScGm8jRFRGa22CZ5kbMo85Bw0TgQhaKQC-H02our__G6G0_fg/viewform?usp=header" target="_blank" rel="noopener">Jetzt Mitglied werden</a>
+    <button type="button" class="join-banner-close" id="joinBannerClose" aria-label="Banner schliessen">&times;</button>
+</div>
 
 <main>
 

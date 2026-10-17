@@ -407,3 +407,68 @@
 @media (min-width: 480px) {
     .social-buttons { flex-direction: row; justify-content: center; }
 }
+
+/* Hinweis-Banner "Jetzt Mitglied werden" auf der Startseite (siehe
+   initJoinBanner() in main.js). Faehrt unter der Topbar ein, laesst sich
+   nach oben wegwischen, kommt nach jedem Neuladen wieder. */
+.join-banner {
+    position: fixed;
+    top: calc(var(--nav-height) + 12px);
+    left: 16px;
+    right: 16px;
+    max-width: 720px;
+    margin: 0 auto;
+    z-index: 1400;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 14px 44px 14px 18px;
+    border-radius: var(--radius-card);
+    background: var(--modal-fill);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-left: 4px solid var(--aurora-red);
+    box-shadow: var(--shadow-lift);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(-130%);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    touch-action: none;
+    cursor: grab;
+}
+
+.join-banner.is-dragging {
+    transition: none;
+    cursor: grabbing;
+}
+
+.join-banner.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.join-banner-text {
+    flex: 1 1 240px;
+    margin: 0;
+}
+
+.join-banner-close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .join-banner { transition: none; }
+}

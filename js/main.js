@@ -1260,3 +1260,52 @@ if (trainingCountdownEl) {
     tickTrainingCountdown();
     setInterval(tickTrainingCountdown, 1000);
 }
+
+
+// --- "Jetzt Mitglied werden"-Banner (nur Startseite) --- Faehrt kurz nach dem
+// Laden ein und bleibt stehen. Wegwischen nach oben (Touch oder Maus) bzw. X
+// blendet ihn aus - bewusst ohne Speicherung, nach jedem Neuladen ist er
+// wieder da.
+(function initJoinBanner() {
+    const banner = document.getElementById('joinBanner');
+    if (!banner) return;
+
+    function hide() {
+        banner.style.transform = '';
+        banner.classList.remove('is-visible');
+        setTimeout(() => { banner.hidden = true; }, 450);
+    }
+    document.getElementById('joinBannerClose').addEventListener('click', hide);
+
+    let startY = null;
+    let deltaY = 0;
+    banner.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('a, button')) return;
+        startY = e.clientY;
+        deltaY = 0;
+        banner.classList.add('is-dragging');
+        banner.setPointerCapture(e.pointerId);
+    });
+    banner.addEventListener('pointermove', (e) => {
+        if (startY === null) return;
+        deltaY = Math.min(0, e.clientY - startY);
+        banner.style.transform = 'translateY(' + deltaY + 'px)';
+    });
+    function endDrag() {
+        if (startY === null) return;
+        startY = null;
+        banner.classList.remove('is-dragging');
+        if (deltaY < -40) {
+            hide();
+        } else {
+            banner.style.transform = '';
+        }
+    }
+    banner.addEventListener('pointerup', endDrag);
+    banner.addEventListener('pointercancel', endDrag);
+
+    setTimeout(() => {
+        banner.hidden = false;
+        requestAnimationFrame(() => requestAnimationFrame(() => banner.classList.add('is-visible')));
+    }, 1200);
+})();
