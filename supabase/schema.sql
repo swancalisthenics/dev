@@ -214,6 +214,8 @@ create view public.public_profiles as
     from public.profiles;
 
 grant select on public.public_profiles to authenticated;
+-- Supabase gibt neuen Objekten in public sonst auch Rechte an anon (siehe 020).
+revoke all on public.public_profiles from anon;
 
 -- Zeigt Admins zusaetzlich Accounts, die schon eingeladen wurden (existieren
 -- in auth.users), aber noch nie ihr Profil gespeichert haben (noch keine
@@ -235,6 +237,8 @@ create view public.eingeladene_ohne_profil as
       );
 
 grant select on public.eingeladene_ohne_profil to authenticated;
+-- Supabase gibt neuen Objekten in public sonst auch Rechte an anon (siehe 020).
+revoke all on public.eingeladene_ohne_profil from anon;
 
 -- Profilbilder: eigener Storage-Bucket "avatars" (nicht "profilbilder" wie
 -- in einer frueheren Planungsversion dieser Datei) - siehe
