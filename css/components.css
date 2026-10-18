@@ -1430,6 +1430,14 @@ footer {
     color: var(--accent-text);
 }
 
+.footer-credit-link {
+    text-decoration: underline;
+}
+
+.footer-credit-link:hover {
+    color: var(--accent-text);
+}
+
 .footer-social {
     display: flex;
     gap: 12px;
