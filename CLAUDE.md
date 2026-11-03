@@ -176,6 +176,9 @@ new-swan-design/
      nicht auf, weil `object-fit: cover` auf 200px Höhe zuschneidet.
    - `Gruppenbild_27.9.2026`: Original 2560×1706 (1,1 MB) auf Normalgrösse
      1920×1280 verkleinert (404 KB).
+   - `Gruppenbild_1.11.2026` (erstes Foto aus der Winter-Halle in Au):
+     Original 1809×1027, `_gross.jpg` in Originalgrösse, `_klein.webp` 640×363.
+     Datum hergeleitet (18. Community Workout = Sonntag 1.11.2026).
    Jedes `<img
    class="slide-img">` trägt `src` (kleine Vorschau) und `data-large` (für
    die Lightbox) getrennt, damit die Vorschau immer klein bleibt und nur
