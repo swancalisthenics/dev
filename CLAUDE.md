@@ -2655,7 +2655,17 @@ umsetzen, ohne dass die fehlende Info vorliegt:
    Google-Formular dafür Felder für die erziehungsberechtigte Person plus
    Einwilligungs-Checkbox (unter 18) vorsehen. Bei Textänderungen das
    Markdown anpassen, als Word/PDF neu erzeugen und die PDF ersetzen.
-9. **Trainingszeit Winterzeit (seit 5.10.2026):** Sonntag 17:00–19:00
+10. **Winter-Trainingsort Halle Au (seit 3.11.2026):** Im Winter Sonntag
+   18:00–20:00 in der Halle Schulhaus Steinacher, Alte Steinacherstrasse 30,
+   8804 Au (ZH). Startseite: Zeiten-Karte "(Winter: Halle in Au)", Sektion
+   "Unsere Trainingsorte" mit Winter-Karte (Hallenregeln: nur Flüssigchalk,
+   weisse Sohlen/Socken, kein Essen; Parkplatz-Hinweis) und Sommer-Karte
+   Horgen, JSON-LD, FAQ. `getNextTrainingWindow()` wieder `setHours(18, ...)`,
+   Datumszeile in `js/trainings-anmeldung.js`. **Offen:** im Frühling
+   Zeiten-Karte/Anmeldung auf Sommer (Park Horgen) umstellen; Parkplatz-Text
+   stammt aus einer Kartenskizze, mit dem Verein bestätigen; klären, ob die
+   Halle weiterhin kostenlos ist (FAQ sagt "kostenlos").
+9. **Trainingszeit Winterzeit (5.10.–2.11.2026, abgelöst durch Nr. 10):** Sonntag 17:00–19:00
    statt 18:00–20:00. Geändert in `index.html` (Zeiten-Karte, JSON-LD
    `description`/`opens`/`closes`), `js/main.js`
    (`getNextTrainingWindow()`, `setHours(17, ...)`) und
