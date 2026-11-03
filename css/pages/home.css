@@ -372,15 +372,16 @@
     .location-details { padding: 24px 40px 24px 8px; flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; }
 }
 
-/* Winter-Hallenkarte ohne Kartenbild + Sommerkarte untereinander */
+/* Parkplatz-Kreis liegt im unteren Bilddrittel - beim Zuschneiden sichtbar halten */
+.location-map-img-winter {
+    object-position: 50% 80%;
+}
+
+/* Winter- und Sommerkarte untereinander */
 .location-list {
     display: flex;
     flex-direction: column;
     gap: 24px;
-}
-
-.location-card-text .location-details {
-    padding: 28px 24px;
 }
 
 .location-info {
@@ -409,8 +410,7 @@
 }
 
 @media (min-width: 768px) {
-    .location-card-text .location-details { padding: 28px 40px; }
-    .location-card:not(.location-card-text) .location-details { flex-direction: column; align-items: flex-start; }
+    .location-card .location-details { flex-direction: column; align-items: flex-start; }
 }
 
 /* --- FAQ --- */
