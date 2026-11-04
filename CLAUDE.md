@@ -2664,8 +2664,8 @@ umsetzen, ohne dass die fehlende Info vorliegt:
    "Unsere Trainingsorte" mit Winter-Karte (Hallenregeln: nur Flüssigchalk,
    weisse Sohlen/Socken, kein Essen; Parkplatz-Hinweis) und Sommer-Karte
    Horgen, JSON-LD, FAQ. Bild der Winter-Karte `assets/images/standort-winter.webp`
-   (803×560, Ausschnitt aus einem Google-Maps-Luftbild mit rot eingekreistem
-   Parkplatz). `getNextTrainingWindow()` wieder `setHours(18, ...)`,
+   (736×545, Ausschnitt aus einem Google-Maps-Luftbild, rote Nadel auf der
+   Halle, Parkplätze beim Sportplatz sichtbar). `getNextTrainingWindow()` wieder `setHours(18, ...)`,
    Datumszeile in `js/trainings-anmeldung.js`. **Offen:** im Frühling
    Zeiten-Karte/Anmeldung auf Sommer (Park Horgen) umstellen; Parkplatz-Text
    stammt aus einer Kartenskizze, mit dem Verein bestätigen; klären, ob die

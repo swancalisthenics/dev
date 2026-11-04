@@ -372,9 +372,9 @@
     .location-details { padding: 24px 40px 24px 8px; flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; }
 }
 
-/* Parkplatz-Kreis liegt im unteren Bilddrittel - beim Zuschneiden sichtbar halten */
+/* Halle (Bildmitte) und Parkplaetze (unteres Drittel) beim Zuschneiden sichtbar halten */
 .location-map-img-winter {
-    object-position: 50% 80%;
+    object-position: 50% 65%;
 }
 
 /* Winter- und Sommerkarte untereinander */
