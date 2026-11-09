@@ -179,6 +179,8 @@ new-swan-design/
    - `Gruppenbild_1.11.2026` (erstes Foto aus der Winter-Halle in Au):
      Original 1809×1027, `_gross.jpg` in Originalgrösse, `_klein.webp` 640×363.
      Datum hergeleitet (18. Community Workout = Sonntag 1.11.2026).
+   - `Gruppenbild_8.11.2026` (Halle Au): Original 1639×927, `_gross.jpg` in
+     Originalgrösse, `_klein.webp` 640×362.
    Jedes `<img
    class="slide-img">` trägt `src` (kleine Vorschau) und `data-large` (für
    die Lightbox) getrennt, damit die Vorschau immer klein bleibt und nur
@@ -2060,7 +2062,9 @@ new-swan-design/
       Wunsch keine Kontaktlinks mehr (TikTok und E-Mail entfernt) - ihr
       `person-links-panel` bleibt wie bei Nicolas leer
       (`aria-hidden="true"`), nur in der aktuellen Version, die
-      Git-Historie bleibt bewusst unangetastet.
+      Git-Historie bleibt bewusst unangetastet. **Nov. 2026:** Giada und
+      Nicolas auf Wunsch ausgeblendet (`hidden` am `person-unit`, Code bleibt
+      drin) - sichtbar sind nur noch Alessandro und Louie.
     - **Kontakt:** Ansprechperson-Karte (Alessandro) mailt jetzt an
       `info@swancalisthenics.ch`. Betreff-Auswahl ohne "Newsletter" und die
       beiden "Blog"-Einträge; Standardwert jetzt "Allgemeines Feedback /
