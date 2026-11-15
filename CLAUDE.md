@@ -2599,13 +2599,13 @@ umsetzen, ohne dass die fehlende Info vorliegt:
 
 1. **Button "Jetzt Mitglied werden" (Link zu Forms)** - gross und ganz
    oben auf der Startseite (Hero, als `btn-primary`) und nochmals auf der
-   Verein-Seite. **Nur in dev (seit 8.11.2026):** Banner auf der Startseite
-   (wegwischbar, kommt beim Neuladen wieder) und erste Zeile im Verein-Hub,
-   beide verlinken auf das Microsoft-Forms-Formular "Willkommen in der Swan
-   Familie!" (ersetzt den vorherigen Google-Forms-Link). In home bewusst noch
-   nicht. Im Formular selbst zeigen die PDF-Links auf Statuten/Datenschutz
-   noch auf swancalisthenics.github.io/home bzw. /dev statt auf
-   swancalisthenics.ch.
+   Verein-Seite. **Umgesetzt:** Banner auf der Startseite (wegwischbar,
+   kommt beim Neuladen wieder) und erste Zeile im Verein-Hub, beide verlinken
+   auf das Microsoft-Forms-Formular "Willkommen in der Swan Familie!"
+   (ersetzt den vorherigen Google-Forms-Link). Zuerst nur in dev
+   (17.10./8.11.2026), seit 15.11.2026 auch in home. Im Formular selbst
+   zeigen die PDF-Links auf Statuten/Datenschutz noch auf
+   swancalisthenics.github.io/home bzw. /dev statt auf swancalisthenics.ch.
 2. **TikTok-Links von Ale und Louie aktualisieren** - die Instagram-Links
    sind erledigt, TikTok steht noch auf `@alecalisthenic.s` bzw.
    `@louie_trainiert`. **Fehlt:** die aktuellen TikTok-Links.
